@@ -1,12 +1,51 @@
 <!doctype html>
-<html lang="{{ request.locale.iso_code }}">
+<html lang="{{ request.locale.iso_code }}" dir="{% if request.locale.iso_code == 'ar' %}rtl{% else %}ltr{% endif %}">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ page_title | default: shop.name }}</title>
+    <meta name="theme-color" content="{{ settings.color_primary }}">
+
+    <title>{{ page_title | default: shop.name }}{% if current_tags %} &mdash; {{ current_tags | join: ', ' }}{% endif %}{% unless page_title contains shop.name %} &mdash; {{ shop.name }}{% endunless %}</title>
+
+    {% if page_description %}<meta name="description" content="{{ page_description | escape }}">{% endif %}
+
+    <link rel="canonical" href="{{ canonical_url }}">
+    <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
+
     {{ content_for_header }}
+
+    {%- assign heading_font = settings.font_heading | default: settings.font_heading_default -%}
+    {%- assign body_font    = settings.font_body    | default: settings.font_body_default    -%}
+
+    {% if heading_font %}{{ heading_font | font_face: font_display: 'swap' }}{% endif %}
+    {% if body_font %}{{ body_font | font_face: font_display: 'swap' }}{% endif %}
+
+    {{ 'theme.css' | asset_url | stylesheet_tag }}
+
+    <style>
+      :root {
+        --color-primary:        {{ settings.color_primary }};
+        --color-primary-hover:  {{ settings.color_primary_hover }};
+        --color-accent:         {{ settings.color_accent }};
+        --color-secondary:      {{ settings.color_secondary }};
+        --color-background:     {{ settings.color_background }};
+        --color-surface:        {{ settings.color_surface }};
+        --color-text:           {{ settings.color_text }};
+        --color-text-muted:     {{ settings.color_text_muted }};
+        --color-border:         {{ settings.color_border }};
+        --page-width:           {{ settings.page_width }}px;
+        --section-spacing:      {{ settings.section_spacing }}px;
+        --fs-base:              {{ settings.font_size_base }}px;
+      }
+    </style>
   </head>
-  <body>
-    {{ content_for_layout }}
+  <body class="template-{{ template | replace: '.', '-' | handle }}">
+    <a class="skip-link visually-hidden" href="#main">Skip to main content</a>
+
+    <main id="main" role="main">
+      {{ content_for_layout }}
+    </main>
+
+    <!-- Day 2: header, footer, cart drawer, search, etc. live here as Theme Blocks -->
   </body>
 </html>

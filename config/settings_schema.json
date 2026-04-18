@@ -2,9 +2,199 @@
   {
     "name": "theme_info",
     "theme_name": "Kindred Grove",
-    "theme_version": "0.0.1-bootstrap",
+    "theme_version": "0.1.0-day1",
     "theme_author": "Anderson Collaborative",
     "theme_documentation_url": "https://github.com/Zahidulislam2222/kindred-grove",
     "theme_support_url": "https://github.com/Zahidulislam2222/kindred-grove/issues"
+  },
+  {
+    "name": "Brand — Colors",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Primary palette"
+      },
+      {
+        "type": "paragraph",
+        "content": "These drive the whole theme. Change carefully — they cascade into every component."
+      },
+      {
+        "type": "color",
+        "id": "color_primary",
+        "label": "Primary (olive)",
+        "default": "#6B7F47",
+        "info": "Buttons, links, primary accents."
+      },
+      {
+        "type": "color",
+        "id": "color_primary_hover",
+        "label": "Primary — hover",
+        "default": "#576839"
+      },
+      {
+        "type": "color",
+        "id": "color_accent",
+        "label": "Accent (saffron / honey)",
+        "default": "#D4A847",
+        "info": "Featured tags, highlights, small moments."
+      },
+      {
+        "type": "color",
+        "id": "color_secondary",
+        "label": "Secondary (terracotta)",
+        "default": "#B25B3A",
+        "info": "Heritage moments, second-tier CTAs. Use sparingly."
+      },
+      {
+        "type": "header",
+        "content": "Neutrals"
+      },
+      {
+        "type": "color",
+        "id": "color_background",
+        "label": "Background (warm cream)",
+        "default": "#F8F4EC"
+      },
+      {
+        "type": "color",
+        "id": "color_surface",
+        "label": "Surface (cards)",
+        "default": "#FFFFFF"
+      },
+      {
+        "type": "color",
+        "id": "color_text",
+        "label": "Text (espresso)",
+        "default": "#1F1A14"
+      },
+      {
+        "type": "color",
+        "id": "color_text_muted",
+        "label": "Text — muted",
+        "default": "#6B6350"
+      },
+      {
+        "type": "color",
+        "id": "color_border",
+        "label": "Border",
+        "default": "#D1C9B8"
+      }
+    ]
+  },
+  {
+    "name": "Brand — Typography",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Fonts"
+      },
+      {
+        "type": "paragraph",
+        "content": "Cormorant Garamond (serif headings) + Inter (body) by default. Arabic pairs: Aref Ruqaa + IBM Plex Sans Arabic. All free-licensed."
+      },
+      {
+        "type": "font_picker",
+        "id": "font_heading",
+        "label": "Heading font",
+        "default": "cormorant_garamond_n4"
+      },
+      {
+        "type": "font_picker",
+        "id": "font_body",
+        "label": "Body font",
+        "default": "inter_n4"
+      },
+      {
+        "type": "header",
+        "content": "Base size"
+      },
+      {
+        "type": "range",
+        "id": "font_size_base",
+        "label": "Base body font size",
+        "min": 14,
+        "max": 20,
+        "step": 1,
+        "unit": "px",
+        "default": 16
+      }
+    ]
+  },
+  {
+    "name": "Layout",
+    "settings": [
+      {
+        "type": "range",
+        "id": "page_width",
+        "label": "Max page width",
+        "min": 1200,
+        "max": 1600,
+        "step": 20,
+        "unit": "px",
+        "default": 1360
+      },
+      {
+        "type": "range",
+        "id": "section_spacing",
+        "label": "Section vertical spacing",
+        "min": 40,
+        "max": 120,
+        "step": 4,
+        "unit": "px",
+        "default": 80
+      }
+    ]
+  },
+  {
+    "name": "Social & Trust",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Social links"
+      },
+      {
+        "type": "url",
+        "id": "social_instagram",
+        "label": "Instagram URL"
+      },
+      {
+        "type": "url",
+        "id": "social_tiktok",
+        "label": "TikTok URL"
+      },
+      {
+        "type": "url",
+        "id": "social_pinterest",
+        "label": "Pinterest URL"
+      },
+      {
+        "type": "header",
+        "content": "Trust signals (footer + PDP)"
+      },
+      {
+        "type": "checkbox",
+        "id": "trust_halal",
+        "label": "Show 'Halal-certified' badge",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "trust_fairtrade",
+        "label": "Show 'Fair-trade' badge",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "trust_single_origin",
+        "label": "Show 'Single-origin' badge",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "trust_cold_pressed",
+        "label": "Show 'Cold-pressed' badge",
+        "default": true
+      }
+    ]
   }
 ]

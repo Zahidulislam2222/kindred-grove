@@ -1,0 +1,294 @@
+/* ============================================================
+   Kindred Grove — Design Tokens
+   Generated directly from docs/BRAND-BRIEF.md by Claude Code
+   Day 1 — 2026-04-19
+   Replaces Figma / Claude Design GUI step.
+
+   Token-only file. No components. Components live in assets/
+   when Theme Blocks are built out on Day 2+.
+   ============================================================ */
+
+:root {
+  /* -----------------------------------------------------------
+     COLOR — Primary palette
+     Warm earth + olive green + saffron gold + terracotta
+     Halal, hospitality-rooted, Mediterranean heritage.
+     ----------------------------------------------------------- */
+
+  /* Olive — primary brand. Deep, earthy, cold-pressed oil color. */
+  --color-olive-50:  #F3F4EC;
+  --color-olive-100: #E2E5D0;
+  --color-olive-200: #C8CEA5;
+  --color-olive-300: #A8B27A;
+  --color-olive-400: #8A9559;
+  --color-olive-500: #6B7F47; /* primary brand */
+  --color-olive-600: #576839;
+  --color-olive-700: #44512E;
+  --color-olive-800: #343E24;
+  --color-olive-900: #252C1A;
+
+  /* Saffron — warm golden accent. Honey + saffron character. */
+  --color-saffron-50:  #FBF5E4;
+  --color-saffron-100: #F5E7BE;
+  --color-saffron-200: #EDD284;
+  --color-saffron-300: #E2BC54;
+  --color-saffron-400: #D4A847; /* primary accent */
+  --color-saffron-500: #B88A32;
+  --color-saffron-600: #956D26;
+  --color-saffron-700: #72521D;
+  --color-saffron-800: #533C16;
+  --color-saffron-900: #39290F;
+
+  /* Terracotta — heritage / Jordan Valley clay. Used sparingly. */
+  --color-terracotta-50:  #FAEEE7;
+  --color-terracotta-100: #F2D2C0;
+  --color-terracotta-200: #E7AC8F;
+  --color-terracotta-300: #D98965;
+  --color-terracotta-400: #B25B3A; /* secondary accent */
+  --color-terracotta-500: #8F4528;
+  --color-terracotta-600: #6E341C;
+  --color-terracotta-700: #512614;
+  --color-terracotta-800: #371A0E;
+  --color-terracotta-900: #220F07;
+
+  /* -----------------------------------------------------------
+     COLOR — Neutrals
+     Warm stone, taupe, bone — avoids stark white/black.
+     ----------------------------------------------------------- */
+  --color-cream:       #F8F4EC;  /* base background — warm off-white */
+  --color-bone:        #EFEAE0;
+  --color-stone-100:   #E4DED2;
+  --color-stone-200:   #D1C9B8;
+  --color-stone-300:   #B3A992;
+  --color-stone-400:   #8E846D;
+  --color-stone-500:   #6B6350;
+  --color-stone-600:   #4E4839;
+  --color-stone-700:   #363126;
+  --color-espresso:    #1F1A14;  /* primary text — deep, not pure black */
+
+  /* -----------------------------------------------------------
+     COLOR — Semantic (purpose-tagged)
+     ----------------------------------------------------------- */
+  --color-background:          var(--color-cream);
+  --color-surface:             #FFFFFF;
+  --color-surface-muted:       var(--color-bone);
+  --color-border:              var(--color-stone-200);
+  --color-border-strong:       var(--color-stone-400);
+
+  --color-text:                var(--color-espresso);
+  --color-text-muted:          var(--color-stone-500);
+  --color-text-inverse:        var(--color-cream);
+  --color-text-on-primary:     var(--color-cream);
+
+  --color-primary:             var(--color-olive-500);
+  --color-primary-hover:       var(--color-olive-600);
+  --color-primary-active:      var(--color-olive-700);
+
+  --color-accent:              var(--color-saffron-400);
+  --color-accent-hover:        var(--color-saffron-500);
+
+  --color-secondary:           var(--color-terracotta-400);
+  --color-secondary-hover:     var(--color-terracotta-500);
+
+  /* Status colors — muted, earth-aligned (no bright red/green/blue) */
+  --color-success:             #5A7A4A;
+  --color-warning:             var(--color-saffron-500);
+  --color-error:               #A83F2A;
+  --color-info:                #4A6B7D;
+
+  /* Focus ring — accessible contrast on cream + surface + olive */
+  --color-focus-ring:          var(--color-saffron-400);
+
+  /* -----------------------------------------------------------
+     TYPOGRAPHY
+     Headings: Cormorant Garamond (Mediterranean heritage serif,
+               free on Google Fonts, NOT overused like Playfair).
+     Body:     Inter (humanist sans, excellent small-size reading).
+     Arabic heads: Aref Ruqaa.
+     Arabic body:  IBM Plex Sans Arabic.
+     All four are free-licensed.
+     ----------------------------------------------------------- */
+  --font-serif:         'Cormorant Garamond', 'Aref Ruqaa', Georgia, serif;
+  --font-sans:          'Inter', 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-mono:          'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+
+  --font-heading:       var(--font-serif);
+  --font-body:          var(--font-sans);
+
+  /* Weights */
+  --fw-light:     300;
+  --fw-regular:   400;
+  --fw-medium:    500;
+  --fw-semibold:  600;
+  --fw-bold:      700;
+
+  /* Type scale — 1.25 ratio (major third) */
+  --fs-xs:    0.75rem;     /* 12px */
+  --fs-sm:    0.875rem;    /* 14px */
+  --fs-base:  1rem;        /* 16px */
+  --fs-lg:    1.125rem;    /* 18px */
+  --fs-xl:    1.25rem;     /* 20px */
+  --fs-2xl:   1.5rem;      /* 24px */
+  --fs-3xl:   1.875rem;    /* 30px */
+  --fs-4xl:   2.25rem;     /* 36px */
+  --fs-5xl:   3rem;        /* 48px */
+  --fs-6xl:   3.75rem;     /* 60px */
+  --fs-7xl:   4.5rem;      /* 72px */
+
+  /* Line heights */
+  --lh-tight:   1.1;
+  --lh-snug:    1.25;
+  --lh-normal:  1.5;
+  --lh-relaxed: 1.625;
+  --lh-loose:   1.8;
+
+  /* Letter spacing */
+  --ls-tighter: -0.04em;
+  --ls-tight:   -0.02em;
+  --ls-normal:  0;
+  --ls-wide:    0.02em;
+  --ls-wider:   0.05em;
+  --ls-widest:  0.1em;
+
+  /* -----------------------------------------------------------
+     SPACING — 4px base grid
+     ----------------------------------------------------------- */
+  --space-0:   0;
+  --space-1:   0.25rem;    /* 4px */
+  --space-2:   0.5rem;     /* 8px */
+  --space-3:   0.75rem;    /* 12px */
+  --space-4:   1rem;       /* 16px */
+  --space-5:   1.25rem;    /* 20px */
+  --space-6:   1.5rem;     /* 24px */
+  --space-8:   2rem;       /* 32px */
+  --space-10:  2.5rem;     /* 40px */
+  --space-12:  3rem;       /* 48px */
+  --space-16:  4rem;       /* 64px */
+  --space-20:  5rem;       /* 80px */
+  --space-24:  6rem;       /* 96px */
+  --space-32:  8rem;       /* 128px */
+  --space-40: 10rem;      /* 160px */
+
+  /* -----------------------------------------------------------
+     RADIUS — soft, hospitality-leaning (not fashion-sharp)
+     ----------------------------------------------------------- */
+  --radius-none:   0;
+  --radius-sm:     0.25rem;   /* 4px  — tight controls */
+  --radius-md:     0.5rem;    /* 8px  — cards, inputs */
+  --radius-lg:     0.75rem;   /* 12px — primary cards */
+  --radius-xl:     1rem;      /* 16px — hero modules */
+  --radius-2xl:    1.5rem;    /* 24px — featured sections */
+  --radius-pill:   9999px;    /* pills, badges */
+  --radius-circle: 50%;
+
+  /* -----------------------------------------------------------
+     SHADOWS — warm, low-elevation
+     ----------------------------------------------------------- */
+  --shadow-sm:   0 1px 2px 0 rgba(31, 26, 20, 0.06);
+  --shadow-md:   0 4px 8px -2px rgba(31, 26, 20, 0.08), 0 2px 4px -2px rgba(31, 26, 20, 0.06);
+  --shadow-lg:   0 12px 24px -6px rgba(31, 26, 20, 0.10), 0 4px 8px -4px rgba(31, 26, 20, 0.06);
+  --shadow-xl:   0 24px 48px -12px rgba(31, 26, 20, 0.14);
+  --shadow-inner: inset 0 2px 4px 0 rgba(31, 26, 20, 0.05);
+
+  /* -----------------------------------------------------------
+     MOTION — calm, unhurried
+     ----------------------------------------------------------- */
+  --ease-out:      cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out:   cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-gentle:   cubic-bezier(0.4, 0, 0.2, 1);
+
+  --duration-fast:   150ms;
+  --duration-base:   250ms;
+  --duration-slow:   400ms;
+  --duration-slower: 600ms;
+
+  /* -----------------------------------------------------------
+     BREAKPOINTS (reference values only — used in media queries)
+     --bp-sm: 640px
+     --bp-md: 768px
+     --bp-lg: 1024px
+     --bp-xl: 1280px
+     --bp-2xl: 1536px
+     ----------------------------------------------------------- */
+
+  /* -----------------------------------------------------------
+     Z-INDEX layering
+     ----------------------------------------------------------- */
+  --z-base:       1;
+  --z-dropdown:   100;
+  --z-sticky:     200;
+  --z-drawer:     300;
+  --z-modal:      400;
+  --z-toast:      500;
+  --z-tooltip:    600;
+}
+
+/* ============================================================
+   Base — minimal reset + body defaults
+   Day 2 will expand this. Keeping Day 1 tiny.
+   ============================================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: var(--lh-normal);
+  color: var(--color-text);
+  background-color: var(--color-background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  font-weight: var(--fw-regular);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: var(--fw-regular);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  color: var(--color-text);
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+a:hover {
+  color: var(--color-primary-hover);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* RTL support baseline — Arabic typography swap */
+[dir="rtl"] {
+  --font-heading: 'Aref Ruqaa', 'Cormorant Garamond', serif;
+  --font-body:    'IBM Plex Sans Arabic', 'Inter', sans-serif;
+}
+
+/* Respect reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
