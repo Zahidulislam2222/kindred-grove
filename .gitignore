@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Shopify
+.shopify/
+shopify-theme.log
+*.shopifybackup
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+
+# Temp
+*.tmp
+*.temp
+tmp/
+dist/
+build/
+
+# Test output
+coverage/
+playwright-report/
+test-results/
+.percy/
+
+# CI artifacts
+lighthouse-reports/
+axe-reports/
