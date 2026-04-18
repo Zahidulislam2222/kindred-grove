@@ -28,6 +28,17 @@ desktop.ini
 *.swp
 *.swo
 
+# Claude Code local settings (per-user permissions/approvals)
+.claude/
+!.claude/agents/
+!.claude/commands/
+
+# Internal planning docs (not for public repo)
+PROJECT_PLAN.md
+shopify_dev_requirements_checklist.html
+*_INTERNAL.md
+*_PRIVATE.md
+
 # Temp
 *.tmp
 *.temp
