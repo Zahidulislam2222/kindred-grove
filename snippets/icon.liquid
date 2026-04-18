@@ -1,0 +1,84 @@
+{%- comment -%}
+  Inline SVG icon renderer.
+  All icons are 24x24 stroke-based with currentColor — size and color
+  via CSS font-size + color inheritance.
+
+  Accepts:
+    name   (string, required) — one of the case values below
+    size   (number, px)        — override default 24
+    class  (string)            — extra classes
+    title  (string)            — accessible name (optional; if omitted icon is aria-hidden)
+
+  Add new icons below in alphabetical order. Keep each <path> lean.
+{%- endcomment -%}
+
+{%- liquid
+  assign icon_size    = size | default: 24
+  assign icon_classes = 'icon icon--' | append: name
+  if class
+    assign icon_classes = icon_classes | append: ' ' | append: class
+  endif
+-%}
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="{{ icon_size }}"
+  height="{{ icon_size }}"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.75"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  class="{{ icon_classes }}"
+  {% if title %}role="img" aria-label="{{ title | escape }}"{% else %}aria-hidden="true" focusable="false"{% endif %}
+>
+  {%- case name -%}
+    {%- when 'arrow-right' -%}
+      <line x1="5" y1="12" x2="19" y2="12"/>
+      <polyline points="13 6 19 12 13 18"/>
+    {%- when 'arrow-left' -%}
+      <line x1="19" y1="12" x2="5" y2="12"/>
+      <polyline points="11 6 5 12 11 18"/>
+    {%- when 'cart' -%}
+      <circle cx="9" cy="20" r="1"/>
+      <circle cx="18" cy="20" r="1"/>
+      <path d="M3 3h2l2.68 12.39a2 2 0 0 0 2 1.61h7.72a2 2 0 0 0 2-1.61L22 7H6"/>
+    {%- when 'check' -%}
+      <polyline points="4 12 10 18 20 6"/>
+    {%- when 'chevron-down' -%}
+      <polyline points="6 9 12 15 18 9"/>
+    {%- when 'chevron-right' -%}
+      <polyline points="9 6 15 12 9 18"/>
+    {%- when 'close' -%}
+      <line x1="6" y1="6" x2="18" y2="18"/>
+      <line x1="18" y1="6" x2="6" y2="18"/>
+    {%- when 'menu' -%}
+      <line x1="4" y1="7"  x2="20" y2="7"/>
+      <line x1="4" y1="12" x2="20" y2="12"/>
+      <line x1="4" y1="17" x2="20" y2="17"/>
+    {%- when 'minus' -%}
+      <line x1="5" y1="12" x2="19" y2="12"/>
+    {%- when 'olive-branch' -%}
+      <path d="M4 20c6-1 12-6 16-16"/>
+      <ellipse cx="8.5" cy="17" rx="1.5" ry="2.5" transform="rotate(-30 8.5 17)"/>
+      <ellipse cx="12"  cy="14" rx="1.5" ry="2.5" transform="rotate(-30 12 14)"/>
+      <ellipse cx="15"  cy="11" rx="1.5" ry="2.5" transform="rotate(-30 15 11)"/>
+      <ellipse cx="18"  cy="8"  rx="1.5" ry="2.5" transform="rotate(-30 18 8)"/>
+    {%- when 'plus' -%}
+      <line x1="12" y1="5" x2="12" y2="19"/>
+      <line x1="5"  y1="12" x2="19" y2="12"/>
+    {%- when 'search' -%}
+      <circle cx="11" cy="11" r="7"/>
+      <line x1="16.5" y1="16.5" x2="21" y2="21"/>
+    {%- when 'star' -%}
+      <polygon points="12 3 14.9 9 21.5 9.8 16.7 14.4 18 21 12 17.8 6 21 7.3 14.4 2.5 9.8 9.1 9"/>
+    {%- when 'star-filled' -%}
+      <polygon points="12 3 14.9 9 21.5 9.8 16.7 14.4 18 21 12 17.8 6 21 7.3 14.4 2.5 9.8 9.1 9" fill="currentColor"/>
+    {%- when 'user' -%}
+      <circle cx="12" cy="8" r="4"/>
+      <path d="M4 21a8 8 0 0 1 16 0"/>
+    {%- else -%}
+      {%- comment -%} Unknown icon — renders empty SVG (fails silent, doesn't crash page) {%- endcomment -%}
+  {%- endcase -%}
+</svg>

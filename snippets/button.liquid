@@ -1,0 +1,58 @@
+{%- comment -%}
+  Renders a button or anchor styled per brand.
+
+  Accepts:
+    label      (string, required) — visible text
+    href       (string, optional) — if set, renders <a>; else <button>
+    variant    (string) — primary | secondary | ghost | accent [default: primary]
+    size       (string) — sm | md | lg [default: md]
+    block      (bool)   — full width
+    loading    (bool)   — shows spinner, disables interaction
+    disabled   (bool)   — applies aria-disabled
+    type       (string) — button | submit | reset (only for <button>) [default: button]
+    aria_label (string) — if label is not self-explanatory
+    class      (string) — extra classes
+    attrs      (string) — additional raw attributes (data-*, aria-*)
+
+  Example:
+    {% render 'button', label: 'Add to cart', variant: 'primary', size: 'lg', block: true, type: 'submit' %}
+{%- endcomment -%}
+
+{%- liquid
+  assign button_variant = variant | default: 'primary'
+  assign button_size    = size    | default: 'md'
+  assign button_type    = type    | default: 'button'
+
+  assign button_classes = 'button button--' | append: button_variant
+  if button_size != 'md'
+    assign button_classes = button_classes | append: ' button--' | append: button_size
+  endif
+  if block
+    assign button_classes = button_classes | append: ' button--block'
+  endif
+  if loading
+    assign button_classes = button_classes | append: ' button--loading'
+  endif
+  if class
+    assign button_classes = button_classes | append: ' ' | append: class
+  endif
+-%}
+
+{%- if href -%}
+  <a
+    href="{{ href }}"
+    class="{{ button_classes }}"
+    {% if aria_label %}aria-label="{{ aria_label | escape }}"{% endif %}
+    {% if disabled %}aria-disabled="true" tabindex="-1"{% endif %}
+    {% if attrs %}{{ attrs }}{% endif %}
+  >{{ label | escape }}</a>
+{%- else -%}
+  <button
+    type="{{ button_type }}"
+    class="{{ button_classes }}"
+    {% if aria_label %}aria-label="{{ aria_label | escape }}"{% endif %}
+    {% if disabled %}disabled aria-disabled="true"{% endif %}
+    {% if loading %}aria-busy="true"{% endif %}
+    {% if attrs %}{{ attrs }}{% endif %}
+  >{{ label | escape }}</button>
+{%- endif -%}

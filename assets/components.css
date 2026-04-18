@@ -1,1 +1,353 @@
-/* assets/components.css — Phase C2 populates. Stub for Phase B theme-check pass. */
+/* ============================================================
+   components.css — Shared UI primitives
+   Button, badge, input, card. Used across blocks/sections/templates.
+   All styles use tokens. All states WCAG AA compliant.
+   ============================================================ */
+
+/* ============================================================
+   BUTTON
+   ============================================================ */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  font-family: var(--font-body);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-medium);
+  line-height: 1;
+  letter-spacing: var(--ls-wide);
+  text-decoration: none;
+  text-align: center;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-out),
+              color var(--duration-fast) var(--ease-out),
+              border-color var(--duration-fast) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out);
+  user-select: none;
+  white-space: nowrap;
+}
+
+.button:disabled,
+.button[aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Variants */
+
+.button--primary {
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
+}
+.button--primary:hover {
+  background-color: var(--color-primary-hover);
+  color: var(--color-text-inverse);
+}
+.button--primary:active {
+  background-color: var(--color-primary-active);
+  transform: translateY(1px);
+}
+
+.button--secondary {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-border-strong);
+}
+.button--secondary:hover {
+  background-color: var(--color-surface-muted);
+  color: var(--color-text);
+  border-color: var(--color-text);
+}
+
+.button--ghost {
+  background-color: transparent;
+  color: var(--color-primary);
+  border-color: transparent;
+  padding-inline: var(--space-3);
+}
+.button--ghost:hover {
+  background-color: var(--color-olive-100);
+  color: var(--color-primary-hover);
+}
+
+.button--accent {
+  background-color: var(--color-accent);
+  color: var(--color-espresso);
+}
+.button--accent:hover {
+  background-color: var(--color-accent-hover);
+  color: var(--color-espresso);
+}
+
+/* Sizes */
+
+.button--sm {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--fs-sm);
+}
+
+.button--lg {
+  padding: var(--space-4) var(--space-8);
+  font-size: var(--fs-lg);
+}
+
+.button--block {
+  width: 100%;
+}
+
+/* Loading state */
+
+.button--loading {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+}
+
+.button--loading::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: var(--radius-circle);
+  animation: button-spin 0.6s linear infinite;
+  color: var(--color-text-inverse);
+}
+
+.button--secondary.button--loading::after,
+.button--ghost.button--loading::after {
+  color: var(--color-primary);
+}
+
+@keyframes button-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================================
+   BADGE
+   ============================================================ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--ls-wider);
+  text-transform: uppercase;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-surface-muted);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.badge--accent {
+  background-color: var(--color-saffron-100);
+  color: var(--color-saffron-800);
+}
+
+.badge--primary {
+  background-color: var(--color-olive-100);
+  color: var(--color-olive-800);
+}
+
+.badge--success {
+  background-color: #D6E4CE;
+  color: #2E4A21;
+}
+
+.badge--warning {
+  background-color: var(--color-saffron-100);
+  color: var(--color-saffron-800);
+}
+
+/* Trust-signal badges (footer, PDP trust strip) */
+
+.trust-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--ls-wide);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-surface);
+}
+
+/* ============================================================
+   FORM INPUT / TEXTAREA / SELECT
+   ============================================================ */
+
+.input,
+.textarea,
+.select {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-body);
+  font-size: var(--fs-base);
+  line-height: var(--lh-normal);
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  transition: border-color var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--color-stone-300);
+}
+
+.input:hover,
+.textarea:hover,
+.select:hover {
+  border-color: var(--color-text-muted);
+}
+
+.input:focus,
+.textarea:focus,
+.select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-primary) 20%, transparent);
+}
+
+.textarea {
+  min-height: 7em;
+  resize: vertical;
+}
+
+/* Error state */
+
+.input--error,
+.textarea--error,
+.select--error,
+.input[aria-invalid='true'],
+.textarea[aria-invalid='true'],
+.select[aria-invalid='true'] {
+  border-color: var(--color-error);
+}
+
+.input--error:focus,
+.textarea--error:focus,
+.select--error:focus,
+.input[aria-invalid='true']:focus,
+.textarea[aria-invalid='true']:focus,
+.select[aria-invalid='true']:focus {
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-error) 20%, transparent);
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.form-field__label {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--color-text);
+}
+
+.form-field__label--required::after {
+  content: ' *';
+  color: var(--color-error);
+}
+
+.form-field__help {
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+}
+
+.form-field__error {
+  font-size: var(--fs-sm);
+  color: var(--color-error);
+  font-weight: var(--fw-medium);
+}
+
+/* ============================================================
+   CARD
+   ============================================================ */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: box-shadow var(--duration-base) var(--ease-out),
+              transform var(--duration-base) var(--ease-out);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.card--elevated {
+  border-color: transparent;
+  box-shadow: var(--shadow-md);
+}
+
+.card--elevated:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.card__image {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background-color: var(--color-surface-muted);
+}
+
+.card__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--duration-slow) var(--ease-out);
+}
+
+.card:hover .card__image img {
+  transform: scale(1.03);
+}
+
+.card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-5);
+  flex-grow: 1;
+}
+
+.card__title {
+  font-family: var(--font-heading);
+  font-size: var(--fs-xl);
+  line-height: var(--lh-snug);
+  margin: 0;
+}
+
+.card__meta {
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+}
+
+.card__price {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
+  color: var(--color-primary);
+  margin-top: auto;
+}

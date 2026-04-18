@@ -1,1 +1,158 @@
-/* assets/utilities.css — Phase C1 populates. Stub for Phase B theme-check pass. */
+/* ============================================================
+   utilities.css — Targeted utility classes
+   Minimal set. Not a Tailwind replacement — just the primitives
+   we need to compose Theme Blocks without inline styles.
+   ============================================================ */
+
+/* ---------- Container ---------- */
+
+.container {
+  max-width: var(--page-width);
+  margin-inline: auto;
+  padding-inline: var(--space-6);
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding-inline: var(--space-8);
+  }
+}
+
+/* ---------- Stack — vertical rhythm ---------- */
+
+.stack > * + * {
+  margin-top: var(--stack-space, var(--space-4));
+}
+
+.stack-xs > * + * { margin-top: var(--space-2); }
+.stack-sm > * + * { margin-top: var(--space-3); }
+.stack-md > * + * { margin-top: var(--space-4); }
+.stack-lg > * + * { margin-top: var(--space-8); }
+.stack-xl > * + * { margin-top: var(--space-12); }
+
+/* ---------- Cluster — horizontal wrapping row ---------- */
+
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cluster-gap, var(--space-3));
+  align-items: center;
+}
+
+.cluster-sm { gap: var(--space-2); }
+.cluster-lg { gap: var(--space-6); }
+
+/* ---------- Grid — auto-fit responsive ---------- */
+
+.grid {
+  display: grid;
+  gap: var(--grid-gap, var(--space-6));
+}
+
+.grid-2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.grid-3 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.grid-4 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+
+/* ---------- Section spacing ---------- */
+
+.section {
+  padding-block: var(--section-spacing, var(--space-20));
+}
+
+.section-tight  { padding-block: var(--space-12); }
+.section-loose  { padding-block: var(--space-32); }
+
+/* ---------- Flow utilities ---------- */
+
+.flex           { display: flex; }
+.flex-col       { flex-direction: column; }
+.items-center   { align-items: center; }
+.items-start    { align-items: flex-start; }
+.items-end      { align-items: flex-end; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+.gap-6 { gap: var(--space-6); }
+.gap-8 { gap: var(--space-8); }
+
+/* ---------- Text utilities ---------- */
+
+.text-center  { text-align: center; }
+.text-left    { text-align: start; }
+.text-right   { text-align: end; }
+
+.text-xs   { font-size: var(--fs-xs); }
+.text-sm   { font-size: var(--fs-sm); }
+.text-base { font-size: var(--fs-base); }
+.text-lg   { font-size: var(--fs-lg); }
+.text-xl   { font-size: var(--fs-xl); }
+.text-2xl  { font-size: var(--fs-2xl); }
+.text-3xl  { font-size: var(--fs-3xl); }
+.text-4xl  { font-size: var(--fs-4xl); }
+.text-5xl  { font-size: var(--fs-5xl); }
+
+.text-muted   { color: var(--color-text-muted); }
+.text-accent  { color: var(--color-accent); }
+.text-primary { color: var(--color-primary); }
+
+.font-serif { font-family: var(--font-heading); }
+.font-sans  { font-family: var(--font-body); }
+
+.fw-regular  { font-weight: var(--fw-regular); }
+.fw-medium   { font-weight: var(--fw-medium); }
+.fw-semibold { font-weight: var(--fw-semibold); }
+.fw-bold     { font-weight: var(--fw-bold); }
+
+.tracking-tight { letter-spacing: var(--ls-tight); }
+.tracking-wide  { letter-spacing: var(--ls-wide); }
+.uppercase      { text-transform: uppercase; }
+
+/* ---------- Spacing utilities (margin, padding — use sparingly) ---------- */
+
+.m-0  { margin: 0; }
+.mt-0 { margin-top: 0; }
+.mb-0 { margin-bottom: 0; }
+
+.p-0 { padding: 0; }
+.p-2 { padding: var(--space-2); }
+.p-4 { padding: var(--space-4); }
+.p-6 { padding: var(--space-6); }
+.p-8 { padding: var(--space-8); }
+
+/* ---------- Aspect ratio ---------- */
+
+.aspect-square    { aspect-ratio: 1 / 1; }
+.aspect-video     { aspect-ratio: 16 / 9; }
+.aspect-portrait  { aspect-ratio: 3 / 4; }
+.aspect-landscape { aspect-ratio: 4 / 3; }
+
+/* ---------- Rounded ---------- */
+
+.rounded-sm  { border-radius: var(--radius-sm); }
+.rounded-md  { border-radius: var(--radius-md); }
+.rounded-lg  { border-radius: var(--radius-lg); }
+.rounded-xl  { border-radius: var(--radius-xl); }
+.rounded-pill { border-radius: var(--radius-pill); }
+
+/* ---------- Surface + shadows ---------- */
+
+.surface       { background: var(--color-surface); }
+.surface-muted { background: var(--color-surface-muted); }
+
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow-md { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }
+
+/* ---------- Responsive helpers ---------- */
+
+.hidden         { display: none; }
+@media (max-width: 767px) {
+  .md\:hidden { display: none; }
+}
+@media (min-width: 768px) {
+  .md\:block  { display: block; }
+  .md\:flex   { display: flex; }
+  .md\:grid   { display: grid; }
+}

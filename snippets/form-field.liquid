@@ -1,0 +1,112 @@
+{%- comment -%}
+  Accessible form field (label + input/textarea/select + help/error).
+
+  Accepts:
+    id          (string, required) — unique field id
+    name        (string, required) — form field name
+    label       (string, required) — visible label
+    type        (string) — input type: text | email | tel | number | url | password [default: text]
+                         — special: 'textarea' or 'select' for those elements
+    value       (string) — pre-filled value
+    placeholder (string)
+    required    (bool)
+    help        (string) — descriptive help text (rendered, tied via aria-describedby)
+    error       (string) — error message (rendered, field gets aria-invalid=true)
+    options     (array)  — [{ value: '...', label: '...' }, ...] for type=select
+    rows        (number) — rows for textarea [default: 4]
+    pattern     (string) — input pattern for validation
+    autocomplete (string) — autocomplete hint (e.g. 'email', 'given-name')
+    class       (string) — extra classes on the form-field wrapper
+
+  Example:
+    {% render 'form-field', id: 'contact-email', name: 'contact[email]', label: 'Email', type: 'email', required: true, autocomplete: 'email' %}
+{%- endcomment -%}
+
+{%- liquid
+  assign field_type  = type | default: 'text'
+  assign described_by = ''
+  if help
+    assign described_by = described_by | append: id | append: '-help '
+  endif
+  if error
+    assign described_by = described_by | append: id | append: '-error'
+  endif
+  assign described_by = described_by | strip
+
+  assign wrapper_classes = 'form-field'
+  if class
+    assign wrapper_classes = wrapper_classes | append: ' ' | append: class
+  endif
+
+  if field_type == 'textarea'
+    assign control_classes = 'textarea'
+  elsif field_type == 'select'
+    assign control_classes = 'select'
+  else
+    assign control_classes = 'input'
+  endif
+  if error
+    assign control_classes = control_classes | append: ' ' | append: control_classes | append: '--error'
+  endif
+
+  assign label_classes = 'form-field__label'
+  if required
+    assign label_classes = label_classes | append: ' form-field__label--required'
+  endif
+-%}
+
+<div class="{{ wrapper_classes }}">
+  <label for="{{ id }}" class="{{ label_classes }}">{{ label | escape }}</label>
+
+  {%- if field_type == 'textarea' -%}
+    <textarea
+      id="{{ id }}"
+      name="{{ name }}"
+      class="{{ control_classes }}"
+      rows="{{ rows | default: 4 }}"
+      {% if placeholder %}placeholder="{{ placeholder | escape }}"{% endif %}
+      {% if required %}required aria-required="true"{% endif %}
+      {% if error %}aria-invalid="true"{% endif %}
+      {% if described_by != '' %}aria-describedby="{{ described_by }}"{% endif %}
+      {% if autocomplete %}autocomplete="{{ autocomplete }}"{% endif %}
+    >{{ value | escape }}</textarea>
+
+  {%- elsif field_type == 'select' -%}
+    <select
+      id="{{ id }}"
+      name="{{ name }}"
+      class="{{ control_classes }}"
+      {% if required %}required aria-required="true"{% endif %}
+      {% if error %}aria-invalid="true"{% endif %}
+      {% if described_by != '' %}aria-describedby="{{ described_by }}"{% endif %}
+      {% if autocomplete %}autocomplete="{{ autocomplete }}"{% endif %}
+    >
+      {%- for opt in options -%}
+        <option value="{{ opt.value | escape }}" {% if opt.value == value %}selected{% endif %}>{{ opt.label | escape }}</option>
+      {%- endfor -%}
+    </select>
+
+  {%- else -%}
+    <input
+      id="{{ id }}"
+      name="{{ name }}"
+      type="{{ field_type }}"
+      class="{{ control_classes }}"
+      {% if value %}value="{{ value | escape }}"{% endif %}
+      {% if placeholder %}placeholder="{{ placeholder | escape }}"{% endif %}
+      {% if required %}required aria-required="true"{% endif %}
+      {% if error %}aria-invalid="true"{% endif %}
+      {% if pattern %}pattern="{{ pattern | escape }}"{% endif %}
+      {% if autocomplete %}autocomplete="{{ autocomplete }}"{% endif %}
+      {% if described_by != '' %}aria-describedby="{{ described_by }}"{% endif %}
+    >
+  {%- endif -%}
+
+  {%- if help -%}
+    <p id="{{ id }}-help" class="form-field__help">{{ help | escape }}</p>
+  {%- endif -%}
+
+  {%- if error -%}
+    <p id="{{ id }}-error" class="form-field__error" role="alert">{{ error | escape }}</p>
+  {%- endif -%}
+</div>

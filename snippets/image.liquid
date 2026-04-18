@@ -1,0 +1,67 @@
+{%- comment -%}
+  Responsive image renderer using Shopify CDN + proper srcset + lazy loading.
+  Always emits width/height to prevent Cumulative Layout Shift.
+
+  Accepts:
+    image       (Image object, required) — product.featured_image, collection.image, metaobject file, etc.
+    alt         (string) — override alt; defaults to image.alt
+    widths      (array of ints) — srcset widths [default: 400, 600, 800, 1200, 1600]
+    sizes       (string) — CSS sizes attribute [default: 100vw]
+    loading     (string) — 'eager' for above-fold, else 'lazy' [default: lazy]
+    fetchpriority (string) — 'high' for LCP hero, else omit
+    class       (string) — extra class
+    wrapper_class (string) — wrap in <figure> with this class (optional)
+
+  Example:
+    {% render 'image', image: product.featured_image, loading: 'eager', fetchpriority: 'high', sizes: '(min-width: 768px) 50vw, 100vw' %}
+{%- endcomment -%}
+
+{%- liquid
+  assign img_loading = loading | default: 'lazy'
+  assign img_sizes   = sizes   | default: '100vw'
+  assign img_widths  = widths  | default: '400,600,800,1200,1600' | split: ','
+  assign img_alt     = alt | default: image.alt | default: ''
+  assign img_class   = 'image'
+  if class
+    assign img_class = img_class | append: ' ' | append: class
+  endif
+-%}
+
+{%- if image != blank -%}
+  {%- capture img_srcset -%}
+    {%- for w in img_widths -%}
+      {%- assign w_num = w | strip | times: 1 -%}
+      {%- if w_num <= image.width -%}
+        {{ image | image_url: width: w_num }} {{ w_num }}w{% unless forloop.last %},{% endunless %}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endcapture -%}
+
+  {%- if wrapper_class -%}<figure class="{{ wrapper_class }}">{%- endif -%}
+    <img
+      src="{{ image | image_url: width: 800 }}"
+      srcset="{{ img_srcset | strip }}"
+      sizes="{{ img_sizes }}"
+      width="{{ image.width }}"
+      height="{{ image.height }}"
+      alt="{{ img_alt | escape }}"
+      loading="{{ img_loading }}"
+      decoding="async"
+      {% if fetchpriority %}fetchpriority="{{ fetchpriority }}"{% endif %}
+      class="{{ img_class }}"
+    >
+  {%- if wrapper_class -%}</figure>{%- endif -%}
+{%- else -%}
+  {%- comment -%} Placeholder SVG for empty image (dev-only fallback) {%- endcomment -%}
+  <svg
+    viewBox="0 0 800 600"
+    width="800"
+    height="600"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-label="{{ img_alt | default: 'Placeholder image' | escape }}"
+    class="{{ img_class }} image--placeholder"
+    style="background: var(--color-surface-muted);"
+  >
+    <rect width="100%" height="100%" fill="var(--color-surface-muted)"/>
+  </svg>
+{%- endif -%}

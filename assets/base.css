@@ -1,1 +1,157 @@
-/* assets/base.css — Phase C1 populates. Stub for Phase B theme-check pass. */
+/* ============================================================
+   base.css — Element defaults + extended reset
+   Loads after theme.css (tokens). Uses only tokens, no literals.
+   ============================================================ */
+
+/* Extended reset — preserves semantic structure, removes defaults
+   we always override. */
+
+h1, h2, h3, h4, h5, h6, p,
+figure, blockquote, dl, dd {
+  margin: 0;
+}
+
+ul[role='list'],
+ol[role='list'] {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+img, picture, svg, video, canvas {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+button, input, select, textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+a:hover {
+  color: var(--color-primary-hover);
+}
+
+/* Element typography — default flow */
+
+h1 { font-size: var(--fs-5xl); line-height: var(--lh-tight); }
+h2 { font-size: var(--fs-3xl); line-height: var(--lh-snug); }
+h3 { font-size: var(--fs-2xl); line-height: var(--lh-snug); }
+h4 { font-size: var(--fs-xl);  line-height: var(--lh-snug); }
+h5 { font-size: var(--fs-lg);  line-height: var(--lh-normal); }
+h6 { font-size: var(--fs-base); line-height: var(--lh-normal); letter-spacing: var(--ls-wide); text-transform: uppercase; }
+
+p {
+  line-height: var(--lh-relaxed);
+}
+
+small {
+  font-size: var(--fs-sm);
+}
+
+strong, b {
+  font-weight: var(--fw-semibold);
+}
+
+em, i {
+  font-style: italic;
+}
+
+code, pre, kbd, samp {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+blockquote {
+  border-inline-start: 3px solid var(--color-accent);
+  padding-inline-start: var(--space-6);
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin-block: var(--space-8);
+}
+
+/* Focus — visible but brand-aligned */
+
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Skip link — visible only on focus */
+
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  text-decoration: none;
+  font-weight: var(--fw-semibold);
+  z-index: var(--z-toast);
+  transform: translateY(-100%);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+/* Utility — screen-reader-only content (accessible name without visual) */
+
+.visually-hidden,
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Rich text (admin-authored page.content) */
+
+.rte > * + * {
+  margin-top: var(--space-4);
+}
+
+.rte h2, .rte h3 {
+  margin-top: var(--space-8);
+}
+
+.rte ul, .rte ol {
+  padding-inline-start: var(--space-6);
+}
+
+.rte img {
+  margin-block: var(--space-6);
+  border-radius: var(--radius-md);
+}
