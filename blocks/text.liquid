@@ -1,0 +1,103 @@
+{%- comment -%}
+  Theme Block — Text.
+  Merchant-editable text primitive. Supports heading or body level + token-based size.
+
+  Schema exposes:
+    content      — rich text
+    element      — h1/h2/h3/h4/p/div
+    text_size    — token scale (xs..6xl)
+    text_align   — start/center/end
+    max_width    — optional max-width in ch units
+{%- endcomment -%}
+
+{%- liquid
+  assign element     = block.settings.element | default: 'p'
+  assign text_size   = block.settings.text_size | default: 'base'
+  assign text_align  = block.settings.text_align | default: 'start'
+  assign max_width   = block.settings.max_width
+
+  capture block_style
+    echo 'font-size: var(--fs-'
+    echo text_size
+    echo '); text-align: '
+    echo text_align
+    echo ';'
+    if max_width != blank and max_width > 0
+      echo ' max-width: '
+      echo max_width
+      echo 'ch; margin-inline: auto;'
+    endif
+  endcapture
+-%}
+
+<{{ element }} class="block block--text" style="{{ block_style | strip }}" {{ block.shopify_attributes }}>
+  {{ block.settings.content }}
+</{{ element }}>
+
+{% schema %}
+{
+  "name": "Text",
+  "settings": [
+    {
+      "type": "richtext",
+      "id": "content",
+      "label": "Content",
+      "default": "<p>Your text goes here.</p>"
+    },
+    {
+      "type": "select",
+      "id": "element",
+      "label": "HTML element",
+      "options": [
+        { "value": "h1",  "label": "Heading 1" },
+        { "value": "h2",  "label": "Heading 2" },
+        { "value": "h3",  "label": "Heading 3" },
+        { "value": "h4",  "label": "Heading 4" },
+        { "value": "p",   "label": "Paragraph" },
+        { "value": "div", "label": "Div" }
+      ],
+      "default": "p"
+    },
+    {
+      "type": "select",
+      "id": "text_size",
+      "label": "Text size",
+      "options": [
+        { "value": "sm",   "label": "Small" },
+        { "value": "base", "label": "Base" },
+        { "value": "lg",   "label": "Large" },
+        { "value": "xl",   "label": "XL" },
+        { "value": "2xl",  "label": "2XL" },
+        { "value": "3xl",  "label": "3XL" },
+        { "value": "4xl",  "label": "4XL" },
+        { "value": "5xl",  "label": "5XL" },
+        { "value": "6xl",  "label": "6XL (hero)" }
+      ],
+      "default": "base"
+    },
+    {
+      "type": "select",
+      "id": "text_align",
+      "label": "Alignment",
+      "options": [
+        { "value": "start",  "label": "Start" },
+        { "value": "center", "label": "Center" },
+        { "value": "end",    "label": "End" }
+      ],
+      "default": "start"
+    },
+    {
+      "type": "number",
+      "id": "max_width",
+      "label": "Max width (characters)",
+      "info": "Optional. Useful for long-form paragraph readability."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Text",
+      "category": "Text"
+    }
+  ]
+}
+{% endschema %}

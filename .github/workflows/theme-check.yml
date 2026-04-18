@@ -1,0 +1,43 @@
+name: Theme Check
+
+on:
+  push:
+    branches: [main, staging]
+  pull_request:
+    branches: [main, staging]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: theme-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  theme-check:
+    name: Liquid linting
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+        continue-on-error: true
+
+      - name: Install Shopify CLI
+        run: npm install -g @shopify/cli@latest
+
+      - name: Run theme-check
+        run: shopify theme check --fail-level=error
+
+      - name: Annotate PR with violations
+        if: failure() && github.event_name == 'pull_request'
+        run: |
+          echo "::error::theme-check violations detected. Review the output above and fix before merging."

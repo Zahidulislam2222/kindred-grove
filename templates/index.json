@@ -1,0 +1,40 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-index",
+      "blocks": {
+        "hero-heading": {
+          "type": "text",
+          "settings": {
+            "element": "h1",
+            "text_size": "5xl",
+            "text_align": "center",
+            "max_width": 24,
+            "content": "<p>From the grove to your table.</p>"
+          }
+        },
+        "hero-subhead": {
+          "type": "text",
+          "settings": {
+            "element": "p",
+            "text_size": "lg",
+            "text_align": "center",
+            "max_width": 52,
+            "content": "<p>Single-origin pantry staples sourced direct from family farms across the Mediterranean and Levant. Honored traditions, traceable to the harvest.</p>"
+          }
+        },
+        "hero-cta": {
+          "type": "button",
+          "settings": {
+            "label": "Shop the pantry",
+            "variant": "primary",
+            "size": "lg",
+            "align": "center"
+          }
+        }
+      },
+      "block_order": ["hero-heading", "hero-subhead", "hero-cta"]
+    }
+  },
+  "order": ["main"]
+}

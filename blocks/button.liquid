@@ -1,0 +1,75 @@
+{%- comment -%}
+  Theme Block — Button.
+  Wraps snippets/button.liquid with merchant-editable schema.
+{%- endcomment -%}
+
+<div class="block block--button" style="text-align: {{ block.settings.align | default: 'start' }};" {{ block.shopify_attributes }}>
+  {%- render 'button',
+      label:   block.settings.label,
+      href:    block.settings.link,
+      variant: block.settings.variant,
+      size:    block.settings.size -%}
+</div>
+
+{% schema %}
+{
+  "name": "Button",
+  "settings": [
+    {
+      "type": "text",
+      "id": "label",
+      "label": "Button label",
+      "default": "Shop now"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "Link"
+    },
+    {
+      "type": "select",
+      "id": "variant",
+      "label": "Style",
+      "options": [
+        { "value": "primary",   "label": "Primary (olive)" },
+        { "value": "secondary", "label": "Secondary" },
+        { "value": "accent",    "label": "Accent (saffron)" },
+        { "value": "ghost",     "label": "Ghost" }
+      ],
+      "default": "primary"
+    },
+    {
+      "type": "select",
+      "id": "size",
+      "label": "Size",
+      "options": [
+        { "value": "sm", "label": "Small" },
+        { "value": "md", "label": "Medium" },
+        { "value": "lg", "label": "Large" }
+      ],
+      "default": "md"
+    },
+    {
+      "type": "select",
+      "id": "align",
+      "label": "Alignment",
+      "options": [
+        { "value": "start",  "label": "Start" },
+        { "value": "center", "label": "Center" },
+        { "value": "end",    "label": "End" }
+      ],
+      "default": "start"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Button",
+      "category": "Basic",
+      "settings": {
+        "label": "Shop now",
+        "variant": "primary"
+      }
+    }
+  ]
+}
+{% endschema %}
