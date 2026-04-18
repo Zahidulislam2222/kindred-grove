@@ -1,0 +1,38 @@
+{%- comment -%}
+  Header — Day 2 skeleton.
+  Full header (nav mega-menu, cart drawer trigger, search, language/currency switcher)
+  lands Day 4 per PROJECT_PLAN.md.
+{%- endcomment -%}
+
+<header class="site-header" role="banner">
+  <div class="site-header__inner">
+    <a href="{{ routes.root_url }}" class="site-header__logo" aria-label="{{ shop.name | escape }} — home">
+      <span class="site-header__logo-text">{{ shop.name | escape }}</span>
+    </a>
+
+    <nav class="site-header__nav" aria-label="{{ 'a11y.primary_nav' | t | default: 'Primary navigation' }}">
+      {%- comment -%} Day 4 populates from linklists.main-menu {%- endcomment -%}
+      <ul class="site-header__nav-list">
+        {%- for link in linklists.main-menu.links -%}
+          <li><a href="{{ link.url }}">{{ link.title | escape }}</a></li>
+        {%- endfor -%}
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      <a href="{{ routes.cart_url }}" aria-label="Cart" class="site-header__cart">
+        Cart
+        {%- if cart.item_count > 0 -%}
+          <span class="site-header__cart-count" aria-hidden="true">({{ cart.item_count }})</span>
+        {%- endif -%}
+      </a>
+    </div>
+  </div>
+</header>
+
+{% schema %}
+{
+  "name": "Header",
+  "class": "section-header"
+}
+{% endschema %}

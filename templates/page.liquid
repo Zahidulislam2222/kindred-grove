@@ -1,0 +1,19 @@
+{%- comment -%}
+  Generic page template. Used for Shopify admin pages (About, FAQ, Shipping, etc.).
+  Reads page.title + page.content from admin. Content trust-level: admin-authored, safe to render as HTML.
+{%- endcomment -%}
+
+<article class="page" style="
+  max-width: 72ch;
+  margin-inline: auto;
+  padding-block: var(--space-16);
+  padding-inline: var(--space-6);
+">
+  <header class="page__header">
+    <h1 class="page__title" style="font-size: var(--fs-5xl);">{{ page.title | escape }}</h1>
+  </header>
+
+  <div class="page__content rte">
+    {{ page.content }}
+  </div>
+</article>

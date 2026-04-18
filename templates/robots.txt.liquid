@@ -1,0 +1,16 @@
+{%- comment -%}
+  robots.txt — Shopify's default directives plus Kindred Grove specifics.
+  Blocks admin, cart, checkout paths from indexing (privacy + crawl budget).
+{%- endcomment -%}
+{% for group in robots.default_groups %}
+  {{- group.user_agent }}
+
+  {% for rule in group.rules %}
+    {{ rule }}
+  {% endfor %}
+
+  {%- if group.sitemap != blank %}
+    {{ group.sitemap }}
+  {% endif %}
+
+{% endfor %}

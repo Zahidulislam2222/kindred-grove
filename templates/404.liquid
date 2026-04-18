@@ -1,0 +1,27 @@
+{%- comment -%}
+  404 — page not found.
+  Brand-aligned. Olive grove metaphor ("this path lies outside our grove").
+{%- endcomment -%}
+
+<section class="page-404" style="
+  max-width: var(--page-width);
+  margin-inline: auto;
+  padding-block: var(--space-24);
+  padding-inline: var(--space-6);
+  text-align: center;
+">
+  <p style="font-family: var(--font-serif); font-size: var(--fs-7xl); margin: 0 0 var(--space-4);">404</p>
+
+  <h1 style="font-size: var(--fs-4xl); margin-block: var(--space-4);">
+    This path lies outside our grove.
+  </h1>
+
+  <p style="font-size: var(--fs-lg); color: var(--color-text-muted); max-width: 52ch; margin: var(--space-4) auto;">
+    The page you were looking for wasn&rsquo;t found. It may have moved, or the link may be mistaken. Return to our shelves or search for what you came for.
+  </p>
+
+  <div style="display: flex; gap: var(--space-4); justify-content: center; margin-top: var(--space-8); flex-wrap: wrap;">
+    <a href="{{ routes.root_url }}" class="button button--primary">Back to the shop</a>
+    <a href="{{ routes.search_url }}" class="button button--ghost">Search the catalog</a>
+  </div>
+</section>

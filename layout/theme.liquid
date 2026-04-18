@@ -5,22 +5,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="{{ settings.color_primary }}">
 
-    <title>{{ page_title | default: shop.name }}{% if current_tags %} &mdash; {{ current_tags | join: ', ' }}{% endif %}{% unless page_title contains shop.name %} &mdash; {{ shop.name }}{% endunless %}</title>
+    {%- comment -%}
+      Content Security Policy — baseline.
+      Refined in docs/SECURITY.md on Day 11/19 with Klaviyo, Sentry, GA4 hosts added.
+    {%- endcomment -%}
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self' *.shopify.com *.shopifycdn.com *.myshopify.com;
+      script-src 'self' 'unsafe-inline' *.shopify.com *.shopifycdn.com;
+      style-src 'self' 'unsafe-inline' *.shopify.com *.shopifycdn.com;
+      img-src 'self' data: *.shopify.com *.shopifycdn.com;
+      font-src 'self' data: *.shopifycdn.com;
+      connect-src 'self' *.shopify.com *.shopifycdn.com;
+      frame-ancestors 'none';
+    ">
 
-    {% if page_description %}<meta name="description" content="{{ page_description | escape }}">{% endif %}
+    <title>
+      {%- capture page_title_computed -%}
+        {{- page_title -}}
+        {%- if current_tags -%} &mdash; {{ current_tags | join: ', ' }}{%- endif -%}
+        {%- unless page_title contains shop.name -%} &mdash; {{ shop.name }}{%- endunless -%}
+      {%- endcapture -%}
+      {{- page_title_computed | default: shop.name | escape -}}
+    </title>
+
+    {%- if page_description -%}
+      <meta name="description" content="{{ page_description | escape }}">
+    {%- endif -%}
 
     <link rel="canonical" href="{{ canonical_url }}">
     <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
 
+    {%- comment -%} Open Graph — rich link previews on social {%- endcomment -%}
+    <meta property="og:site_name" content="{{ shop.name | escape }}">
+    <meta property="og:type" content="{% if template contains 'product' %}product{% elsif template contains 'article' %}article{% else %}website{% endif %}">
+    <meta property="og:title" content="{{ page_title_computed | default: shop.name | escape }}">
+    {%- if page_description -%}
+      <meta property="og:description" content="{{ page_description | escape }}">
+    {%- endif -%}
+    <meta property="og:url" content="{{ canonical_url }}">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ page_title_computed | default: shop.name | escape }}">
+    {%- if page_description -%}
+      <meta name="twitter:description" content="{{ page_description | escape }}">
+    {%- endif -%}
+
     {{ content_for_header }}
 
-    {%- assign heading_font = settings.font_heading | default: settings.font_heading_default -%}
-    {%- assign body_font    = settings.font_body    | default: settings.font_body_default    -%}
+    {%- assign heading_font = settings.font_heading -%}
+    {%- assign body_font    = settings.font_body -%}
 
-    {% if heading_font %}{{ heading_font | font_face: font_display: 'swap' }}{% endif %}
-    {% if body_font %}{{ body_font | font_face: font_display: 'swap' }}{% endif %}
+    {%- if heading_font -%}{{ heading_font | font_face: font_display: 'swap' }}{%- endif -%}
+    {%- if body_font -%}{{ body_font | font_face: font_display: 'swap' }}{%- endif -%}
 
-    {{ 'theme.css' | asset_url | stylesheet_tag }}
+    {{ 'theme.css'      | asset_url | stylesheet_tag }}
+    {{ 'base.css'       | asset_url | stylesheet_tag }}
+    {{ 'utilities.css'  | asset_url | stylesheet_tag }}
+    {{ 'components.css' | asset_url | stylesheet_tag }}
 
     <style>
       :root {
@@ -38,14 +79,24 @@
         --fs-base:              {{ settings.font_size_base }}px;
       }
     </style>
+
+    {%- comment -%}
+      Sentry init placeholder. Day 3 adds settings.sentry_dsn to the
+      customizer, then this block wires `window.__KG_SENTRY_DSN__` for
+      `assets/theme.js` to read. Until then, a no-op.
+    {%- endcomment -%}
   </head>
   <body class="template-{{ template | replace: '.', '-' | handle }}">
-    <a class="skip-link visually-hidden" href="#main">Skip to main content</a>
+    <a class="skip-link" href="#main">Skip to main content</a>
 
-    <main id="main" role="main">
+    {% section 'header' %}
+
+    <main id="main" role="main" tabindex="-1">
       {{ content_for_layout }}
     </main>
 
-    <!-- Day 2: header, footer, cart drawer, search, etc. live here as Theme Blocks -->
+    {% section 'footer' %}
+
+    <script src="{{ 'theme.js' | asset_url }}" defer></script>
   </body>
 </html>

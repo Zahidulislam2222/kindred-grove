@@ -1,0 +1,38 @@
+{%- comment -%}
+  Gift card template. Required by Shopify for themes supporting gift cards.
+  Full design Day 9 when checkout extension + gift flow lands.
+{%- endcomment -%}
+
+<section class="gift-card" style="max-width: 640px; margin-inline: auto; padding-block: var(--space-16); padding-inline: var(--space-6); text-align: center;">
+  <h1>{{ 'gift_cards.issued.title' | t | default: 'You have a gift card from' }} {{ shop.name | escape }}</h1>
+
+  <p class="gift-card__balance">
+    <strong>{{ gift_card.balance | money }}</strong>
+  </p>
+
+  {%- if gift_card.enabled == false -%}
+    <p class="gift-card__expired">This gift card is no longer active.</p>
+  {%- else -%}
+    <p>{{ 'gift_cards.issued.redeem' | t | default: 'Use this code at checkout.' }}</p>
+
+    <div class="gift-card__code" style="
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: var(--fs-lg);
+      padding: var(--space-3) var(--space-6);
+      background: var(--color-surface-muted);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      letter-spacing: 0.1em;
+      margin-block: var(--space-4);
+    ">
+      {{ gift_card.code | format_code }}
+    </div>
+
+    <p>
+      <a href="{{ shop.url }}" class="button button--primary">
+        {{ 'gift_cards.issued.shop_link' | t | default: 'Shop now' }}
+      </a>
+    </p>
+  {%- endif -%}
+</section>

@@ -1,0 +1,28 @@
+{%- comment -%}
+  Footer — Day 2 skeleton.
+  Full footer (nav, trust badges, newsletter, social, legal) lands Day 4.
+{%- endcomment -%}
+
+<footer class="site-footer" role="contentinfo">
+  <div class="site-footer__inner">
+    <div class="site-footer__trust" aria-label="{{ 'a11y.trust_signals' | t | default: 'Trust signals' }}">
+      {%- if settings.trust_halal -%}<span class="trust-badge">Halal-certified</span>{%- endif -%}
+      {%- if settings.trust_fairtrade -%}<span class="trust-badge">Fair-trade</span>{%- endif -%}
+      {%- if settings.trust_single_origin -%}<span class="trust-badge">Single-origin</span>{%- endif -%}
+      {%- if settings.trust_cold_pressed -%}<span class="trust-badge">Cold-pressed</span>{%- endif -%}
+    </div>
+
+    <p class="site-footer__legal">
+      &copy; {{ 'now' | date: '%Y' }} {{ shop.name | escape }}.
+      <a href="/policies/privacy-policy">Privacy</a> ·
+      <a href="/policies/terms-of-service">Terms</a>
+    </p>
+  </div>
+</footer>
+
+{% schema %}
+{
+  "name": "Footer",
+  "class": "section-footer"
+}
+{% endschema %}

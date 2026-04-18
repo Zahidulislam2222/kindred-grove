@@ -1,0 +1,61 @@
+{%- comment -%}
+  Search results page — Day 2 skeleton.
+  Day 12 replaces with predictive search (GraphQL, 300ms debounce) showing products + farms + recipes.
+{%- endcomment -%}
+
+<section class="search" style="
+  max-width: var(--page-width);
+  margin-inline: auto;
+  padding-block: var(--space-12);
+  padding-inline: var(--space-6);
+">
+  <header class="search__header">
+    <h1>Search</h1>
+
+    <form action="{{ routes.search_url }}" method="get" role="search" class="search__form">
+      <label for="search-input" class="visually-hidden">Search</label>
+      <input
+        id="search-input"
+        type="search"
+        name="q"
+        value="{{ search.terms | escape }}"
+        placeholder="Search products, farms, recipes…"
+        autocomplete="off"
+        required
+      >
+      <button type="submit" class="button button--primary">Search</button>
+    </form>
+  </header>
+
+  {%- if search.performed -%}
+    <p class="search__count">
+      {%- if search.results_count == 0 -%}
+        No results found for <em>{{ search.terms | escape }}</em>.
+      {%- else -%}
+        {{ search.results_count }} result{% if search.results_count != 1 %}s{% endif %} for <em>{{ search.terms | escape }}</em>.
+      {%- endif -%}
+    </p>
+
+    {%- paginate search.results by 12 -%}
+      <ul class="search__results">
+        {%- for item in search.results -%}
+          <li class="search__result">
+            <a href="{{ item.url }}">
+              <h2>{{ item.title | escape }}</h2>
+              {%- if item.object_type == 'product' -%}
+                <p>{{ item.price | money }}</p>
+              {%- endif -%}
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+
+      {%- if paginate.pages > 1 -%}
+        {%- comment -%} Day 12 adds proper pagination with rel prev/next schema {%- endcomment -%}
+        <nav class="search__pagination" aria-label="Search results pagination">
+          {{ paginate | default_pagination }}
+        </nav>
+      {%- endif -%}
+    {%- endpaginate -%}
+  {%- endif -%}
+</section>

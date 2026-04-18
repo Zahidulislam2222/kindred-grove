@@ -1,0 +1,46 @@
+{
+  "a11y": {
+    "primary_nav": "Primary navigation",
+    "trust_signals": "Trust signals",
+    "skip_to_content": "Skip to main content"
+  },
+  "general": {
+    "search": {
+      "label": "Search",
+      "placeholder": "Search products, farms, recipes…",
+      "submit": "Search",
+      "no_results_html": "No results found for <em>{{ terms }}</em>.",
+      "results_count": {
+        "one": "{{ count }} result for <em>{{ terms }}</em>.",
+        "other": "{{ count }} results for <em>{{ terms }}</em>."
+      }
+    },
+    "cart": {
+      "title": "Cart",
+      "count": "({{ count }})"
+    }
+  },
+  "gift_cards": {
+    "issued": {
+      "title": "You have a gift card from",
+      "redeem": "Use this code at checkout.",
+      "shop_link": "Shop now",
+      "expired": "This gift card is no longer active."
+    }
+  },
+  "page_404": {
+    "code": "404",
+    "heading": "This path lies outside our grove.",
+    "body": "The page you were looking for wasn't found. It may have moved, or the link may be mistaken. Return to our shelves or search for what you came for.",
+    "back_to_shop": "Back to the shop",
+    "search_catalog": "Search the catalog"
+  },
+  "shop": {
+    "trust": {
+      "halal": "Halal-certified",
+      "fairtrade": "Fair-trade",
+      "single_origin": "Single-origin",
+      "cold_pressed": "Cold-pressed"
+    }
+  }
+}
