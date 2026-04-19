@@ -128,6 +128,16 @@
       <meta name="twitter:image" content="https:{{ product.featured_image | image_url: width: 1200 }}">
     {%- endif -%}
 
+    {%- comment -%}
+      Structured data — Organization on every page, BreadcrumbList on
+      templates where a trail makes sense. Product + Article + FAQ +
+      Recipe schemas live inside their respective templates/snippets.
+    {%- endcomment -%}
+    {% render 'schema-organization' %}
+    {%- if template contains 'product' or template contains 'collection' or template contains 'page' or template contains 'article' -%}
+      {% render 'schema-breadcrumb' %}
+    {%- endif -%}
+
     {{ content_for_header }}
 
     {%- assign heading_font = settings.font_heading -%}

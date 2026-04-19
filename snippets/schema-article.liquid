@@ -1,0 +1,35 @@
+{%- comment -%}
+  Article JSON-LD — used on blog article templates.
+
+  Accepts:
+    article (Article, required)
+{%- endcomment -%}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": {{ article.title | json }},
+  "url": "{{ shop.url }}{{ article.url }}",
+  "datePublished": "{{ article.published_at | date: '%Y-%m-%dT%H:%M:%S%z' }}",
+  {%- if article.updated_at -%}
+  "dateModified": "{{ article.updated_at | date: '%Y-%m-%dT%H:%M:%S%z' }}",
+  {%- endif -%}
+  {%- if article.image -%}
+  "image": "{{ article.image | image_url: width: 1200 }}",
+  {%- endif -%}
+  "author": {
+    "@type": "Person",
+    "name": {{ article.author | default: shop.name | json }}
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": {{ shop.name | json }},
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{%- if shop.brand.logo -%}{{ shop.brand.logo | image_url: width: 600 }}{%- elsif settings.logo != blank -%}{{ settings.logo | image_url: width: 600 }}{%- endif -%}"
+    }
+  },
+  "description": {{ article.excerpt_or_content | strip_html | truncate: 160 | json }}
+}
+</script>

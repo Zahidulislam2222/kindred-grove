@@ -1,0 +1,41 @@
+{%- comment -%}
+  Recipe JSON-LD — used on recipe metaobject detail templates
+  (and when recipe metaobjects are surfaced inside articles).
+
+  Accepts:
+    recipe — metaobject of type `recipe` with fields as per
+             docs/metaobjects/SCHEMAS.md §5
+{%- endcomment -%}
+
+{%- if recipe -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Recipe",
+  "name": {{ recipe.name | json }},
+  {%- if recipe.hero_image -%}
+  "image": "{{ recipe.hero_image | image_url: width: 1200 }}",
+  {%- endif -%}
+  {%- if recipe.lead -%}
+  "description": {{ recipe.lead | strip_html | truncate: 200 | json }},
+  {%- endif -%}
+  {%- if recipe.time_minutes -%}
+  "totalTime": "PT{{ recipe.time_minutes }}M",
+  {%- endif -%}
+  "recipeIngredient": [
+    {%- assign lines = recipe.ingredients | newline_to_br | split: '<br />' -%}
+    {%- for line in lines -%}
+      {%- assign trimmed = line | strip -%}
+      {%- if trimmed != blank -%}
+        {{ trimmed | json }}{%- unless forloop.last -%},{%- endunless -%}
+      {%- endif -%}
+    {%- endfor -%}
+  ],
+  "recipeInstructions": {{ recipe.steps | strip_html | json }},
+  "author": {
+    "@type": "Organization",
+    "name": {{ shop.name | json }}
+  }
+}
+</script>
+{%- endif -%}

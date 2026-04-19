@@ -1,0 +1,30 @@
+{%- comment -%}
+  Organization JSON-LD — rendered once in the global layout.
+  Provides search engines with the shop's name, URL, logo, and
+  social profiles. Google uses this to power the knowledge-panel
+  "Organization" card.
+{%- endcomment -%}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "@id": "{{ shop.url }}#organization",
+  "name": {{ shop.name | json }},
+  "url": "{{ shop.url }}",
+  {%- if shop.brand.logo -%}
+  "logo": "{{ shop.brand.logo | image_url: width: 600 }}",
+  {%- elsif settings.logo != blank -%}
+  "logo": "{{ settings.logo | image_url: width: 600 }}",
+  {%- endif -%}
+  "sameAs": [
+    {%- assign social_urls = '' -%}
+    {%- if settings.social_instagram != blank -%}{%- assign social_urls = social_urls | append: '"' | append: settings.social_instagram | append: '",' -%}{%- endif -%}
+    {%- if settings.social_tiktok != blank -%}{%- assign social_urls = social_urls | append: '"' | append: settings.social_tiktok | append: '",' -%}{%- endif -%}
+    {%- if settings.social_pinterest != blank -%}{%- assign social_urls = social_urls | append: '"' | append: settings.social_pinterest | append: '",' -%}{%- endif -%}
+    {%- if settings.social_facebook != blank -%}{%- assign social_urls = social_urls | append: '"' | append: settings.social_facebook | append: '",' -%}{%- endif -%}
+    {%- if settings.social_x != blank -%}{%- assign social_urls = social_urls | append: '"' | append: settings.social_x | append: '",' -%}{%- endif -%}
+    {{ social_urls | remove_last: ',' }}
+  ]
+}
+</script>

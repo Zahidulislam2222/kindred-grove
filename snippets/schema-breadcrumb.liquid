@@ -1,0 +1,70 @@
+{%- comment -%}
+  BreadcrumbList JSON-LD.
+
+  Auto-builds a trail based on template:
+    - product:    Home → collection (if linked) → product
+    - collection: Home → collection
+    - page:       Home → page
+    - article:    Home → blog → article
+
+  Accepts (optional):
+    trail — array of { name, url } to override the default
+{%- endcomment -%}
+
+{%- liquid
+  assign crumbs = ''
+
+  if trail
+    assign crumbs = trail
+  else
+    capture home_crumb
+      echo '{"@type":"ListItem","position":1,"name":"Home","item":"' | append: shop.url | append: '/"}'
+    endcapture
+    assign crumbs = home_crumb
+
+    if template contains 'product'
+      if collection and collection.handle
+        capture coll_crumb
+          echo ',{"@type":"ListItem","position":2,"name":' | append: collection.title | json | append: ',"item":"' | append: shop.url | append: collection.url | append: '"}'
+        endcapture
+        assign crumbs = crumbs | append: coll_crumb
+        capture prod_crumb
+          echo ',{"@type":"ListItem","position":3,"name":' | append: product.title | json | append: ',"item":"' | append: shop.url | append: product.url | append: '"}'
+        endcapture
+        assign crumbs = crumbs | append: prod_crumb
+      else
+        capture prod_crumb
+          echo ',{"@type":"ListItem","position":2,"name":' | append: product.title | json | append: ',"item":"' | append: shop.url | append: product.url | append: '"}'
+        endcapture
+        assign crumbs = crumbs | append: prod_crumb
+      endif
+    elsif template contains 'collection'
+      capture coll_crumb
+        echo ',{"@type":"ListItem","position":2,"name":' | append: collection.title | json | append: ',"item":"' | append: shop.url | append: collection.url | append: '"}'
+      endcapture
+      assign crumbs = crumbs | append: coll_crumb
+    elsif template contains 'page'
+      capture page_crumb
+        echo ',{"@type":"ListItem","position":2,"name":' | append: page.title | json | append: ',"item":"' | append: shop.url | append: page.url | append: '"}'
+      endcapture
+      assign crumbs = crumbs | append: page_crumb
+    elsif template contains 'article'
+      capture blog_crumb
+        echo ',{"@type":"ListItem","position":2,"name":' | append: blog.title | json | append: ',"item":"' | append: shop.url | append: blog.url | append: '"}'
+      endcapture
+      assign crumbs = crumbs | append: blog_crumb
+      capture art_crumb
+        echo ',{"@type":"ListItem","position":3,"name":' | append: article.title | json | append: ',"item":"' | append: shop.url | append: article.url | append: '"}'
+      endcapture
+      assign crumbs = crumbs | append: art_crumb
+    endif
+  endif
+-%}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{{ crumbs }}]
+}
+</script>
