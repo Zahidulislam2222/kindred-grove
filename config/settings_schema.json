@@ -96,7 +96,7 @@
         "type": "font_picker",
         "id": "font_heading",
         "label": "Heading font",
-        "default": "cormorant_garamond_n4"
+        "default": "assistant_n4"
       },
       {
         "type": "font_picker",
