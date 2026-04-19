@@ -43,7 +43,7 @@
             <a href="{{ item.url }}">
               <h2>{{ item.title | escape }}</h2>
               {%- if item.object_type == 'product' -%}
-                <p>{{ item.price | money }}</p>
+                <p class="search__price">{{ item.price | money }}</p>
               {%- endif -%}
             </a>
           </li>

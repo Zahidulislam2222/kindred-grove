@@ -2421,3 +2421,14 @@
   text-align: center;
   padding-block: var(--space-8);
 }
+
+/* ============================================================
+   SEARCH RESULTS TEMPLATE
+   ============================================================ */
+
+.search__price {
+  margin: var(--space-1) 0 0;
+  font-weight: var(--fw-semibold);
+  color: #576839; /* deeper olive — 5.76:1 on cream */
+  color: var(--color-primary-hover, #576839);
+}
