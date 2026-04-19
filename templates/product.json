@@ -3,15 +3,28 @@
     "main": {
       "type": "main-product",
       "blocks": {
-        "variant_picker": { "type": "variant-picker" },
         "price": { "type": "product-price" },
-        "description": {
-          "type": "product-description"
-        },
+        "variant_picker": { "type": "variant-picker" },
+        "description": { "type": "product-description" },
+        "certifications": { "type": "certifications" },
         "atc": { "type": "product-atc" }
       },
-      "block_order": ["price", "variant_picker", "description", "atc"]
-    }
+      "block_order": ["price", "variant_picker", "description", "certifications", "atc"]
+    },
+    "farm_story": { "type": "farm-story" },
+    "model_viewer": { "type": "model-viewer" },
+    "recipes": { "type": "recipe-suggestions" },
+    "faq": { "type": "product-faq" },
+    "recommendations": { "type": "recommendations" },
+    "recently_viewed": { "type": "recently-viewed" }
   },
-  "order": ["main"]
+  "order": [
+    "main",
+    "farm_story",
+    "model_viewer",
+    "recipes",
+    "faq",
+    "recommendations",
+    "recently_viewed"
+  ]
 }

@@ -12,11 +12,11 @@
     {%- endcomment -%}
     <meta http-equiv="Content-Security-Policy" content="
       default-src 'self' *.shopify.com *.shopifycdn.com *.myshopify.com;
-      script-src 'self' 'unsafe-inline' *.shopify.com *.shopifycdn.com js.sentry-cdn.com browser.sentry-cdn.com unpkg.com;
+      script-src 'self' 'unsafe-inline' *.shopify.com *.shopifycdn.com js.sentry-cdn.com browser.sentry-cdn.com unpkg.com ajax.googleapis.com;
       style-src 'self' 'unsafe-inline' *.shopify.com *.shopifycdn.com;
-      img-src 'self' data: *.shopify.com *.shopifycdn.com;
+      img-src 'self' data: blob: *.shopify.com *.shopifycdn.com;
       font-src 'self' data: *.shopifycdn.com;
-      connect-src 'self' *.shopify.com *.shopifycdn.com *.sentry.io *.ingest.sentry.io;
+      connect-src 'self' *.shopify.com *.shopifycdn.com *.sentry.io *.ingest.sentry.io ajax.googleapis.com;
       frame-ancestors 'none';
     ">
 

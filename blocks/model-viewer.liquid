@@ -1,0 +1,60 @@
+{%- comment -%}
+  3D model viewer — renders Google's <model-viewer> when the product has a
+  3D media entry (.glb). Hides entirely when no 3D media exists. AR is
+  enabled on supported mobile devices (iOS Quick Look + Android Scene Viewer).
+
+  CSP note: modelviewer.dev added to script-src + connect-src in
+  layout/theme.liquid when this block is used.
+{%- endcomment -%}
+
+{%- liquid
+  assign model = null
+  for media in product.media
+    if media.media_type == 'model'
+      assign model = media
+      break
+    endif
+  endfor
+-%}
+
+{%- if model -%}
+  <section class="kg-model section" aria-label="3D product view" {{ block.shopify_attributes }}>
+    <div class="container stack">
+      <header class="stack-sm">
+        <h2 class="h3">{{ block.settings.heading | default: 'See it in 3D' | escape }}</h2>
+        {%- if block.settings.body != blank -%}
+          <p class="text-muted">{{ block.settings.body | escape }}</p>
+        {%- endif -%}
+      </header>
+      <div class="kg-model__viewer-wrap">
+        <model-viewer
+          src="{{ model.sources[0].url }}"
+          alt="{{ model.alt | default: product.title | escape }}"
+          camera-controls
+          auto-rotate
+          ar
+          ar-modes="webxr scene-viewer quick-look"
+          environment-image="neutral"
+          poster="{{ product.featured_image | image_url: width: 1200 }}"
+          loading="lazy"
+          reveal="interaction"
+          class="kg-model__viewer"
+        ></model-viewer>
+      </div>
+    </div>
+  </section>
+
+  {%- # theme-check-disable RemoteAsset -%}
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+  {%- # theme-check-enable RemoteAsset -%}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "3D model viewer",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "See it in 3D" },
+    { "type": "textarea", "id": "body", "label": "Body", "default": "Rotate, zoom, and view in AR. Tap the AR icon on a compatible phone to drop the bottle on your table." }
+  ]
+}
+{% endschema %}

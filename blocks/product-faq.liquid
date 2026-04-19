@@ -1,0 +1,94 @@
+{%- comment -%}
+  Product FAQ — merchant-editable Q&A accordion using native <details>.
+  Emits FAQ JSON-LD for rich results in search (Google FAQ schema).
+  Up to 6 question/answer pairs via block schema.
+{%- endcomment -%}
+
+{%- liquid
+  assign qa_list = ''
+  for i in (1..6)
+    assign q_key = 'q_' | append: i
+    assign a_key = 'a_' | append: i
+    assign q = block.settings[q_key]
+    assign a = block.settings[a_key]
+    if q != blank and a != blank
+      assign qa_list = qa_list | append: q | append: '||' | append: a | append: ';;'
+    endif
+  endfor
+  assign qas = qa_list | split: ';;'
+-%}
+
+{%- if qas.size > 0 -%}
+  <section class="kg-faq section" aria-labelledby="KgFaqHeading" {{ block.shopify_attributes }}>
+    <div class="container stack">
+      <header class="stack-sm">
+        <h2 id="KgFaqHeading" class="h3">{{ block.settings.heading | default: 'Questions' | escape }}</h2>
+      </header>
+
+      <ul class="kg-faq__list stack">
+        {%- for entry in qas -%}
+          {%- if entry == blank -%}{%- continue -%}{%- endif -%}
+          {%- assign parts = entry | split: '||' -%}
+          <li class="kg-faq__item">
+            <details class="kg-faq__details">
+              <summary class="kg-faq__summary">
+                <span>{{ parts[0] | escape }}</span>
+                <span class="kg-faq__chevron" aria-hidden="true">{% render 'icon', name: 'chevron-down', size: 16 %}</span>
+              </summary>
+              <div class="kg-faq__answer rte">{{ parts[1] }}</div>
+            </details>
+          </li>
+        {%- endfor -%}
+      </ul>
+    </div>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {%- for entry in qas -%}
+          {%- if entry == blank -%}{%- continue -%}{%- endif -%}
+          {%- assign parts = entry | split: '||' -%}
+          {%- unless forloop.first -%},{%- endunless -%}
+          {
+            "@type": "Question",
+            "name": {{ parts[0] | json }},
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": {{ parts[1] | strip_html | json }}
+            }
+          }
+        {%- endfor -%}
+      ]
+    }
+    </script>
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Product FAQ",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Questions" },
+    { "type": "header", "content": "Q1" },
+    { "type": "text", "id": "q_1", "label": "Question", "default": "How is this oil different from supermarket olive oil?" },
+    { "type": "textarea", "id": "a_1", "label": "Answer", "default": "Single-origin means every bottle comes from one grove's one harvest — not a blend. The oil is cold-pressed within four hours of harvest, which preserves the polyphenols and the grassy-peppery finish." },
+    { "type": "header", "content": "Q2" },
+    { "type": "text", "id": "q_2", "label": "Question", "default": "How do I store it?" },
+    { "type": "textarea", "id": "a_2", "label": "Answer", "default": "Somewhere cool, dark, and dry. A pantry shelf is perfect. Use it within six months of opening for peak flavor." },
+    { "type": "header", "content": "Q3" },
+    { "type": "text", "id": "q_3", "label": "Question", "default": "Is this halal-certified?" },
+    { "type": "textarea", "id": "a_3", "label": "Answer", "default": "Yes. Every Kindred Grove product is independently halal-certified; the certificate is viewable in the certifications section above." },
+    { "type": "header", "content": "Q4 (optional)" },
+    { "type": "text", "id": "q_4", "label": "Question" },
+    { "type": "textarea", "id": "a_4", "label": "Answer" },
+    { "type": "header", "content": "Q5 (optional)" },
+    { "type": "text", "id": "q_5", "label": "Question" },
+    { "type": "textarea", "id": "a_5", "label": "Answer" },
+    { "type": "header", "content": "Q6 (optional)" },
+    { "type": "text", "id": "q_6", "label": "Question" },
+    { "type": "textarea", "id": "a_6", "label": "Answer" }
+  ]
+}
+{% endschema %}

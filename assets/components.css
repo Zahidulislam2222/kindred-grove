@@ -1755,3 +1755,120 @@
   padding-block: var(--space-2);
   color: var(--color-text);
 }
+
+/* ============================================================
+   CERTIFICATIONS (Day 8)
+   ============================================================ */
+
+.kg-certs { margin-block: var(--space-2); }
+
+.kg-certs__heading {
+  font-size: var(--fs-xs);
+  letter-spacing: var(--ls-widest);
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-2);
+}
+
+.kg-certs__list { list-style: none; margin: 0; padding: 0; gap: var(--space-2); }
+
+.kg-certs__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  text-decoration: none;
+  color: var(--color-text);
+}
+
+.kg-certs__badge:is(a):hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.kg-certs__body { color: var(--color-text-muted); }
+
+/* ============================================================
+   RECIPES (Day 8)
+   ============================================================ */
+
+.kg-recipes__grid { list-style: none; margin: 0; padding: 0; }
+
+.kg-recipes__card { text-decoration: none; color: inherit; height: 100%; }
+
+/* ============================================================
+   PRODUCT FAQ (Day 8)
+   ============================================================ */
+
+.kg-faq__list { list-style: none; margin: 0; padding: 0; --stack-space: var(--space-2); }
+
+.kg-faq__item { border-bottom: 1px solid var(--color-border); }
+
+.kg-faq__details {
+  padding-block: var(--space-3);
+}
+
+.kg-faq__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  cursor: pointer;
+  list-style: none;
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-lg);
+  color: var(--color-text);
+}
+
+.kg-faq__summary::-webkit-details-marker { display: none; }
+
+.kg-faq__chevron {
+  color: var(--color-text-muted);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.kg-faq__details[open] .kg-faq__chevron {
+  transform: rotate(180deg);
+}
+
+.kg-faq__answer {
+  margin-top: var(--space-3);
+  color: var(--color-text-muted);
+  max-width: 75ch;
+}
+
+/* ============================================================
+   RECENTLY VIEWED + RECOMMENDATIONS (Day 8)
+   ============================================================ */
+
+.kg-recently-viewed[hidden] { display: none; }
+
+.kg-recently-viewed__grid,
+.kg-recs__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.kg-recs__placeholder {
+  aspect-ratio: 4 / 5;
+  background: var(--color-surface-muted);
+  border-radius: var(--radius-lg);
+  opacity: 0.5;
+}
+
+/* ============================================================
+   3D MODEL VIEWER (Day 8)
+   ============================================================ */
+
+.kg-model__viewer-wrap {
+  aspect-ratio: 4 / 5;
+  background: var(--color-surface-muted);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.kg-model__viewer {
+  width: 100%;
+  height: 100%;
+  display: block;
+  --poster-color: transparent;
+}

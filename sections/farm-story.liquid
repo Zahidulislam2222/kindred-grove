@@ -1,0 +1,16 @@
+{%- comment -%}
+  Thin section wrapper that hosts the farm-story block. Keeps the block
+  reusable on the homepage (via main-index) while exposing it as a
+  top-level section on the PDP (via product.json template).
+{%- endcomment -%}
+
+{% content_for 'blocks' %}
+
+{% schema %}
+{
+  "name": "Farm story",
+  "class": "section-farm-story",
+  "blocks": [{ "type": "farm-story" }],
+  "default": { "blocks": [{ "type": "farm-story" }] }
+}
+{% endschema %}

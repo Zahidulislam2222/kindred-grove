@@ -1,0 +1,60 @@
+{%- comment -%}
+  Recipe suggestions — reads product.metafields.custom.recipe_suggestions
+  (list of Recipe metaobjects) and renders up to 3 cards. Hides when empty.
+{%- endcomment -%}
+
+{%- liquid
+  assign recipes = product.metafields.custom.recipe_suggestions.value
+  assign max = block.settings.max | default: 3
+-%}
+
+{%- if recipes != blank and recipes.size > 0 -%}
+  <section class="kg-recipes section" aria-labelledby="KgRecipesHeading" {{ block.shopify_attributes }}>
+    <div class="container stack">
+      <header class="stack-sm">
+        {%- if block.settings.eyebrow != blank -%}
+          <p class="eyebrow">{{ block.settings.eyebrow | escape }}</p>
+        {%- endif -%}
+        <h2 id="KgRecipesHeading" class="h3">{{ block.settings.heading | default: 'Pairs with' | escape }}</h2>
+      </header>
+
+      <ul class="kg-recipes__grid grid grid-3">
+        {%- for r in recipes limit: max -%}
+          <li>
+            <a href="/pages/recipes#{{ r.handle }}" class="card card--elevated kg-recipes__card">
+              {%- if r.hero_image != blank -%}
+                <div class="card__image">
+                  {% render 'image',
+                     image: r.hero_image,
+                     sizes: '(min-width: 768px) 33vw, 100vw',
+                     class: 'kg-recipes__image'
+                  %}
+                </div>
+              {%- endif -%}
+              <div class="card__body">
+                <h3 class="card__title">{{ r.name | escape }}</h3>
+                {%- if r.lead != blank -%}
+                  <p class="card__meta">{{ r.lead | strip_html | truncatewords: 18 }}</p>
+                {%- endif -%}
+                {%- if r.time_minutes -%}
+                  <p class="card__meta text-xs">{{ r.time_minutes }} min</p>
+                {%- endif -%}
+              </div>
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+    </div>
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Recipe suggestions",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Cook with this" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Pairs with" },
+    { "type": "range", "id": "max", "label": "Max recipes to show", "min": 1, "max": 6, "step": 1, "default": 3 }
+  ]
+}
+{% endschema %}

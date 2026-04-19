@@ -1,0 +1,51 @@
+{%- comment -%}
+  Certifications block — reads product.metafields.custom.certifications
+  (list of Certification metaobjects) and renders a badge row. Each badge
+  optionally links to the certificate PDF when one is uploaded.
+  Hides entirely when the list is empty.
+{%- endcomment -%}
+
+{%- liquid
+  assign certs = product.metafields.custom.certifications.value
+-%}
+
+{%- if certs != blank and certs.size > 0 -%}
+  <section class="kg-certs" aria-label="Certifications" {{ block.shopify_attributes }}>
+    {%- if block.settings.heading != blank -%}
+      <h3 class="h6 kg-certs__heading">{{ block.settings.heading | escape }}</h3>
+    {%- endif -%}
+    <ul class="kg-certs__list cluster">
+      {%- for c in certs -%}
+        {%- assign icon_key = c.icon_key | default: 'check' -%}
+        <li class="kg-certs__item">
+          {%- if c.certificate_pdf != blank -%}
+            <a href="{{ c.certificate_pdf | file_url }}" class="trust-badge kg-certs__badge" target="_blank" rel="noopener">
+              {% render 'icon', name: icon_key, size: 14 %}
+              <span>{{ c.name | escape }}</span>
+              {%- if c.body != blank -%}
+                <span class="kg-certs__body text-xs">· {{ c.body | escape }}</span>
+              {%- endif -%}
+            </a>
+          {%- else -%}
+            <span class="trust-badge kg-certs__badge">
+              {% render 'icon', name: icon_key, size: 14 %}
+              <span>{{ c.name | escape }}</span>
+              {%- if c.body != blank -%}
+                <span class="kg-certs__body text-xs">· {{ c.body | escape }}</span>
+              {%- endif -%}
+            </span>
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Certifications",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Certified by" }
+  ]
+}
+{% endschema %}

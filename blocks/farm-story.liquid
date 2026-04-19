@@ -1,13 +1,54 @@
 {%- comment -%}
-  Farm story — image on one side, story text on the other. Day 5 uses
-  merchant-editable block settings so the homepage can ship today.
-  Day 8 (per ADR-003) wires this to Farm metaobjects — the schema below
-  is shaped to accept a metaobject reference at that time without
-  breaking existing placements.
+  Farm story — reads from product.metafields.custom.farm (a Farm metaobject)
+  when the block is rendered on a PDP and the metafield is populated.
+  Otherwise uses the merchant-editable block settings. Same schema + same
+  layout; the data source is switched transparently.
+
+  Per ADR-003 + docs/metaobjects/SCHEMAS.md.
 {%- endcomment -%}
 
 {%- liquid
   assign layout = block.settings.layout | default: 'image-left'
+
+  assign use_metaobject = false
+  assign farm = null
+  if template contains 'product' and product.metafields.custom.farm.value != blank
+    assign use_metaobject = true
+    assign farm = product.metafields.custom.farm.value
+  endif
+
+  if use_metaobject
+    assign eyebrow_text = block.settings.eyebrow | default: 'farm_story.eyebrow' | t
+    assign headline_text = farm.name | default: 'The grove has a name.'
+    assign body_text = farm.story
+    assign image_source = farm.photo
+    assign meta_1_label = 'Region'
+    if farm.region.value != blank
+      assign meta_1_value = farm.region.value.name
+    else
+      assign meta_1_value = farm.country
+    endif
+    assign meta_2_label = 'Farmer'
+    if farm.farmer.value != blank
+      assign meta_2_value = farm.farmer.value.name
+    else
+      assign meta_2_value = ''
+    endif
+    assign meta_3_label = 'Harvest'
+    assign meta_3_value = farm.harvest_season
+  else
+    assign eyebrow_text = block.settings.eyebrow | default: 'farm_story.eyebrow' | t
+    assign headline_text = block.settings.headline | default: 'The grove has a name.'
+    assign body_text = block.settings.body
+    assign image_source = block.settings.image
+    assign meta_1_label = block.settings.meta_1_label
+    assign meta_1_value = block.settings.meta_1_value
+    assign meta_2_label = block.settings.meta_2_label
+    assign meta_2_value = block.settings.meta_2_value
+    assign meta_3_label = block.settings.meta_3_label
+    assign meta_3_value = block.settings.meta_3_value
+  endif
+
   assign link_text = block.settings.link_text | default: 'farm_story.cta' | t
 -%}
 
@@ -15,33 +56,41 @@
   <div class="container">
     <div class="kg-farm-story__grid">
       <div class="kg-farm-story__media">
-        {%- if block.settings.image != blank -%}
+        {%- if image_source != blank -%}
           {% render 'image',
-             image: block.settings.image,
+             image: image_source,
              sizes: '(min-width: 768px) 50vw, 100vw',
              class: 'kg-farm-story__image'
           %}
         {%- endif -%}
       </div>
       <div class="kg-farm-story__content stack">
-        <p class="eyebrow">{{ block.settings.eyebrow | default: 'farm_story.eyebrow' | t }}</p>
-        <h2 class="h2 kg-farm-story__headline">{{ block.settings.headline | default: 'The grove has a name.' | escape }}</h2>
-        {%- if block.settings.body != blank -%}
-          <p class="text-lg kg-farm-story__body">{{ block.settings.body | escape }}</p>
+        <p class="eyebrow">{{ eyebrow_text | escape }}</p>
+        <h2 class="h2 kg-farm-story__headline">{{ headline_text | escape }}</h2>
+        {%- if body_text != blank -%}
+          <div class="text-lg kg-farm-story__body rte">{{ body_text }}</div>
         {%- endif -%}
 
-        {%- if block.settings.meta_1_label != blank -%}
+        {%- if meta_1_label != blank -%}
           <dl class="kg-farm-story__meta cluster">
-            {%- for i in (1..3) -%}
-              {%- capture l -%}meta_{{ i }}_label{%- endcapture -%}
-              {%- capture v -%}meta_{{ i }}_value{%- endcapture -%}
-              {%- if block.settings[l] != blank -%}
-                <div class="kg-farm-story__meta-item">
-                  <dt>{{ block.settings[l] | escape }}</dt>
-                  <dd>{{ block.settings[v] | escape }}</dd>
-                </div>
-              {%- endif -%}
-            {%- endfor -%}
+            {%- if meta_1_value != blank -%}
+              <div class="kg-farm-story__meta-item">
+                <dt>{{ meta_1_label | escape }}</dt>
+                <dd>{{ meta_1_value | escape }}</dd>
+              </div>
+            {%- endif -%}
+            {%- if meta_2_value != blank -%}
+              <div class="kg-farm-story__meta-item">
+                <dt>{{ meta_2_label | escape }}</dt>
+                <dd>{{ meta_2_value | escape }}</dd>
+              </div>
+            {%- endif -%}
+            {%- if meta_3_value != blank -%}
+              <div class="kg-farm-story__meta-item">
+                <dt>{{ meta_3_label | escape }}</dt>
+                <dd>{{ meta_3_value | escape }}</dd>
+              </div>
+            {%- endif -%}
           </dl>
         {%- endif -%}
 
@@ -61,18 +110,20 @@
 {
   "name": "Farm story",
   "settings": [
+    { "type": "header", "content": "Data source" },
+    { "type": "paragraph", "content": "On a product page, this block auto-reads the product's linked Farm metaobject (product.metafields.custom.farm) when present. Set the fields below for non-PDP placements or as a fallback." },
     { "type": "header", "content": "Layout" },
     { "type": "select", "id": "layout", "label": "Image position", "options": [
       { "value": "image-left",  "label": "Image left / text right" },
       { "value": "image-right", "label": "Image right / text left" }
     ], "default": "image-left" },
-    { "type": "header", "content": "Media" },
+    { "type": "header", "content": "Media (fallback)" },
     { "type": "image_picker", "id": "image", "label": "Farm photograph" },
-    { "type": "header", "content": "Text" },
+    { "type": "header", "content": "Text (fallback)" },
     { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
     { "type": "text", "id": "headline", "label": "Headline", "default": "The grove has a name." },
     { "type": "textarea", "id": "body", "label": "Story", "default": "Our olive oil comes from a single family grove outside Nablus. The Abu Hamza family has tended these trees for five generations. Every bottle is traceable to their October harvest." },
-    { "type": "header", "content": "Farm meta (optional)" },
+    { "type": "header", "content": "Farm meta (fallback)" },
     { "type": "text", "id": "meta_1_label", "label": "Meta 1 label", "default": "Region" },
     { "type": "text", "id": "meta_1_value", "label": "Meta 1 value", "default": "Nablus, Palestine" },
     { "type": "text", "id": "meta_2_label", "label": "Meta 2 label", "default": "Farmer" },
