@@ -245,5 +245,25 @@
         "info": "Percent of sessions that report Web Vitals. 100 on dev/staging, lower on production if traffic grows."
       }
     ]
+  },
+  {
+    "name": "Feature flags",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Client-side feature flags (A/B, dark launches)"
+      },
+      {
+        "type": "paragraph",
+        "content": "Flags are bucketed per-visitor in localStorage. Merchant/QA can force a variant via URL param ?kg_ff=flag_name,variant. See docs/adr/008-localstorage-feature-flags.md. DO NOT gate pricing or checkout content here — flags can be overridden by users."
+      },
+      {
+        "type": "textarea",
+        "id": "feature_flags_json",
+        "label": "Flag definitions (JSON)",
+        "info": "Array of {name, default, rollout, variants}. Example below.",
+        "default": "[\n  {\n    \"name\": \"pantry_quiz\",\n    \"default\": false,\n    \"rollout\": 100,\n    \"variants\": [\"off\", \"on\"]\n  },\n  {\n    \"name\": \"hero_copy\",\n    \"default\": \"a\",\n    \"rollout\": 50,\n    \"variants\": [\"a\", \"b\"]\n  }\n]"
+      }
+    ]
   }
 ]

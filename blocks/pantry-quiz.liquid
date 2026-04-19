@@ -1,0 +1,119 @@
+{%- comment -%}
+  Build Your Pantry — multi-step quiz.
+  5 questions (merchant-editable labels + option arrays), scored into one
+  of 4 personas (merchant-editable name/description/collection/image).
+
+  Gated by `KG_FF.isEnabled('pantry_quiz')` when the flag is defined —
+  falls back to "always on" when the flag is missing (so the block works
+  out of the box without touching Feature flags settings).
+
+  The shell renders the first question server-side so the page is useful
+  if JS fails. The JS Web Component progressively takes over for multi-
+  step navigation, progress bar, and result rendering.
+{%- endcomment -%}
+
+{%- liquid
+  assign default_questions = '[{"label":"How do you cook most often?","options":["Everyday family meals","Entertaining guests","Quick solo meals","I barely cook — I assemble"]},{"label":"Heat preference?","options":["Mild and gentle","Balanced warmth","Bold and spicy"]},{"label":"Sweet or savory pantry?","options":["Mostly sweet","Balanced both","Mostly savory"]},{"label":"Any dietary needs?","options":["Halal (default)","Halal + vegan","Halal + gluten-free","Halal + keto"]},{"label":"Household size?","options":["Just me","2","3–4","5+"]}]' | split: '__never_splits__' | first
+  assign default_personas = '[{"name":"The everyday table","slug":"everyday","description":"Olive oil, dates, and honey on heavy rotation. Stocked for the week.","collection":"","image":""},{"name":"The entertainer","slug":"entertainer","description":"Weekend-ready. Saffron, premium oils, and recipe-grade staples.","collection":"","image":""},{"name":"The explorer","slug":"explorer","description":"Bold flavors and single-origin specials. You cook by curiosity.","collection":"","image":""},{"name":"The minimalist","slug":"minimalist","description":"Quality over quantity. Two or three pantry heroes, used often.","collection":"","image":""}]' | split: '__never_splits__' | first
+
+  assign questions_raw = block.settings.questions_json
+  if questions_raw == blank
+    assign questions_raw = default_questions
+  endif
+
+  assign personas_raw = block.settings.personas_json
+  if personas_raw == blank
+    assign personas_raw = default_personas
+  endif
+-%}
+
+<kg-pantry-quiz
+  class="kg-quiz"
+  data-persist-key="kg-pantry-quiz"
+  data-flag-name="pantry_quiz"
+  {{ block.shopify_attributes }}
+>
+  <script type="application/json" data-kg-quiz-questions>{{ questions_raw }}</script>
+  <script type="application/json" data-kg-quiz-personas>{{ personas_raw }}</script>
+
+  <div class="kg-quiz__shell" data-kg-quiz-shell hidden>
+    <header class="kg-quiz__header stack-sm">
+      {%- if block.settings.heading != blank -%}
+        <h2 class="h2 kg-quiz__heading">{{ block.settings.heading | escape }}</h2>
+      {%- endif -%}
+      {%- if block.settings.intro != blank -%}
+        <p class="text-lg text-muted">{{ block.settings.intro | escape }}</p>
+      {%- endif -%}
+      <div class="kg-quiz__progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="kg-quiz__progress-fill" data-kg-quiz-progress></div>
+      </div>
+    </header>
+
+    <div class="kg-quiz__stage" data-kg-quiz-stage aria-live="polite"></div>
+
+    <footer class="kg-quiz__nav cluster" data-kg-quiz-nav>
+      <button type="button" class="button button--ghost" data-kg-quiz-prev disabled>
+        {{ block.settings.back_label | default: 'Back' | escape }}
+      </button>
+      <button type="button" class="button button--primary" data-kg-quiz-next disabled>
+        {{ block.settings.next_label | default: 'Next' | escape }}
+      </button>
+    </footer>
+  </div>
+
+  <noscript>
+    <div class="kg-quiz__noscript stack">
+      <h2 class="h2">{{ block.settings.heading | default: 'Build your pantry' | escape }}</h2>
+      <p class="text-lg text-muted">
+        {{ 'quiz.noscript' | t }}
+      </p>
+      <a href="{{ routes.all_products_collection_url }}" class="button button--primary">
+        {{ 'quiz.browse_all' | t }}
+      </a>
+    </div>
+  </noscript>
+</kg-pantry-quiz>
+
+{% schema %}
+{
+  "name": "Pantry quiz",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Build your pantry"
+    },
+    {
+      "type": "textarea",
+      "id": "intro",
+      "label": "Intro text",
+      "default": "Answer five questions. We'll recommend a pantry starter matched to how you actually cook."
+    },
+    {
+      "type": "textarea",
+      "id": "questions_json",
+      "label": "Questions (JSON)",
+      "info": "Array of {label, options[]}. 5 entries expected. Leave empty for the default set."
+    },
+    {
+      "type": "textarea",
+      "id": "personas_json",
+      "label": "Personas (JSON)",
+      "info": "Array of {name, slug, description, collection (handle), image (URL)}. 4 entries expected. Leave empty for the defaults."
+    },
+    {
+      "type": "text",
+      "id": "back_label",
+      "label": "Back button label",
+      "default": "Back"
+    },
+    {
+      "type": "text",
+      "id": "next_label",
+      "label": "Next button label",
+      "default": "Next"
+    }
+  ]
+}
+{% endschema %}

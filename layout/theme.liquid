@@ -158,6 +158,19 @@
         {%- # theme-check-enable RemoteAsset -%}
       {%- endif -%}
     {%- endif -%}
+
+    {%- comment -%}
+      Feature flags — loaded synchronously so blocks can read KG_FF during initial render.
+      Definitions come from the Feature flags theme setting (JSON textarea); see ADR-008.
+    {%- endcomment -%}
+    <script>
+      try {
+        window.__KG_FF_DEFS__ = {{ settings.feature_flags_json | default: '[]' | json }};
+      } catch (e) {
+        window.__KG_FF_DEFS__ = [];
+      }
+    </script>
+    <script src="{{ 'feature-flags.js' | asset_url }}" defer></script>
   </head>
   <body class="template-{{ template | replace: '.', '-' | handle }}">
     <a class="skip-link" href="#main">Skip to main content</a>
@@ -175,6 +188,7 @@
     <script src="{{ 'announcement-bar.js' | asset_url }}" defer></script>
     <script src="{{ 'quick-view.js' | asset_url }}" defer></script>
     <script src="{{ 'cart-drawer.js' | asset_url }}" defer></script>
+    <script src="{{ 'pantry-quiz.js' | asset_url }}" defer></script>
     <script src="{{ 'theme.js' | asset_url }}" defer></script>
   </body>
 </html>

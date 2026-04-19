@@ -1,0 +1,27 @@
+{%- comment -%}
+  Quiz page section — thin wrapper around the `pantry-quiz` block so the
+  block can also be placed on the homepage or other templates from the
+  theme editor without duplicating the section shell.
+{%- endcomment -%}
+
+<section class="kg-quiz-page section" aria-label="{{ 'quiz.heading' | t }}">
+  <div class="container">
+    {% content_for 'blocks' %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Quiz",
+  "blocks": [
+    { "type": "pantry-quiz" }
+  ],
+  "settings": [],
+  "presets": [
+    {
+      "name": "Pantry quiz",
+      "blocks": [{ "type": "pantry-quiz" }]
+    }
+  ]
+}
+{% endschema %}

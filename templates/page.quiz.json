@@ -1,0 +1,15 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-quiz",
+      "blocks": {
+        "quiz": {
+          "type": "pantry-quiz",
+          "settings": {}
+        }
+      },
+      "block_order": ["quiz"]
+    }
+  },
+  "order": ["main"]
+}

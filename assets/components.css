@@ -2284,3 +2284,134 @@
   padding-block-start: var(--space-8);
   border-block-start: 1px solid var(--color-border);
 }
+
+/* ============================================================
+   PANTRY QUIZ (Day 10)
+   ============================================================ */
+
+.kg-quiz {
+  display: block;
+  padding-block: var(--space-8);
+}
+
+.kg-quiz__shell {
+  max-width: 640px;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.kg-quiz__header { text-align: center; }
+.kg-quiz__heading { margin: 0; }
+
+.kg-quiz__progress {
+  width: 100%;
+  height: 4px;
+  background: var(--color-surface-muted);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  margin-block-start: var(--space-4);
+}
+
+.kg-quiz__progress-fill {
+  height: 100%;
+  width: 0;
+  background: var(--color-primary);
+  transition: width var(--duration-base) var(--ease-out);
+}
+
+.kg-quiz__stage {
+  min-height: 280px;
+  padding: var(--space-6);
+  background: var(--color-surface-muted);
+  border-radius: var(--radius-lg);
+}
+
+.kg-quiz__fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.kg-quiz__legend {
+  margin-block-end: var(--space-5);
+  padding: 0;
+}
+
+.kg-quiz__option {
+  display: block;
+  cursor: pointer;
+}
+
+.kg-quiz__option input[type=radio] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.kg-quiz__option-body {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-background);
+  transition: border-color var(--duration-fast), background-color var(--duration-fast);
+}
+
+.kg-quiz__option:hover .kg-quiz__option-body {
+  border-color: var(--color-primary);
+}
+
+.kg-quiz__option input[type=radio]:checked + .kg-quiz__option-body {
+  border-color: var(--color-primary);
+  background: var(--color-olive-100, var(--color-surface));
+}
+
+.kg-quiz__option input[type=radio]:focus-visible + .kg-quiz__option-body {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.kg-quiz__option-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-pill);
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  flex-shrink: 0;
+}
+
+.kg-quiz__option-label {
+  font-size: var(--fs-base);
+}
+
+.kg-quiz__nav {
+  justify-content: space-between;
+}
+
+.kg-quiz__result {
+  text-align: center;
+  padding-block: var(--space-4);
+}
+
+.kg-quiz__result-name { margin: 0; }
+
+.kg-quiz__result-image {
+  max-width: 260px;
+  margin-inline: auto;
+  border-radius: var(--radius-lg);
+  display: block;
+}
+
+.kg-quiz__noscript {
+  text-align: center;
+  padding-block: var(--space-8);
+}

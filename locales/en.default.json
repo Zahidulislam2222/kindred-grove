@@ -53,6 +53,17 @@
     "update": "Update",
     "remove_label": "Remove"
   },
+  "quiz": {
+    "heading": "Build your pantry",
+    "noscript": "Interactive quiz requires JavaScript. Enable JS or browse all products directly.",
+    "browse_all": "Browse all products",
+    "back": "Back",
+    "next": "Next",
+    "submit": "See my pantry",
+    "restart": "Retake the quiz",
+    "eyebrow_result": "Your pantry persona",
+    "shop_cta": "Shop your pantry"
+  },
   "header": {
     "menu": "Menu",
     "open_menu": "Open menu",
