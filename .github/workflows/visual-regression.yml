@@ -86,6 +86,7 @@ jobs:
           set -e
           shopify theme push \
             --unpublished \
+            --theme "kg-ci-percy-${{ github.run_id }}" \
             --json \
             --store "$SHOPIFY_FLAG_STORE" \
             --password "$SHOPIFY_CLI_THEME_TOKEN" \
