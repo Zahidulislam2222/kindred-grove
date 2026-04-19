@@ -1,0 +1,74 @@
+{%- comment -%}
+  Featured collections — up to 4 collections picked by merchant. Each
+  card shows collection image, title, optional caption, and links to the
+  collection. Graceful fallback when image is missing.
+{%- endcomment -%}
+
+{%- liquid
+  assign heading = block.settings.heading
+-%}
+
+<section class="kg-featured-collections section" {{ block.shopify_attributes }}>
+  <div class="container stack">
+    {%- if heading != blank -%}
+      <header class="stack-sm">
+        {%- if block.settings.eyebrow != blank -%}
+          <p class="eyebrow">{{ block.settings.eyebrow | escape }}</p>
+        {%- endif -%}
+        <h2 class="h2">{{ heading | escape }}</h2>
+        {%- if block.settings.body != blank -%}
+          <p class="text-lg text-muted">{{ block.settings.body | escape }}</p>
+        {%- endif -%}
+      </header>
+    {%- endif -%}
+
+    <ul class="kg-featured-collections__grid grid grid-4">
+      {%- for i in (1..4) -%}
+        {%- capture key -%}collection_{{ i }}{%- endcapture -%}
+        {%- assign handle = block.settings[key] -%}
+        {%- assign col = collections[handle] -%}
+        {%- if col != blank and col != empty -%}
+          <li class="kg-featured-collections__item">
+            <a href="{{ col.url }}" class="card card--elevated">
+              <div class="card__image">
+                {%- if col.image != blank -%}
+                  {% render 'image', image: col.image, sizes: '(min-width: 768px) 25vw, 50vw' %}
+                {%- elsif col.products.first.featured_image != blank -%}
+                  {% render 'image', image: col.products.first.featured_image, sizes: '(min-width: 768px) 25vw, 50vw' %}
+                {%- endif -%}
+              </div>
+              <div class="card__body">
+                <h3 class="card__title">{{ col.title | escape }}</h3>
+                {%- if col.description != blank -%}
+                  <p class="card__meta">{{ col.description | strip_html | truncatewords: 14 }}</p>
+                {%- endif -%}
+                <span class="card__meta kg-featured-collections__cta">
+                  Shop collection {% render 'icon', name: 'arrow-right', size: 14 %}
+                </span>
+              </div>
+            </a>
+          </li>
+        {%- endif -%}
+      {%- endfor -%}
+    </ul>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Featured collections",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Start your pantry" },
+    { "type": "textarea", "id": "body", "label": "Body", "default": "Four foundations — oil, dates, honey, spice — hand-picked from family farms." },
+    { "type": "header", "content": "Collections" },
+    { "type": "collection", "id": "collection_1", "label": "Collection 1" },
+    { "type": "collection", "id": "collection_2", "label": "Collection 2" },
+    { "type": "collection", "id": "collection_3", "label": "Collection 3" },
+    { "type": "collection", "id": "collection_4", "label": "Collection 4" }
+  ],
+  "presets": [
+    { "name": "Featured collections", "category": "Content" }
+  ]
+}
+{% endschema %}

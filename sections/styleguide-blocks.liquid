@@ -1,0 +1,37 @@
+{%- comment -%}
+  Styleguide — Blocks (Day 5 homepage library).
+  Links out rather than rendering each block inline, because the real
+  blocks require merchant settings (image pickers, collection pickers)
+  that don't make sense in a static styleguide. For a live render, see
+  the homepage itself once configured in the theme editor.
+{%- endcomment -%}
+
+<section class="section styleguide-section">
+  <div class="container stack">
+    <header class="stack-sm">
+      <h2 class="h3">Homepage blocks</h2>
+      <p class="text-muted">Day 5 ships 7 reusable blocks for the homepage. Configure them in the theme editor; settings per block are documented in each schema.</p>
+    </header>
+
+    <div class="grid grid-2">
+      {%- assign blocks_list = 'Hero,Values strip,Featured collections,Farm story,Reviews carousel,Newsletter,Instagram strip' | split: ',' -%}
+      {%- assign block_ids   = 'hero,values-strip,featured-collections,farm-story,reviews-carousel,newsletter,instagram-strip' | split: ',' -%}
+      {%- for name in blocks_list -%}
+        <div class="styleguide-block-card card">
+          <div class="card__body stack-sm">
+            <h3 class="card__title">{{ name }}</h3>
+            <p class="card__meta"><code>blocks/{{ block_ids[forloop.index0] }}.liquid</code></p>
+          </div>
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Styleguide — Blocks",
+  "class": "section-styleguide-blocks",
+  "settings": []
+}
+{% endschema %}

@@ -1,0 +1,90 @@
+{%- comment -%}
+  Farm story — image on one side, story text on the other. Day 5 uses
+  merchant-editable block settings so the homepage can ship today.
+  Day 8 (per ADR-003) wires this to Farm metaobjects — the schema below
+  is shaped to accept a metaobject reference at that time without
+  breaking existing placements.
+{%- endcomment -%}
+
+{%- liquid
+  assign layout = block.settings.layout | default: 'image-left'
+  assign link_text = block.settings.link_text | default: 'farm_story.cta' | t
+-%}
+
+<section class="kg-farm-story kg-farm-story--{{ layout }} section" {{ block.shopify_attributes }}>
+  <div class="container">
+    <div class="kg-farm-story__grid">
+      <div class="kg-farm-story__media">
+        {%- if block.settings.image != blank -%}
+          {% render 'image',
+             image: block.settings.image,
+             sizes: '(min-width: 768px) 50vw, 100vw',
+             class: 'kg-farm-story__image'
+          %}
+        {%- endif -%}
+      </div>
+      <div class="kg-farm-story__content stack">
+        <p class="eyebrow">{{ block.settings.eyebrow | default: 'farm_story.eyebrow' | t }}</p>
+        <h2 class="h2 kg-farm-story__headline">{{ block.settings.headline | default: 'The grove has a name.' | escape }}</h2>
+        {%- if block.settings.body != blank -%}
+          <p class="text-lg kg-farm-story__body">{{ block.settings.body | escape }}</p>
+        {%- endif -%}
+
+        {%- if block.settings.meta_1_label != blank -%}
+          <dl class="kg-farm-story__meta cluster">
+            {%- for i in (1..3) -%}
+              {%- capture l -%}meta_{{ i }}_label{%- endcapture -%}
+              {%- capture v -%}meta_{{ i }}_value{%- endcapture -%}
+              {%- if block.settings[l] != blank -%}
+                <div class="kg-farm-story__meta-item">
+                  <dt>{{ block.settings[l] | escape }}</dt>
+                  <dd>{{ block.settings[v] | escape }}</dd>
+                </div>
+              {%- endif -%}
+            {%- endfor -%}
+          </dl>
+        {%- endif -%}
+
+        {%- if block.settings.link_url != blank -%}
+          {% render 'button',
+             label: link_text,
+             href: block.settings.link_url,
+             variant: 'secondary'
+          %}
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Farm story",
+  "settings": [
+    { "type": "header", "content": "Layout" },
+    { "type": "select", "id": "layout", "label": "Image position", "options": [
+      { "value": "image-left",  "label": "Image left / text right" },
+      { "value": "image-right", "label": "Image right / text left" }
+    ], "default": "image-left" },
+    { "type": "header", "content": "Media" },
+    { "type": "image_picker", "id": "image", "label": "Farm photograph" },
+    { "type": "header", "content": "Text" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+    { "type": "text", "id": "headline", "label": "Headline", "default": "The grove has a name." },
+    { "type": "textarea", "id": "body", "label": "Story", "default": "Our olive oil comes from a single family grove outside Nablus. The Abu Hamza family has tended these trees for five generations. Every bottle is traceable to their October harvest." },
+    { "type": "header", "content": "Farm meta (optional)" },
+    { "type": "text", "id": "meta_1_label", "label": "Meta 1 label", "default": "Region" },
+    { "type": "text", "id": "meta_1_value", "label": "Meta 1 value", "default": "Nablus, Palestine" },
+    { "type": "text", "id": "meta_2_label", "label": "Meta 2 label", "default": "Farmer" },
+    { "type": "text", "id": "meta_2_value", "label": "Meta 2 value", "default": "Abu Hamza family" },
+    { "type": "text", "id": "meta_3_label", "label": "Meta 3 label", "default": "Harvest" },
+    { "type": "text", "id": "meta_3_value", "label": "Meta 3 value", "default": "October, cold-pressed within 4h" },
+    { "type": "header", "content": "Link" },
+    { "type": "text", "id": "link_text", "label": "Link text", "default": "Read the full story" },
+    { "type": "url", "id": "link_url", "label": "Link URL" }
+  ],
+  "presets": [
+    { "name": "Farm story", "category": "Content" }
+  ]
+}
+{% endschema %}

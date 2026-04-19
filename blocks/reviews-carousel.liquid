@@ -1,0 +1,91 @@
+{%- comment -%}
+  Reviews carousel — Day 5 placeholder. Three reviews rendered statically
+  from merchant-editable settings. Day 12 replaces the inside of this
+  block with Judge.me's real review JSON and carousel JS; the schema
+  stays the same so merchant layout doesn't break.
+{%- endcomment -%}
+
+{%- liquid
+  assign avg = block.settings.avg_rating | default: 4.9
+  assign count = block.settings.total_count | default: 0
+-%}
+
+<section class="kg-reviews section" {{ block.shopify_attributes }} aria-labelledby="KgReviewsHeading">
+  <div class="container stack">
+    <header class="stack-sm text-center">
+      <p class="eyebrow">{{ block.settings.eyebrow | default: 'Reviews' | escape }}</p>
+      <h2 id="KgReviewsHeading" class="h2">{{ block.settings.heading | default: 'reviews.heading' | t }}</h2>
+
+      <div class="kg-reviews__summary cluster" aria-label="{{ 'reviews.star_label' | t: count: avg }}">
+        {%- for star in (1..5) -%}
+          {%- if star <= avg -%}
+            {% render 'icon', name: 'star-filled', size: 20 %}
+          {%- else -%}
+            {% render 'icon', name: 'star', size: 20 %}
+          {%- endif -%}
+        {%- endfor -%}
+        <span class="text-sm text-muted">{{ avg }} / 5{% if count > 0 %} · {{ count }} reviews{% endif %}</span>
+      </div>
+    </header>
+
+    <ul class="kg-reviews__grid grid grid-3">
+      {%- for i in (1..3) -%}
+        {%- capture q_key -%}review_{{ i }}_quote{%- endcapture -%}
+        {%- capture a_key -%}review_{{ i }}_author{%- endcapture -%}
+        {%- capture p_key -%}review_{{ i }}_product{%- endcapture -%}
+        {%- capture r_key -%}review_{{ i }}_rating{%- endcapture -%}
+        {%- assign quote = block.settings[q_key] -%}
+        {%- if quote != blank -%}
+          <li class="kg-reviews__card card">
+            <div class="card__body stack-sm">
+              <div class="kg-reviews__stars" aria-label="{{ 'reviews.star_label' | t: count: block.settings[r_key] }}">
+                {%- for star in (1..5) -%}
+                  {%- if star <= block.settings[r_key] -%}
+                    {% render 'icon', name: 'star-filled', size: 16 %}
+                  {%- else -%}
+                    {% render 'icon', name: 'star', size: 16 %}
+                  {%- endif -%}
+                {%- endfor -%}
+              </div>
+              <blockquote class="kg-reviews__quote">&ldquo;{{ quote | escape }}&rdquo;</blockquote>
+              <footer class="kg-reviews__meta text-sm text-muted">
+                <strong>{{ block.settings[a_key] | escape }}</strong>
+                {%- if block.settings[p_key] != blank %} · {{ block.settings[p_key] | escape }}{% endif -%}
+              </footer>
+            </div>
+          </li>
+        {%- endif -%}
+      {%- endfor -%}
+    </ul>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Reviews carousel",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Reviews" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "What our table is saying" },
+    { "type": "range", "id": "avg_rating", "label": "Average rating", "min": 3, "max": 5, "step": 0.1, "default": 4.9 },
+    { "type": "number", "id": "total_count", "label": "Total review count (optional display)" },
+    { "type": "header", "content": "Review 1" },
+    { "type": "textarea", "id": "review_1_quote", "label": "Quote", "default": "The Rumi oil arrived and made me stop using every other brand. Grassy, peppery, and alive." },
+    { "type": "text", "id": "review_1_author", "label": "Author", "default": "Mariam S." },
+    { "type": "text", "id": "review_1_product", "label": "Product", "default": "Palestinian Rumi Olive Oil" },
+    { "type": "range", "id": "review_1_rating", "label": "Rating", "min": 1, "max": 5, "step": 1, "default": 5 },
+    { "type": "header", "content": "Review 2" },
+    { "type": "textarea", "id": "review_2_quote", "label": "Quote", "default": "The Ajwa tin was a gift and it disappeared in three days. Dense, soft, caramelly — not the supermarket version at all." },
+    { "type": "text", "id": "review_2_author", "label": "Author", "default": "David K." },
+    { "type": "text", "id": "review_2_product", "label": "Product", "default": "Ajwa Dates, Medina" },
+    { "type": "range", "id": "review_2_rating", "label": "Rating", "min": 1, "max": 5, "step": 1, "default": 5 },
+    { "type": "header", "content": "Review 3" },
+    { "type": "textarea", "id": "review_3_quote", "label": "Quote", "default": "Sidr honey on warm sourdough is a life thing now. The packaging and farm story make it feel like a real gift, too." },
+    { "type": "text", "id": "review_3_author", "label": "Author", "default": "Leila R." },
+    { "type": "text", "id": "review_3_product", "label": "Product", "default": "Raw Sidr Honey, Yemen" },
+    { "type": "range", "id": "review_3_rating", "label": "Rating", "min": 1, "max": 5, "step": 1, "default": 5 }
+  ],
+  "presets": [
+    { "name": "Reviews carousel", "category": "Social proof" }
+  ]
+}
+{% endschema %}

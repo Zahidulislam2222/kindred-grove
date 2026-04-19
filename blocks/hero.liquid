@@ -1,0 +1,115 @@
+{%- comment -%}
+  Hero block — full-width image with headline + body + CTAs.
+  Accessible: H1 comes from block.settings when rendered on homepage; H2
+  when used elsewhere (controlled by the headline_level setting).
+  Image is marked loading=eager + fetchpriority=high to protect LCP.
+{%- endcomment -%}
+
+{%- liquid
+  assign heading_level = block.settings.headline_level | default: 'h1'
+  assign height_preset = block.settings.height | default: 'medium'
+  assign text_theme = block.settings.text_theme | default: 'light'
+  assign text_align = block.settings.text_align | default: 'center'
+  assign overlay_opacity = block.settings.overlay_opacity | default: 35
+-%}
+
+<section
+  class="kg-hero kg-hero--{{ height_preset }} kg-hero--text-{{ text_theme }} kg-hero--align-{{ text_align }}"
+  data-block-type="hero"
+  {{ block.shopify_attributes }}
+>
+  {%- if block.settings.image != blank -%}
+    <div class="kg-hero__media">
+      {% render 'image',
+         image: block.settings.image,
+         sizes: '100vw',
+         loading: 'eager',
+         fetchpriority: 'high',
+         class: 'kg-hero__image'
+      %}
+      <div class="kg-hero__overlay" style="--overlay-opacity: {{ overlay_opacity | divided_by: 100.0 }};" aria-hidden="true"></div>
+    </div>
+  {%- endif -%}
+
+  <div class="kg-hero__content container">
+    <div class="kg-hero__inner stack">
+      {%- if block.settings.eyebrow != blank -%}
+        <p class="eyebrow kg-hero__eyebrow">{{ block.settings.eyebrow | escape }}</p>
+      {%- endif -%}
+
+      {%- if block.settings.headline != blank -%}
+        {%- if heading_level == 'h1' -%}
+          <h1 class="h1 kg-hero__headline">{{ block.settings.headline | escape }}</h1>
+        {%- else -%}
+          <h2 class="h1 kg-hero__headline">{{ block.settings.headline | escape }}</h2>
+        {%- endif -%}
+      {%- endif -%}
+
+      {%- if block.settings.body != blank -%}
+        <p class="text-lg kg-hero__body">{{ block.settings.body | escape }}</p>
+      {%- endif -%}
+
+      {%- if block.settings.cta_primary_label != blank and block.settings.cta_primary_link != blank -%}
+        <div class="kg-hero__ctas cluster">
+          {% render 'button',
+             label: block.settings.cta_primary_label,
+             href: block.settings.cta_primary_link,
+             variant: 'primary',
+             size: 'lg'
+          %}
+          {%- if block.settings.cta_secondary_label != blank and block.settings.cta_secondary_link != blank -%}
+            {% render 'button',
+               label: block.settings.cta_secondary_label,
+               href: block.settings.cta_secondary_link,
+               variant: 'ghost',
+               size: 'lg',
+               class: 'kg-hero__cta-secondary'
+            %}
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Hero",
+  "settings": [
+    { "type": "header", "content": "Background" },
+    { "type": "image_picker", "id": "image", "label": "Background image", "info": "At least 1600w for crisp rendering on wide screens." },
+    { "type": "range", "id": "overlay_opacity", "label": "Image overlay opacity", "min": 0, "max": 80, "step": 5, "default": 35, "unit": "%", "info": "Darkens the image to improve text contrast." },
+    { "type": "header", "content": "Text" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Single-origin. Traceable. Family-farmed." },
+    { "type": "text", "id": "headline", "label": "Headline", "default": "From the grove to your table." },
+    { "type": "textarea", "id": "body", "label": "Body", "default": "Pantry staples sourced direct from Mediterranean and Levantine farms, halal-certified and honored by tradition." },
+    { "type": "select", "id": "headline_level", "label": "Headline level", "options": [
+      { "value": "h1", "label": "H1 (use on homepage)" },
+      { "value": "h2", "label": "H2 (for secondary hero uses)" }
+    ], "default": "h1" },
+    { "type": "select", "id": "text_theme", "label": "Text color", "options": [
+      { "value": "light", "label": "Light (on dark image)" },
+      { "value": "dark",  "label": "Dark (on light image)" }
+    ], "default": "light" },
+    { "type": "select", "id": "text_align", "label": "Text alignment", "options": [
+      { "value": "start",  "label": "Start" },
+      { "value": "center", "label": "Center" },
+      { "value": "end",    "label": "End" }
+    ], "default": "center" },
+    { "type": "header", "content": "Calls to action" },
+    { "type": "text", "id": "cta_primary_label", "label": "Primary CTA text", "default": "Shop the foundations" },
+    { "type": "url",  "id": "cta_primary_link",  "label": "Primary CTA link" },
+    { "type": "text", "id": "cta_secondary_label", "label": "Secondary CTA text", "default": "Read the story" },
+    { "type": "url",  "id": "cta_secondary_link",  "label": "Secondary CTA link" },
+    { "type": "header", "content": "Size" },
+    { "type": "select", "id": "height", "label": "Hero height", "options": [
+      { "value": "small",  "label": "Small (55vh)" },
+      { "value": "medium", "label": "Medium (70vh)" },
+      { "value": "tall",   "label": "Tall (88vh)" }
+    ], "default": "tall" }
+  ],
+  "presets": [
+    { "name": "Hero", "category": "Hero" }
+  ]
+}
+{% endschema %}

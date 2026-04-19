@@ -3,37 +3,46 @@
     "main": {
       "type": "main-index",
       "blocks": {
-        "hero-heading": {
-          "type": "text",
+        "hero": {
+          "type": "hero",
           "settings": {
-            "element": "h1",
-            "text_size": "5xl",
+            "eyebrow": "Single-origin. Traceable. Family-farmed.",
+            "headline": "From the grove to your table.",
+            "body": "Pantry staples sourced direct from Mediterranean and Levantine farms, halal-certified and honored by tradition.",
+            "headline_level": "h1",
+            "text_theme": "light",
             "text_align": "center",
-            "max_width": 24,
-            "content": "<p>From the grove to your table.</p>"
+            "height": "tall",
+            "overlay_opacity": 40,
+            "cta_primary_label": "Shop the foundations",
+            "cta_secondary_label": "Read the story"
           }
         },
-        "hero-subhead": {
-          "type": "text",
+        "values": {
+          "type": "values-strip"
+        },
+        "featured": {
+          "type": "featured-collections",
           "settings": {
-            "element": "p",
-            "text_size": "lg",
-            "text_align": "center",
-            "max_width": 52,
-            "content": "<p>Single-origin pantry staples sourced direct from family farms across the Mediterranean and Levant. Honored traditions, traceable to the harvest.</p>"
+            "eyebrow": "The foundations",
+            "heading": "Start your pantry",
+            "body": "Four cornerstones — oil, dates, honey, spice — each hand-picked from a family farm."
           }
         },
-        "hero-cta": {
-          "type": "button",
-          "settings": {
-            "label": "Shop the pantry",
-            "variant": "primary",
-            "size": "lg",
-            "align": "center"
-          }
+        "farm_story": {
+          "type": "farm-story"
+        },
+        "reviews": {
+          "type": "reviews-carousel"
+        },
+        "newsletter": {
+          "type": "newsletter"
+        },
+        "instagram": {
+          "type": "instagram-strip"
         }
       },
-      "block_order": ["hero-heading", "hero-subhead", "hero-cta"]
+      "block_order": ["hero", "values", "featured", "farm_story", "reviews", "newsletter", "instagram"]
     }
   },
   "order": ["main"]

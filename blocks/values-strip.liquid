@@ -1,0 +1,96 @@
+{%- comment -%}
+  Values strip — 3-4 short value statements, each with an icon + label +
+  optional body. Configured at the block level; individual items are
+  controlled by block.settings and rendered in a row on desktop, stacked
+  on mobile.
+{%- endcomment -%}
+
+{%- liquid
+  assign items = 4
+  if block.settings.item_count
+    assign items = block.settings.item_count
+  endif
+-%}
+
+<section class="kg-values section-tight" {{ block.shopify_attributes }} aria-label="{{ 'values.heading' | t }}">
+  <div class="container">
+    <ul class="kg-values__list grid grid-4">
+      {%- for i in (1..4) -%}
+        {%- if i > items -%}{%- break -%}{%- endif -%}
+        {%- capture icon_key -%}item_{{ i }}_icon{%- endcapture -%}
+        {%- capture label_key -%}item_{{ i }}_label{%- endcapture -%}
+        {%- capture body_key -%}item_{{ i }}_body{%- endcapture -%}
+        {%- assign icon_name = block.settings[icon_key] -%}
+        {%- assign label = block.settings[label_key] -%}
+        {%- assign body = block.settings[body_key] -%}
+        {%- if label != blank -%}
+          <li class="kg-values__item stack-sm">
+            {%- if icon_name != blank -%}
+              <div class="kg-values__icon">{% render 'icon', name: icon_name, size: 28 %}</div>
+            {%- endif -%}
+            <h3 class="h5 kg-values__label">{{ label | escape }}</h3>
+            {%- if body != blank -%}
+              <p class="text-sm text-muted kg-values__body">{{ body | escape }}</p>
+            {%- endif -%}
+          </li>
+        {%- endif -%}
+      {%- endfor -%}
+    </ul>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Values strip",
+  "settings": [
+    { "type": "range", "id": "item_count", "label": "Number of values", "min": 2, "max": 4, "step": 1, "default": 4 },
+    { "type": "header", "content": "Value 1" },
+    { "type": "select", "id": "item_1_icon", "label": "Icon", "options": [
+      { "value": "", "label": "None" },
+      { "value": "olive-branch", "label": "Olive branch" },
+      { "value": "heart", "label": "Heart" },
+      { "value": "globe", "label": "Globe" },
+      { "value": "star", "label": "Star" },
+      { "value": "check", "label": "Check" }
+    ], "default": "olive-branch" },
+    { "type": "text", "id": "item_1_label", "label": "Label", "default": "Single-origin" },
+    { "type": "textarea", "id": "item_1_body", "label": "Body", "default": "Traceable to the farm — no blends, no surprises." },
+    { "type": "header", "content": "Value 2" },
+    { "type": "select", "id": "item_2_icon", "label": "Icon", "options": [
+      { "value": "", "label": "None" },
+      { "value": "heart", "label": "Heart" },
+      { "value": "check", "label": "Check" },
+      { "value": "olive-branch", "label": "Olive branch" },
+      { "value": "globe", "label": "Globe" },
+      { "value": "star", "label": "Star" }
+    ], "default": "heart" },
+    { "type": "text", "id": "item_2_label", "label": "Label", "default": "Fair-trade" },
+    { "type": "textarea", "id": "item_2_body", "label": "Body", "default": "Direct-to-farmer partnerships. Prices families can plan around." },
+    { "type": "header", "content": "Value 3" },
+    { "type": "select", "id": "item_3_icon", "label": "Icon", "options": [
+      { "value": "", "label": "None" },
+      { "value": "check", "label": "Check" },
+      { "value": "globe", "label": "Globe" },
+      { "value": "heart", "label": "Heart" },
+      { "value": "olive-branch", "label": "Olive branch" },
+      { "value": "star", "label": "Star" }
+    ], "default": "check" },
+    { "type": "text", "id": "item_3_label", "label": "Label", "default": "Halal-certified" },
+    { "type": "textarea", "id": "item_3_body", "label": "Body", "default": "Independently certified. One standard for every household." },
+    { "type": "header", "content": "Value 4" },
+    { "type": "select", "id": "item_4_icon", "label": "Icon", "options": [
+      { "value": "", "label": "None" },
+      { "value": "globe", "label": "Globe" },
+      { "value": "star", "label": "Star" },
+      { "value": "heart", "label": "Heart" },
+      { "value": "olive-branch", "label": "Olive branch" },
+      { "value": "check", "label": "Check" }
+    ], "default": "globe" },
+    { "type": "text", "id": "item_4_label", "label": "Label", "default": "Heritage" },
+    { "type": "textarea", "id": "item_4_body", "label": "Body", "default": "1,400 years of hospitality, honored on every table." }
+  ],
+  "presets": [
+    { "name": "Values strip", "category": "Content" }
+  ]
+}
+{% endschema %}

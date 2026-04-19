@@ -17,6 +17,9 @@
     },
     "icons": {
       "type": "styleguide-icons"
+    },
+    "blocks": {
+      "type": "styleguide-blocks"
     }
   },
   "order": [
@@ -25,6 +28,7 @@
     "typography",
     "buttons",
     "form_fields",
-    "icons"
+    "icons",
+    "blocks"
   ]
 }

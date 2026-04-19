@@ -1,18 +1,17 @@
 {%- comment -%}
   Static main section for templates/index.json. Hosts homepage Theme Blocks.
-  Day 5 adds the full homepage (hero, values strip, featured collections,
-  farm story, reviews, newsletter). Day 2 only establishes the block region.
+  No wrapper container — each block controls its own max-width so full-bleed
+  (hero, instagram strip) and contained (values, featured, farm story, reviews,
+  newsletter) blocks can coexist cleanly.
 {%- endcomment -%}
 
-<section class="main-index container" style="padding-block: var(--section-spacing, var(--space-20));">
-  {%- if section.blocks.size > 0 -%}
-    <div class="stack stack-lg">
-      {%- content_for 'blocks' -%}
-    </div>
-  {%- else -%}
-    <p class="text-center text-muted">Add blocks to this homepage in the theme editor.</p>
-  {%- endif -%}
-</section>
+{%- if section.blocks.size > 0 -%}
+  {%- content_for 'blocks' -%}
+{%- else -%}
+  <section class="section container text-center">
+    <p class="text-muted">Add blocks to this homepage in the theme editor.</p>
+  </section>
+{%- endif -%}
 
 {% schema %}
 {
@@ -26,35 +25,13 @@
     {
       "name": "Homepage",
       "blocks": [
-        {
-          "type": "text",
-          "settings": {
-            "element": "h1",
-            "text_size": "5xl",
-            "text_align": "center",
-            "max_width": 24,
-            "content": "<p>From the grove to your table.</p>"
-          }
-        },
-        {
-          "type": "text",
-          "settings": {
-            "element": "p",
-            "text_size": "lg",
-            "text_align": "center",
-            "max_width": 52,
-            "content": "<p>Single-origin pantry staples sourced direct from family farms across the Mediterranean and Levant. Honored traditions, traceable to the harvest.</p>"
-          }
-        },
-        {
-          "type": "button",
-          "settings": {
-            "label": "Shop the pantry",
-            "variant": "primary",
-            "size": "lg",
-            "align": "center"
-          }
-        }
+        { "type": "hero" },
+        { "type": "values-strip" },
+        { "type": "featured-collections" },
+        { "type": "farm-story" },
+        { "type": "reviews-carousel" },
+        { "type": "newsletter" },
+        { "type": "instagram-strip" }
       ]
     }
   ]

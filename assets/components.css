@@ -872,3 +872,276 @@
   color: var(--color-text-muted);
   font-size: var(--fs-xs);
 }
+
+/* ============================================================
+   HERO BLOCK (Day 5)
+   ============================================================ */
+
+.kg-hero {
+  position: relative;
+  display: grid;
+  align-items: center;
+  min-height: 60vh;
+  isolation: isolate;
+  overflow: hidden;
+  color: var(--color-text);
+}
+
+.kg-hero--small  { min-height: 55vh; }
+.kg-hero--medium { min-height: 70vh; }
+.kg-hero--tall   { min-height: 88vh; }
+
+.kg-hero__media {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+.kg-hero__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.kg-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 12, 8, var(--overlay-opacity, 0.35));
+}
+
+.kg-hero--text-light { color: var(--color-text-inverse); }
+.kg-hero--text-light .text-muted { color: rgba(255, 255, 255, 0.8); }
+
+.kg-hero--align-start  { text-align: start; }
+.kg-hero--align-center { text-align: center; }
+.kg-hero--align-end    { text-align: end; }
+
+.kg-hero__content { padding-block: var(--space-16); }
+
+.kg-hero__inner {
+  max-width: 52ch;
+  margin-inline: auto;
+  --stack-space: var(--space-5);
+}
+
+.kg-hero--align-start .kg-hero__inner { margin-inline-start: 0; }
+.kg-hero--align-end   .kg-hero__inner { margin-inline-end: 0; }
+
+.kg-hero__ctas { justify-content: center; }
+.kg-hero--align-start .kg-hero__ctas { justify-content: flex-start; }
+.kg-hero--align-end   .kg-hero__ctas { justify-content: flex-end; }
+
+.kg-hero--text-light .kg-hero__cta-secondary {
+  color: var(--color-text-inverse);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.kg-hero--text-light .kg-hero__cta-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-text-inverse);
+}
+
+/* ============================================================
+   VALUES STRIP (Day 5)
+   ============================================================ */
+
+.kg-values__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: var(--space-8);
+}
+
+.kg-values__item { text-align: center; }
+
+.kg-values__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  color: var(--color-primary);
+  background: var(--color-olive-100);
+  border-radius: var(--radius-circle);
+  margin-inline: auto;
+}
+
+.kg-values__label {
+  font-family: var(--font-heading);
+  font-size: var(--fs-lg);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ============================================================
+   FEATURED COLLECTIONS (Day 5)
+   ============================================================ */
+
+.kg-featured-collections__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.kg-featured-collections__item .card { text-decoration: none; color: inherit; height: 100%; }
+
+.kg-featured-collections__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-primary);
+  font-weight: var(--fw-medium);
+  margin-top: var(--space-3);
+}
+
+/* ============================================================
+   NEWSLETTER BLOCK (Day 5)
+   ============================================================ */
+
+.kg-newsletter {
+  background: var(--color-surface-muted);
+}
+
+.kg-newsletter__form { max-width: 520px; margin-inline: auto; margin-top: var(--space-6); }
+
+.kg-newsletter__row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-2);
+}
+
+.kg-newsletter__success { margin-top: var(--space-2); color: var(--color-primary); font-size: var(--fs-sm); text-align: center; }
+.kg-newsletter__error   { margin-top: var(--space-2); color: var(--color-error); font-size: var(--fs-sm); text-align: center; }
+
+/* ============================================================
+   FARM STORY (Day 5)
+   ============================================================ */
+
+.kg-farm-story__grid {
+  display: grid;
+  gap: var(--space-8);
+  grid-template-columns: 1fr;
+  align-items: center;
+}
+
+@media (min-width: 768px) {
+  .kg-farm-story__grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-12);
+  }
+  .kg-farm-story--image-right .kg-farm-story__media { order: 2; }
+}
+
+.kg-farm-story__media {
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-muted);
+}
+
+.kg-farm-story__image { width: 100%; height: 100%; object-fit: cover; }
+
+.kg-farm-story__content {
+  --stack-space: var(--space-5);
+}
+
+.kg-farm-story__meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+  margin: 0;
+}
+
+.kg-farm-story__meta-item dt {
+  font-size: var(--fs-xs);
+  letter-spacing: var(--ls-widest);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  font-weight: var(--fw-semibold);
+}
+
+.kg-farm-story__meta-item dd {
+  font-size: var(--fs-sm);
+  margin: var(--space-1) 0 0;
+  color: var(--color-text);
+}
+
+/* ============================================================
+   REVIEWS CAROUSEL (Day 5 placeholder — Judge.me lands Day 12)
+   ============================================================ */
+
+.kg-reviews__summary { justify-content: center; color: var(--color-accent); gap: var(--space-2); }
+
+.kg-reviews__grid { list-style: none; margin: 0; padding: 0; }
+
+.kg-reviews__card { height: 100%; }
+
+.kg-reviews__stars { color: var(--color-accent); gap: var(--space-1); display: flex; }
+
+.kg-reviews__quote {
+  font-family: var(--font-heading);
+  font-size: var(--fs-lg);
+  font-style: italic;
+  line-height: var(--lh-snug);
+  margin: 0;
+  color: var(--color-text);
+}
+
+.kg-reviews__meta { margin: 0; }
+
+/* ============================================================
+   INSTAGRAM STRIP (Day 5 placeholder — feed API lands Day 12-13)
+   ============================================================ */
+
+.kg-instagram__grid {
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: repeat(3, 1fr);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+@media (min-width: 768px) {
+  .kg-instagram__grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+.kg-instagram__item {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--color-surface-muted);
+}
+
+.kg-instagram__item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--duration-slow) var(--ease-out);
+}
+
+.kg-instagram__link { display: block; height: 100%; position: relative; color: inherit; }
+
+.kg-instagram__link:hover img { transform: scale(1.05); }
+
+.kg-instagram__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0);
+  color: var(--color-text-inverse);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-out), background-color var(--duration-fast) var(--ease-out);
+}
+
+.kg-instagram__link:hover .kg-instagram__overlay,
+.kg-instagram__link:focus-visible .kg-instagram__overlay {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.35);
+}

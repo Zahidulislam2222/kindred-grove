@@ -1,0 +1,68 @@
+{%- comment -%}
+  Instagram strip — 6-image grid. Day 5 uses 6 merchant-uploaded images.
+  Day 12-13 swaps to pulling from an Instagram feed (Klaviyo UGC module
+  or direct Graph API); the grid layout stays.
+{%- endcomment -%}
+
+<section class="kg-instagram section-tight" {{ block.shopify_attributes }} aria-labelledby="KgInstaHeading">
+  <div class="container stack">
+    <header class="stack-sm text-center">
+      <h2 id="KgInstaHeading" class="h3">{{ block.settings.heading | default: 'instagram.heading' | t }}</h2>
+      {%- if settings.social_instagram != blank -%}
+        <a href="{{ settings.social_instagram }}" class="text-sm" rel="noopener" target="_blank">
+          {% render 'icon', name: 'instagram', size: 16 %}
+          @{{ block.settings.handle | default: 'kindredgrove' | escape }}
+        </a>
+      {%- endif -%}
+    </header>
+
+    <ul class="kg-instagram__grid">
+      {%- for i in (1..6) -%}
+        {%- capture key -%}image_{{ i }}{%- endcapture -%}
+        {%- capture link_key -%}image_{{ i }}_link{%- endcapture -%}
+        {%- assign img = block.settings[key] -%}
+        {%- assign link = block.settings[link_key] | default: settings.social_instagram -%}
+        {%- if img != blank -%}
+          <li class="kg-instagram__item">
+            {%- if link != blank -%}
+              <a href="{{ link }}" class="kg-instagram__link" rel="noopener" target="_blank" aria-label="View on Instagram">
+                {% render 'image', image: img, sizes: '(min-width: 768px) 16vw, 33vw' %}
+                <span class="kg-instagram__overlay" aria-hidden="true">
+                  {% render 'icon', name: 'instagram', size: 22 %}
+                </span>
+              </a>
+            {%- else -%}
+              {% render 'image', image: img, sizes: '(min-width: 768px) 16vw, 33vw' %}
+            {%- endif -%}
+          </li>
+        {%- endif -%}
+      {%- endfor -%}
+    </ul>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Instagram strip",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "From our kitchen to yours" },
+    { "type": "text", "id": "handle", "label": "Instagram handle (display only)", "default": "kindredgrove" },
+    { "type": "header", "content": "Images" },
+    { "type": "image_picker", "id": "image_1", "label": "Image 1" },
+    { "type": "url", "id": "image_1_link", "label": "Image 1 link" },
+    { "type": "image_picker", "id": "image_2", "label": "Image 2" },
+    { "type": "url", "id": "image_2_link", "label": "Image 2 link" },
+    { "type": "image_picker", "id": "image_3", "label": "Image 3" },
+    { "type": "url", "id": "image_3_link", "label": "Image 3 link" },
+    { "type": "image_picker", "id": "image_4", "label": "Image 4" },
+    { "type": "url", "id": "image_4_link", "label": "Image 4 link" },
+    { "type": "image_picker", "id": "image_5", "label": "Image 5" },
+    { "type": "url", "id": "image_5_link", "label": "Image 5 link" },
+    { "type": "image_picker", "id": "image_6", "label": "Image 6" },
+    { "type": "url", "id": "image_6_link", "label": "Image 6 link" }
+  ],
+  "presets": [
+    { "name": "Instagram strip", "category": "Social proof" }
+  ]
+}
+{% endschema %}
