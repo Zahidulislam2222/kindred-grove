@@ -25,21 +25,47 @@ jobs:
     environment: staging
 
     steps:
+      - name: Preflight — check deploy secrets
+        id: preflight
+        env:
+          TOKEN: ${{ secrets.SHOPIFY_CLI_THEME_TOKEN }}
+          STORE: ${{ secrets.SHOPIFY_STORE }}
+          THEME: ${{ secrets.SHOPIFY_THEME_ID_STAGING }}
+        run: |
+          if [ -z "$TOKEN" ] || [ -z "$STORE" ] || [ -z "$THEME" ]; then
+            {
+              echo "### Deploy skipped — secrets not provisioned"
+              echo ""
+              echo "One or more of SHOPIFY_CLI_THEME_TOKEN / SHOPIFY_STORE / SHOPIFY_THEME_ID_STAGING is empty."
+              echo ""
+              echo "See \`docs/CI-SECRETS.md\` for mint steps."
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::warning::Staging deploy skipped — required secrets missing."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Checkout
+        if: steps.preflight.outputs.skip != 'true'
         uses: actions/checkout@v4
 
       - name: Setup Node.js
+        if: steps.preflight.outputs.skip != 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '22'
 
       - name: Install Shopify CLI
+        if: steps.preflight.outputs.skip != 'true'
         run: npm install -g @shopify/cli@latest
 
       - name: Theme check (fail fast)
+        if: steps.preflight.outputs.skip != 'true'
         run: shopify theme check --fail-level=error
 
       - name: Push to staging theme
+        if: steps.preflight.outputs.skip != 'true'
         env:
           SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_CLI_THEME_TOKEN }}
           SHOPIFY_FLAG_STORE: ${{ secrets.SHOPIFY_STORE }}

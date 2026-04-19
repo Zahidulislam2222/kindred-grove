@@ -23,21 +23,44 @@ jobs:
     timeout-minutes: 10
 
     steps:
+      - name: Preflight — check secrets
+        id: preflight
+        env:
+          TOKEN: ${{ secrets.SHOPIFY_CLI_THEME_TOKEN }}
+          STORE: ${{ secrets.SHOPIFY_STORE }}
+        run: |
+          if [ -z "$TOKEN" ] || [ -z "$STORE" ]; then
+            {
+              echo "### Accessibility check skipped — secrets not provisioned"
+              echo ""
+              echo "SHOPIFY_CLI_THEME_TOKEN or SHOPIFY_STORE is empty. See \`docs/CI-SECRETS.md\`."
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::warning::Accessibility workflow skipped — required secrets missing."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Checkout
+        if: steps.preflight.outputs.skip != 'true'
         uses: actions/checkout@v4
 
       - name: Setup Node.js
+        if: steps.preflight.outputs.skip != 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '22'
 
       - name: Install Shopify CLI
+        if: steps.preflight.outputs.skip != 'true'
         run: npm install -g @shopify/cli@latest
 
       - name: Install axe-core CLI
+        if: steps.preflight.outputs.skip != 'true'
         run: npm install -g @axe-core/cli@latest
 
       - name: Push PR theme for preview URL
+        if: steps.preflight.outputs.skip != 'true'
         id: push
         env:
           SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_CLI_THEME_TOKEN }}
@@ -62,6 +85,7 @@ jobs:
           echo "theme_id=$THEME_ID" >> "$GITHUB_OUTPUT"
 
       - name: Run axe-core on key routes
+        if: steps.preflight.outputs.skip != 'true'
         env:
           STORE_PASSWORD: ${{ secrets.SHOPIFY_STORE_PASSWORD }}
           PREVIEW_URL: ${{ steps.push.outputs.preview_url }}
@@ -83,7 +107,7 @@ jobs:
           fi
 
       - name: Clean up preview theme
-        if: always() && steps.push.outputs.theme_id != ''
+        if: always() && steps.preflight.outputs.skip != 'true' && steps.push.outputs.theme_id != ''
         env:
           SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_CLI_THEME_TOKEN }}
           SHOPIFY_FLAG_STORE: ${{ secrets.SHOPIFY_STORE }}
