@@ -42,16 +42,17 @@
 /* Variants */
 
 .button--primary {
-  background-color: #6B7F47;
-  background-color: var(--color-primary, #6B7F47);
-  color: #FFFFFF; /* pure white — 5.17:1 on olive (WCAG AA) */
-}
-.button--primary:hover {
-  background-color: #576839;
+  background-color: #576839; /* deeper olive — 6.26:1 on white (WCAG AA) */
   background-color: var(--color-primary-hover, #576839);
   color: #FFFFFF;
 }
+.button--primary:hover {
+  background-color: #3E4928; /* even deeper on hover */
+  background-color: var(--color-primary-active, #3E4928);
+  color: #FFFFFF;
+}
 .button--primary:active {
+  background-color: #3E4928;
   background-color: var(--color-primary-active, #3E4928);
   transform: translateY(1px);
 }

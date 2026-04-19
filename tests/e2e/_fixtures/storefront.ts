@@ -3,10 +3,12 @@ import { expect } from '@playwright/test';
 
 export async function firstProductUrl(page: Page): Promise<string> {
   await page.goto('/collections/all', { waitUntil: 'domcontentloaded' });
-  const card = page.locator('a[href*="/products/"]').first();
+  // Skip the auto-generated Shopify gift-card product — it has a non-standard
+  // add-to-cart flow (recipient email form) that breaks cart e2e specs.
+  const card = page.locator('a[href*="/products/"]:not([href*="gift-card"])').first();
   await expect(card).toBeVisible();
   const href = await card.getAttribute('href');
-  if (!href) throw new Error('Could not find a product card on /collections/all');
+  if (!href) throw new Error('Could not find a non-gift-card product on /collections/all');
   return href;
 }
 
