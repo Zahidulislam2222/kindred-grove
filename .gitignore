@@ -39,6 +39,12 @@ shopify_dev_requirements_checklist.html
 *_INTERNAL.md
 *_PRIVATE.md
 
+# Confidential client artifacts (kept locally, never tracked)
+docs/SOW.md
+docs/BRAND-BRIEF.md
+docs/BUILD-LOG.md
+docs/CI-SECRETS.md
+
 # Temp
 *.tmp
 *.temp
