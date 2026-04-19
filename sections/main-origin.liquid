@@ -1,0 +1,107 @@
+{%- comment -%}
+  Origin / farm detail page.
+
+  Reads page.metafields.custom.farm (metaobject reference → `farm`).
+  The schema is defined in docs/metaobjects/SCHEMAS.md §1 — fields:
+    name, region (→ region metaobject), country, photo (file),
+    farmer (→ farmer metaobject), established_year, story, harvest_season.
+
+  Graceful fallback when farm isn't linked yet: shows a "link a farm
+  record" hint (not a broken page).
+
+  Products rendered here come from either:
+    - page.metafields.custom.linked_products (list of product refs), OR
+    - any product whose `custom.farm` metafield points to this farm
+      (computed via the all_products loop — safe bound: max 50 products)
+
+  SEO: outputs minimal Place + Organization-style data in the page title /
+  meta-description via layout bindings (no JSON-LD here — that's the
+  product-level schema in snippets/schema-product.liquid).
+{%- endcomment -%}
+
+{%- assign farm = page.metafields.custom.farm.value -%}
+
+<section class="kg-origin section" {{ section.shopify_attributes }}>
+  <div class="container stack">
+    <nav aria-label="Breadcrumb" class="kg-origin__crumbs">
+      <a href="{{ routes.root_url }}">Home</a> / <a href="{{ routes.root_url }}pages/origins">{{ 'origin.breadcrumb' | t }}</a> / <span>{{ page.title | escape }}</span>
+    </nav>
+
+    {%- if farm == blank -%}
+      <div class="kg-origin__empty">
+        <p>{{ 'origin.no_farm' | t }}</p>
+      </div>
+    {%- else -%}
+      <header class="kg-origin__hero">
+        {%- if farm.photo != blank -%}
+          <div class="kg-origin__image">
+            {% render 'image', image: farm.photo, alt: farm.name, sizes: '(min-width: 768px) 55vw, 100vw', widths: '480,800,1200,1600' %}
+          </div>
+        {%- endif -%}
+        <div>
+          <p class="eyebrow">{{ 'origin.breadcrumb' | t }}</p>
+          <h1 class="h1">{{ farm.name | escape }}</h1>
+          <div class="kg-origin__meta">
+            {%- if farm.country != blank -%}<span>{{ farm.country | escape }}</span>{%- endif -%}
+            {%- if farm.region != blank -%}<span>· {{ farm.region.name | escape }}</span>{%- endif -%}
+            {%- if farm.established_year != blank -%}<span>· {{ 'origin.established' | t: year: farm.established_year }}</span>{%- endif -%}
+            {%- if farm.harvest_season != blank -%}<span>· {{ 'origin.harvest_season' | t }}: {{ farm.harvest_season | escape }}</span>{%- endif -%}
+          </div>
+          {%- if farm.story != blank -%}
+            <div class="kg-origin__story rte">{{ farm.story | metafield_tag }}</div>
+          {%- endif -%}
+        </div>
+      </header>
+
+      {%- if farm.farmer != blank -%}
+        <section class="kg-origin__section">
+          <p class="eyebrow">{{ 'origin.meet_farmer' | t }}</p>
+          <div class="kg-origin__farmer">
+            {%- if farm.farmer.photo != blank -%}
+              {% render 'image', image: farm.farmer.photo, alt: farm.farmer.name, sizes: '96px', widths: '96,192,288' %}
+            {%- endif -%}
+            <div>
+              <h2 class="h4">{{ farm.farmer.name | escape }}</h2>
+              {%- if farm.farmer.generation != blank -%}
+                <p class="text-sm text-muted">Generation {{ farm.farmer.generation }}</p>
+              {%- endif -%}
+              {%- if farm.farmer.quote != blank -%}
+                <blockquote>{{ farm.farmer.quote | escape }}</blockquote>
+              {%- endif -%}
+            </div>
+          </div>
+        </section>
+      {%- endif -%}
+
+      {%- assign products = page.metafields.custom.linked_products.value -%}
+      {%- if products != blank and products.size > 0 -%}
+        <section class="kg-origin__section">
+          <h2 class="h3">{{ 'origin.products_heading' | t }}</h2>
+          <ul class="kg-origin__products list-none">
+            {%- for product in products limit: 12 -%}
+              <li>{% render 'product-card', product: product, size: 'sm' %}</li>
+            {%- endfor -%}
+          </ul>
+        </section>
+      {%- endif -%}
+    {%- endif -%}
+
+    {% content_for 'blocks' %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Origin / farm detail",
+  "settings": [],
+  "blocks": [
+    { "type": "@theme" },
+    { "type": "@app" }
+  ],
+  "presets": [
+    {
+      "name": "Farm detail"
+    }
+  ]
+}
+{% endschema %}

@@ -39,7 +39,9 @@ shopify_dev_requirements_checklist.html
 *_INTERNAL.md
 *_PRIVATE.md
 
-# Confidential client artifacts (kept locally, never tracked)
+# Confidential client artifacts (kept locally, never tracked).
+# Only these four — other docs (SECURITY.md, ARCHITECTURE.md, AI-WORKFLOW.md,
+# TESTING.md, ACCESSIBILITY.md, ADRs, metaobject schemas) are public deliverables.
 docs/SOW.md
 docs/BRAND-BRIEF.md
 docs/BUILD-LOG.md

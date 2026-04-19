@@ -77,6 +77,17 @@ Recipe content linked from products that pair well with it.
 
 ---
 
+## Page metafield keys (Day 11 — origin/farm detail template)
+
+Create under namespace `custom` in **Settings → Custom data → Pages → Add definition**. Read by `sections/main-origin.liquid` via `templates/page.origin.json`.
+
+| Field | Key | Type | Required | Notes |
+|---|---|---|---|---|
+| Farm | `farm` | Metaobject reference → `farm` | Yes | The origin page displays this farm's record |
+| Linked products | `linked_products` | List of product references | No | Products sourced from this farm. Shown in a 4-column grid. If blank, no products section. |
+
+After definitions exist, create each origin page under **Online Store → Pages → Add page**, assign template `page.origin`, and pick the farm metaobject in the page's metafield panel.
+
 ## Product metafield keys
 
 All live under namespace `custom`. Create each in **Settings → Custom data → Products → Add definition**.

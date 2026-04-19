@@ -1,0 +1,25 @@
+{%- comment -%}
+  Honeypot field — hidden from real users, visible to naive bots.
+  If submitted non-empty, server logic (or the Worker proxy in
+  scripts/wholesale-draft-order-worker.js) rejects the submission.
+
+  The visually-hidden `tabindex="-1"` + `autocomplete="off"` prevent
+  legitimate autofill extensions from touching it. The `aria-hidden`
+  keeps screen readers silent.
+
+  Usage:
+    {% render 'form-honeypot', name: 'wholesale_hp' %}
+{%- endcomment -%}
+{%- assign hp_name = name | default: 'website' -%}
+<div class="honeypot" aria-hidden="true">
+  <label for="{{ hp_name }}-input">
+    Leave this field empty.
+    <input
+      type="text"
+      name="{{ hp_name }}"
+      id="{{ hp_name }}-input"
+      tabindex="-1"
+      autocomplete="off"
+    >
+  </label>
+</div>

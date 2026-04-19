@@ -2432,3 +2432,144 @@
   color: #576839; /* deeper olive — 5.76:1 on cream */
   color: var(--color-primary-hover, #576839);
 }
+
+/* ============================================================
+   WHOLESALE FORM (Day 11)
+   ============================================================ */
+
+.kg-wholesale {
+  padding-block: var(--section-spacing, var(--space-20));
+}
+
+.kg-wholesale-form {
+  display: block;
+  max-width: 48rem;
+  margin-inline: auto;
+}
+
+.kg-wholesale-form__form { display: contents; }
+
+.kg-wholesale-form__grid { gap: var(--space-5); }
+
+.kg-wholesale-form__submit {
+  margin-top: var(--space-6);
+  display: grid;
+  gap: var(--space-3);
+}
+
+.kg-wholesale-form__privacy { margin: 0; }
+
+.kg-wholesale-form__button { width: 100%; }
+
+@media (min-width: 640px) {
+  .kg-wholesale-form__submit {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+  .kg-wholesale-form__button { width: auto; }
+}
+
+.kg-wholesale-form__success {
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-olive-100);
+  color: #3E4928;
+  border-radius: var(--radius-md);
+  font-weight: var(--fw-medium);
+  margin: 0 0 var(--space-5);
+}
+
+.kg-wholesale-form__errors {
+  list-style: none;
+  padding: var(--space-4) var(--space-5);
+  margin: 0 0 var(--space-5);
+  background: #FBEDED;
+  color: #7A2020;
+  border-radius: var(--radius-md);
+}
+
+/* Honeypot — hidden off-screen, not display:none so bots still "see" it */
+.honeypot {
+  position: absolute !important;
+  left: -10000px !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+}
+
+/* ============================================================
+   ORIGIN / FARM DETAIL PAGE (Day 11)
+   ============================================================ */
+
+.kg-origin {
+  padding-block: var(--section-spacing, var(--space-20));
+}
+
+.kg-origin__hero {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-8);
+  align-items: start;
+}
+
+@media (min-width: 768px) {
+  .kg-origin__hero { grid-template-columns: 1.1fr 1fr; }
+}
+
+.kg-origin__image {
+  aspect-ratio: 4/3;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-muted);
+}
+
+.kg-origin__image img { width: 100%; height: 100%; object-fit: cover; }
+
+.kg-origin__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+}
+
+.kg-origin__story {
+  max-width: 52ch;
+  margin-top: var(--space-8);
+}
+
+.kg-origin__story > * + * { margin-top: var(--space-4); }
+
+.kg-origin__section { margin-top: var(--space-12); }
+
+.kg-origin__farmer {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-5);
+  align-items: center;
+  background: var(--color-surface);
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+}
+
+.kg-origin__farmer img {
+  width: 96px; height: 96px; border-radius: var(--radius-circle); object-fit: cover;
+}
+
+.kg-origin__products {
+  display: grid;
+  gap: var(--space-6);
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 768px) {
+  .kg-origin__products { grid-template-columns: repeat(4, 1fr); }
+}
+
+.kg-origin__empty {
+  padding: var(--space-8);
+  text-align: center;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-muted);
+}

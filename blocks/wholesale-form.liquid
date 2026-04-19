@@ -1,0 +1,139 @@
+{%- comment -%}
+  Wholesale / B2B inquiry form.
+
+  Submits to Shopify's native `/contact` endpoint with a `form_type=contact`
+  and a `contact[tags]=wholesale-inquiry` hidden input — every merchant's
+  admin gets these under Customers → (inquiry email) with the wholesale tag.
+
+  A Cloudflare Worker proxy in `scripts/wholesale-draft-order-worker.js`
+  can be deployed separately to also create a Shopify draft order via the
+  Admin API. When the Worker URL is set in theme settings under
+  `wholesale_worker_url`, JS replaces the form action; otherwise the form
+  POSTs straight to /contact.
+
+  Inputs pass through Liquid's native escaping (the form action is
+  Shopify-controlled); client-side rate-limit in assets/wholesale-form.js
+  blocks submits faster than 8s apart. Honeypot snippet catches naive bots.
+{%- endcomment -%}
+
+{%- assign worker_url = block.settings.worker_url -%}
+
+<kg-wholesale-form
+  class="kg-wholesale-form"
+  data-worker-url="{{ worker_url | escape }}"
+  data-min-submit-interval="8000"
+  {{ block.shopify_attributes }}
+>
+  {% form 'contact',
+     id: 'WholesaleInquiryForm',
+     class: 'kg-wholesale-form__form',
+     data-kg-form: 'wholesale'
+  -%}
+    <input type="hidden" name="contact[tags]" value="wholesale-inquiry">
+
+    {%- if form.posted_successfully? -%}
+      <p class="kg-wholesale-form__success" role="status">
+        {{ 'wholesale.form.success' | t }}
+      </p>
+    {%- endif -%}
+
+    {%- if form.errors -%}
+      <ul class="kg-wholesale-form__errors" role="alert">
+        {%- for field in form.errors -%}
+          <li>{{ form.errors.messages[field] | escape }}</li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+
+    <div class="kg-wholesale-form__grid stack">
+      {%
+        render 'form-field',
+        id: 'wholesale-name',
+        name: 'contact[name]',
+        label: 'wholesale.form.name' | t,
+        required: true,
+        autocomplete: 'name'
+      %}
+
+      {%
+        render 'form-field',
+        id: 'wholesale-email',
+        type: 'email',
+        name: 'contact[email]',
+        label: 'wholesale.form.email' | t,
+        required: true,
+        autocomplete: 'email'
+      %}
+
+      {%
+        render 'form-field',
+        id: 'wholesale-business',
+        name: 'contact[company]',
+        label: 'wholesale.form.business' | t,
+        required: true,
+        autocomplete: 'organization'
+      %}
+
+      <div class="form-field">
+        <label for="wholesale-volume" class="form-field__label form-field__label--required">
+          {{ 'wholesale.form.volume' | t }}
+        </label>
+        <select id="wholesale-volume" name="contact[volume]" class="select" required aria-required="true">
+          <option value="">{{ 'wholesale.form.volume_placeholder' | t }}</option>
+          <option value="1-5">{{ 'wholesale.form.volume_1_5' | t }}</option>
+          <option value="6-20">{{ 'wholesale.form.volume_6_20' | t }}</option>
+          <option value="21-100">{{ 'wholesale.form.volume_21_100' | t }}</option>
+          <option value="100+">{{ 'wholesale.form.volume_100_plus' | t }}</option>
+        </select>
+      </div>
+
+      {%
+        render 'form-field',
+        id: 'wholesale-message',
+        type: 'textarea',
+        name: 'contact[body]',
+        label: 'wholesale.form.message' | t,
+        required: true,
+        rows: 5
+      %}
+    </div>
+
+    {% render 'form-honeypot', name: 'wholesale_website' %}
+
+    <div class="kg-wholesale-form__submit">
+      <p class="kg-wholesale-form__privacy text-sm text-muted">
+        {{ 'wholesale.form.privacy_html' | t }}
+      </p>
+      <button type="submit" class="button button--primary button--lg kg-wholesale-form__button" data-kg-submit>
+        {{ 'wholesale.form.submit' | t }}
+      </button>
+    </div>
+  {%- endform %}
+</kg-wholesale-form>
+
+{% schema %}
+{
+  "name": "Wholesale form",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Integrations"
+    },
+    {
+      "type": "text",
+      "id": "worker_url",
+      "label": "Draft-order worker URL",
+      "info": "Optional. Cloudflare Worker (or equivalent) that proxies the form payload to the Shopify Admin API to create a draft order. When blank, the form POSTs to /contact only. Worker source is in `scripts/wholesale-draft-order-worker.js`."
+    },
+    {
+      "type": "text",
+      "id": "klaviyo_list_id",
+      "label": "Klaviyo list ID (optional)",
+      "info": "If set, successful submissions also subscribe the email to this Klaviyo list."
+    }
+  ],
+  "presets": [
+    { "name": "Wholesale form" }
+  ]
+}
+{% endschema %}
