@@ -98,13 +98,16 @@ jobs:
             cat push-output.json
             exit 1
           fi
+          BASE_URL=$(echo "$PREVIEW_URL" | sed 's|?.*||')
+          echo "base_url=$BASE_URL" >> "$GITHUB_OUTPUT"
           echo "preview_url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
           echo "theme_id=$THEME_ID" >> "$GITHUB_OUTPUT"
 
       - name: Run Percy snapshots
         if: steps.preflight.outputs.skip != 'true'
         env:
-          BASE_URL: ${{ steps.push.outputs.preview_url }}
+          BASE_URL: ${{ steps.push.outputs.base_url }}
+          PREVIEW_URL: ${{ steps.push.outputs.preview_url }}
           STORE_PASSWORD: ${{ secrets.SHOPIFY_STORE_PASSWORD }}
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
           CI: 'true'
