@@ -1,0 +1,123 @@
+name: Visual regression — Percy
+
+on:
+  pull_request:
+    branches: [main, staging]
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+      - '.gitignore'
+      - '.editorconfig'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: percy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  percy:
+    name: Percy snapshot suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Preflight — check secrets
+        id: preflight
+        env:
+          PERCY: ${{ secrets.PERCY_TOKEN }}
+          TOKEN: ${{ secrets.SHOPIFY_CLI_THEME_TOKEN }}
+          STORE: ${{ secrets.SHOPIFY_STORE }}
+        run: |
+          if [ -z "$PERCY" ] || [ -z "$TOKEN" ] || [ -z "$STORE" ]; then
+            {
+              echo "### Percy skipped — secrets not provisioned"
+              echo ""
+              echo "PERCY_TOKEN, SHOPIFY_CLI_THEME_TOKEN, or SHOPIFY_STORE is empty. See \`docs/CI-SECRETS.md\` (private)."
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::warning::Percy workflow skipped — required secrets missing."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout
+        if: steps.preflight.outputs.skip != 'true'
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        if: steps.preflight.outputs.skip != 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install npm dependencies
+        if: steps.preflight.outputs.skip != 'true'
+        run: npm install --no-audit --no-fund
+
+      - name: Cache Playwright browsers
+        if: steps.preflight.outputs.skip != 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
+      - name: Install Playwright browser
+        if: steps.preflight.outputs.skip != 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: Install Shopify CLI
+        if: steps.preflight.outputs.skip != 'true'
+        run: npm install -g @shopify/cli@latest
+
+      - name: Push preview theme
+        if: steps.preflight.outputs.skip != 'true'
+        id: push
+        env:
+          SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_CLI_THEME_TOKEN }}
+          SHOPIFY_FLAG_STORE: ${{ secrets.SHOPIFY_STORE }}
+          SHOPIFY_FLAG_FORCE: '1'
+        run: |
+          set -e
+          shopify theme push \
+            --unpublished \
+            --json \
+            --store "$SHOPIFY_FLAG_STORE" \
+            --password "$SHOPIFY_CLI_THEME_TOKEN" \
+            > push-output.json
+          PREVIEW_URL=$(node -e "const d=require('./push-output.json'); console.log(d.theme?.preview_url || d.preview_url || '')")
+          THEME_ID=$(node -e "const d=require('./push-output.json'); console.log(d.theme?.id || d.theme_id || '')")
+          if [ -z "$PREVIEW_URL" ]; then
+            echo "::error::Could not extract preview URL from shopify theme push output"
+            cat push-output.json
+            exit 1
+          fi
+          echo "preview_url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
+          echo "theme_id=$THEME_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Run Percy snapshots
+        if: steps.preflight.outputs.skip != 'true'
+        env:
+          BASE_URL: ${{ steps.push.outputs.preview_url }}
+          STORE_PASSWORD: ${{ secrets.SHOPIFY_STORE_PASSWORD }}
+          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+          CI: 'true'
+        run: npx percy exec -- npx playwright test tests/visual --project=chromium
+
+      - name: Clean up preview theme
+        if: always() && steps.preflight.outputs.skip != 'true' && steps.push.outputs.theme_id != ''
+        env:
+          SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_CLI_THEME_TOKEN }}
+          SHOPIFY_FLAG_STORE: ${{ secrets.SHOPIFY_STORE }}
+          SHOPIFY_FLAG_FORCE: '1'
+        continue-on-error: true
+        run: |
+          shopify theme delete \
+            --theme "${{ steps.push.outputs.theme_id }}" \
+            --store "$SHOPIFY_FLAG_STORE" \
+            --password "$SHOPIFY_CLI_THEME_TOKEN"

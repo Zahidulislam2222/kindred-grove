@@ -10,3 +10,6 @@ ignore:
   - 'extensions/**/*'
   - 'node_modules/**/*'
   - '.shopify/**/*'
+  - 'tests/**/*'
+  - 'playwright-report/**/*'
+  - 'test-results/**/*'

@@ -1,0 +1,20 @@
+{
+  "name": "kindred-grove-tests",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Test harness for the Kindred Grove Shopify theme. Not a Node application — only hosts the Playwright + Percy dev dependencies and the test runners. The Shopify theme itself ships unbundled, no npm install required to render.",
+  "scripts": {
+    "test:e2e": "playwright test --project=chromium",
+    "test:e2e:ui": "playwright test --ui --project=chromium",
+    "test:visual": "percy exec -- playwright test tests/visual --project=chromium",
+    "playwright:install": "playwright install --with-deps chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "@percy/cli": "^1.30.5",
+    "@percy/playwright": "^1.0.7"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
