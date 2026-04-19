@@ -1,0 +1,57 @@
+{%- comment -%}
+  Styleguide — Form fields (normal + focus + error).
+{%- endcomment -%}
+
+<section class="section styleguide-section">
+  <div class="container stack">
+    <header class="stack-sm">
+      <h2 class="h3">Form fields</h2>
+      <p class="text-muted">Label + input/textarea/select + help/error. Error state uses <code>role="alert"</code>.</p>
+    </header>
+
+    <div class="grid grid-2">
+      {% render 'form-field',
+         type: 'text',
+         id: 'sg-text-default',
+         name: 'sg_text_default',
+         label: 'Email address',
+         placeholder: 'you@example.com',
+         help: 'We never share your email.'
+      %}
+
+      {% render 'form-field',
+         type: 'text',
+         id: 'sg-text-error',
+         name: 'sg_text_error',
+         label: 'Your name',
+         required: true,
+         error: 'Please tell us your name so we can address you properly.'
+      %}
+
+      {% render 'form-field',
+         type: 'textarea',
+         id: 'sg-textarea',
+         name: 'sg_textarea',
+         label: 'Message',
+         placeholder: 'Tell us a bit about what you are looking for.'
+      %}
+
+      <div class="form-field">
+        <label for="sg-select" class="form-field__label">Preferred volume</label>
+        <select id="sg-select" name="sg_select" class="select">
+          <option value="case">Case (12 units)</option>
+          <option value="pallet">Pallet (144 units)</option>
+          <option value="container">Container (one FCL)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Styleguide — Form fields",
+  "class": "section-styleguide-form-fields",
+  "settings": []
+}
+{% endschema %}

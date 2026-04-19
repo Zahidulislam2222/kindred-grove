@@ -1,38 +1,177 @@
 {%- comment -%}
-  Header — Day 2 skeleton.
-  Full header (nav mega-menu, cart drawer trigger, search, language/currency switcher)
-  lands Day 4 per PROJECT_PLAN.md.
+  Header — production version.
+  Logo, primary nav (merchant-configured linklist with 1-level dropdowns),
+  search trigger, account link, cart with live count, language/currency
+  switcher, and a mobile menu drawer (assets/mobile-drawer.js Web Component).
 {%- endcomment -%}
 
-<header class="site-header" role="banner">
-  <div class="site-header__inner">
+{%- liquid
+  assign menu = linklists[section.settings.menu]
+  assign show_account = section.settings.show_account
+  assign show_search = section.settings.show_search
+  assign show_locale = section.settings.show_locale
+  assign show_logo_image = false
+  if section.settings.logo_image != blank
+    assign show_logo_image = true
+  endif
+-%}
+
+<kg-header class="site-header site-header--{{ section.settings.layout }}" role="banner">
+  <div class="site-header__bar container">
+    <button
+      type="button"
+      class="site-header__menu-toggle btn btn--ghost btn--sm md:hidden"
+      aria-label="{{ 'header.open_menu' | t }}"
+      aria-controls="MobileDrawer"
+      aria-expanded="false"
+      data-kg-drawer-toggle
+    >
+      {% render 'icon', name: 'menu', size: 22 %}
+    </button>
+
     <a href="{{ routes.root_url }}" class="site-header__logo" aria-label="{{ shop.name | escape }} — home">
-      <span class="site-header__logo-text">{{ shop.name | escape }}</span>
+      {%- if show_logo_image -%}
+        {%- assign logo_width = section.settings.logo_width | default: 160 -%}
+        <img
+          src="{{ section.settings.logo_image | image_url: width: 480 }}"
+          srcset="{{ section.settings.logo_image | image_url: width: 240 }} 240w, {{ section.settings.logo_image | image_url: width: 480 }} 480w, {{ section.settings.logo_image | image_url: width: 720 }} 720w"
+          sizes="{{ logo_width }}px"
+          alt="{{ shop.name | escape }}"
+          width="{{ logo_width }}"
+          height="{{ logo_width | times: section.settings.logo_image.aspect_ratio | round }}"
+          loading="eager"
+          fetchpriority="high"
+        >
+      {%- else -%}
+        <span class="site-header__logo-text">{{ shop.name | escape }}</span>
+      {%- endif -%}
     </a>
 
-    <nav class="site-header__nav" aria-label="{{ 'a11y.primary_nav' | t | default: 'Primary navigation' }}">
-      {%- comment -%} Day 4 populates from linklists.main-menu {%- endcomment -%}
-      <ul class="site-header__nav-list">
-        {%- for link in linklists.main-menu.links -%}
-          <li><a href="{{ link.url }}">{{ link.title | escape }}</a></li>
-        {%- endfor -%}
-      </ul>
-    </nav>
+    {%- if menu != blank -%}
+      <nav class="site-header__nav hidden md:flex" aria-label="{{ 'a11y.primary_nav' | t }}">
+        <ul class="site-header__nav-list cluster">
+          {%- for link in menu.links -%}
+            <li class="site-header__nav-item{% if link.links.size > 0 %} has-dropdown{% endif %}">
+              <a
+                href="{{ link.url }}"
+                class="site-header__nav-link{% if link.active %} is-active{% endif %}"
+                {% if link.active %}aria-current="page"{% endif %}
+              >
+                {{ link.title | escape }}
+                {%- if link.links.size > 0 -%}
+                  {% render 'icon', name: 'chevron-down', size: 14 %}
+                {%- endif -%}
+              </a>
+              {%- if link.links.size > 0 -%}
+                <ul class="site-header__dropdown" role="menu">
+                  {%- for child in link.links -%}
+                    <li role="none">
+                      <a href="{{ child.url }}" class="site-header__dropdown-link" role="menuitem"{% if child.active %} aria-current="page"{% endif %}>
+                        {{ child.title | escape }}
+                      </a>
+                    </li>
+                  {%- endfor -%}
+                </ul>
+              {%- endif -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+      </nav>
+    {%- endif -%}
 
-    <div class="site-header__actions">
-      <a href="{{ routes.cart_url }}" aria-label="Cart" class="site-header__cart">
-        Cart
-        {%- if cart.item_count > 0 -%}
-          <span class="site-header__cart-count" aria-hidden="true">({{ cart.item_count }})</span>
-        {%- endif -%}
+    <div class="site-header__actions cluster">
+      {%- if show_locale -%}
+        <div class="site-header__locale hidden md:flex">
+          {% render 'language-switcher', show_language: true, show_currency: true %}
+        </div>
+      {%- endif -%}
+
+      {%- if show_search -%}
+        <a href="{{ routes.search_url }}" class="site-header__icon-btn" aria-label="{{ 'header.search' | t }}">
+          {% render 'icon', name: 'search', size: 22 %}
+        </a>
+      {%- endif -%}
+
+      {%- if show_account -%}
+        <a href="{{ routes.account_url }}" class="site-header__icon-btn hidden md:inline-flex" aria-label="{{ 'header.account' | t }}">
+          {% render 'icon', name: 'user', size: 22 %}
+        </a>
+      {%- endif -%}
+
+      <a href="{{ routes.cart_url }}" class="site-header__icon-btn site-header__cart" aria-label="{{ 'header.cart' | t }}">
+        {% render 'icon', name: 'bag', size: 22 %}
+        <span class="site-header__cart-count" data-cart-count{% if cart.item_count == 0 %} hidden{% endif %}>
+          {{- cart.item_count -}}
+        </span>
       </a>
     </div>
   </div>
-</header>
+
+  {%- comment -%} Mobile drawer lives inside the same custom element so its state is local. {%- endcomment -%}
+  <aside
+    id="MobileDrawer"
+    class="site-drawer"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="MobileDrawerTitle"
+    hidden
+  >
+    <div class="site-drawer__panel">
+      <div class="site-drawer__header">
+        <span id="MobileDrawerTitle" class="site-drawer__title">{{ 'header.menu' | t }}</span>
+        <button type="button" class="btn btn--ghost btn--sm" aria-label="{{ 'header.close_menu' | t }}" data-kg-drawer-close>
+          {% render 'icon', name: 'close', size: 20 %}
+        </button>
+      </div>
+      {%- if menu != blank -%}
+        <nav class="site-drawer__nav" aria-label="{{ 'a11y.primary_nav' | t }}">
+          <ul class="stack">
+            {%- for link in menu.links -%}
+              <li><a class="site-drawer__link" href="{{ link.url }}">{{ link.title | escape }}</a></li>
+              {%- if link.links.size > 0 -%}
+                <li><ul class="stack site-drawer__sublist">
+                  {%- for child in link.links -%}
+                    <li><a class="site-drawer__link site-drawer__link--child" href="{{ child.url }}">{{ child.title | escape }}</a></li>
+                  {%- endfor -%}
+                </ul></li>
+              {%- endif -%}
+            {%- endfor -%}
+          </ul>
+        </nav>
+      {%- endif -%}
+      <div class="site-drawer__footer stack">
+        {%- if show_account -%}
+          <a href="{{ routes.account_url }}" class="site-drawer__link">{{ 'header.account' | t }}</a>
+        {%- endif -%}
+        {%- if show_locale -%}
+          {% render 'language-switcher', show_language: true, show_currency: true, class: 'site-drawer__locale' %}
+        {%- endif -%}
+      </div>
+    </div>
+    <div class="site-drawer__scrim" data-kg-drawer-close aria-hidden="true"></div>
+  </aside>
+</kg-header>
+
+<script src="{{ 'mobile-drawer.js' | asset_url }}" defer></script>
 
 {% schema %}
 {
   "name": "Header",
-  "class": "section-header"
+  "class": "section-header",
+  "settings": [
+    { "type": "header", "content": "Logo" },
+    { "type": "image_picker", "id": "logo_image", "label": "Logo image", "info": "Leave empty to show the shop name as wordmark." },
+    { "type": "range", "id": "logo_width", "label": "Logo width (px)", "min": 80, "max": 280, "step": 10, "default": 160, "unit": "px" },
+    { "type": "header", "content": "Navigation" },
+    { "type": "link_list", "id": "menu", "label": "Main menu", "default": "main-menu" },
+    { "type": "select", "id": "layout", "label": "Header layout", "options": [
+      { "value": "standard", "label": "Standard (logo left, nav right)" },
+      { "value": "centered", "label": "Centered (logo center, nav below on desktop)" }
+    ], "default": "standard" },
+    { "type": "header", "content": "Actions" },
+    { "type": "checkbox", "id": "show_search", "label": "Show search icon", "default": true },
+    { "type": "checkbox", "id": "show_account", "label": "Show account icon", "default": true },
+    { "type": "checkbox", "id": "show_locale", "label": "Show language/currency switcher", "default": true }
+  ]
 }
 {% endschema %}

@@ -1,0 +1,60 @@
+{%- comment -%}
+  Styleguide — Buttons (every variant × size × state).
+{%- endcomment -%}
+
+<section class="section styleguide-section">
+  <div class="container stack">
+    <header class="stack-sm">
+      <h2 class="h3">Buttons</h2>
+      <p class="text-muted">Four variants × three sizes + loading + disabled. Rendered via <code>snippets/button.liquid</code>.</p>
+    </header>
+
+    <div class="stack-lg">
+      <div class="stack-sm">
+        <h3 class="h5 text-muted">Primary</h3>
+        <div class="cluster">
+          {% render 'button', label: 'Small', variant: 'primary', size: 'sm' %}
+          {% render 'button', label: 'Medium', variant: 'primary' %}
+          {% render 'button', label: 'Large', variant: 'primary', size: 'lg' %}
+          {% render 'button', label: 'Loading', variant: 'primary', loading: true %}
+          {% render 'button', label: 'Disabled', variant: 'primary', disabled: true %}
+        </div>
+      </div>
+
+      <div class="stack-sm">
+        <h3 class="h5 text-muted">Secondary</h3>
+        <div class="cluster">
+          {% render 'button', label: 'Small', variant: 'secondary', size: 'sm' %}
+          {% render 'button', label: 'Medium', variant: 'secondary' %}
+          {% render 'button', label: 'Large', variant: 'secondary', size: 'lg' %}
+        </div>
+      </div>
+
+      <div class="stack-sm">
+        <h3 class="h5 text-muted">Ghost</h3>
+        <div class="cluster">
+          {% render 'button', label: 'Small', variant: 'ghost', size: 'sm' %}
+          {% render 'button', label: 'Medium', variant: 'ghost' %}
+          {% render 'button', label: 'Large', variant: 'ghost', size: 'lg' %}
+        </div>
+      </div>
+
+      <div class="stack-sm">
+        <h3 class="h5 text-muted">Accent</h3>
+        <div class="cluster">
+          {% render 'button', label: 'Small', variant: 'accent', size: 'sm' %}
+          {% render 'button', label: 'Medium', variant: 'accent' %}
+          {% render 'button', label: 'Large', variant: 'accent', size: 'lg' %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Styleguide — Buttons",
+  "class": "section-styleguide-buttons",
+  "settings": []
+}
+{% endschema %}

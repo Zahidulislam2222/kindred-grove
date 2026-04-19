@@ -1,0 +1,30 @@
+{
+  "sections": {
+    "intro": {
+      "type": "styleguide-intro"
+    },
+    "colors": {
+      "type": "styleguide-colors"
+    },
+    "typography": {
+      "type": "styleguide-typography"
+    },
+    "buttons": {
+      "type": "styleguide-buttons"
+    },
+    "form_fields": {
+      "type": "styleguide-form-fields"
+    },
+    "icons": {
+      "type": "styleguide-icons"
+    }
+  },
+  "order": [
+    "intro",
+    "colors",
+    "typography",
+    "buttons",
+    "form_fields",
+    "icons"
+  ]
+}

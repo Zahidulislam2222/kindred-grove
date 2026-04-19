@@ -1,0 +1,32 @@
+{%- comment -%}
+  Styleguide — Icons.
+  Shows the full icon library with names under each glyph. Missing icons
+  render as empty SVGs (fail silent) — surface that too.
+{%- endcomment -%}
+
+<section class="section styleguide-section">
+  <div class="container stack">
+    <header class="stack-sm">
+      <h2 class="h3">Icons</h2>
+      <p class="text-muted">Stroke-based, 24×24, <code>currentColor</code>. Size via <code>size:</code> render arg; color via CSS <code>color</code>.</p>
+    </header>
+
+    <div class="grid grid-4 styleguide-icon-grid">
+      {%- assign icons = 'arrow-left,arrow-right,arrow-up-right,bag,cart,check,chevron-down,chevron-right,close,globe,heart,instagram,mail,menu,minus,olive-branch,pinterest,plus,search,star,star-filled,tiktok,user' | split: ',' -%}
+      {%- for ic in icons -%}
+        <figure class="styleguide-icon">
+          {% render 'icon', name: ic, size: 28 %}
+          <figcaption><code>{{ ic }}</code></figcaption>
+        </figure>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Styleguide — Icons",
+  "class": "section-styleguide-icons",
+  "settings": []
+}
+{% endschema %}

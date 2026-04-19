@@ -1,0 +1,52 @@
+{%- comment -%}
+  Announcement bar — horizontal strip at the top of the page.
+  Dismissible via localStorage keyed by a short hash of the message, so a
+  new message re-appears even if a previous one was dismissed.
+{%- endcomment -%}
+
+{%- liquid
+  assign msg = block.settings.message
+  if msg == blank
+    assign msg = ''
+  endif
+  assign dismiss_key = msg | md5 | slice: 0, 10
+  assign link = block.settings.link
+  assign bg = block.settings.background_color
+  assign fg = block.settings.text_color
+-%}
+
+{%- if msg != '' -%}
+  <kg-announcement
+    class="announcement-bar"
+    data-dismissible="{{ block.settings.dismissible }}"
+    data-dismiss-key="kg-announce-{{ dismiss_key }}"
+    style="--announce-bg: {{ bg }}; --announce-fg: {{ fg }};"
+    {{ block.shopify_attributes }}
+  >
+    <div class="announcement-bar__inner container">
+      {%- if link != blank -%}
+        <a href="{{ link }}" class="announcement-bar__message">{{ msg | escape }}</a>
+      {%- else -%}
+        <span class="announcement-bar__message">{{ msg | escape }}</span>
+      {%- endif -%}
+      {%- if block.settings.dismissible -%}
+        <button type="button" class="announcement-bar__close" aria-label="{{ 'announcement.dismiss' | t }}" data-kg-announce-close>
+          {% render 'icon', name: 'close', size: 16 %}
+        </button>
+      {%- endif -%}
+    </div>
+  </kg-announcement>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Announcement bar",
+  "settings": [
+    { "type": "text", "id": "message", "label": "Message", "default": "Free shipping on orders over $60." },
+    { "type": "url", "id": "link", "label": "Link (optional)" },
+    { "type": "color", "id": "background_color", "label": "Background", "default": "#1F1A14" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#F8F4EC" },
+    { "type": "checkbox", "id": "dismissible", "label": "Dismissible", "default": true }
+  ]
+}
+{% endschema %}

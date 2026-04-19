@@ -49,12 +49,56 @@ a:hover {
 
 /* Element typography — default flow */
 
-h1 { font-size: var(--fs-5xl); line-height: var(--lh-tight); }
-h2 { font-size: var(--fs-3xl); line-height: var(--lh-snug); }
-h3 { font-size: var(--fs-2xl); line-height: var(--lh-snug); }
-h4 { font-size: var(--fs-xl);  line-height: var(--lh-snug); }
-h5 { font-size: var(--fs-lg);  line-height: var(--lh-normal); }
-h6 { font-size: var(--fs-base); line-height: var(--lh-normal); letter-spacing: var(--ls-wide); text-transform: uppercase; }
+h1, .h1 {
+  font-family: var(--font-heading);
+  font-size: var(--fs-5xl);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  font-weight: var(--fw-semibold);
+}
+h2, .h2 {
+  font-family: var(--font-heading);
+  font-size: var(--fs-4xl);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--ls-tight);
+  font-weight: var(--fw-semibold);
+}
+h3, .h3 {
+  font-family: var(--font-heading);
+  font-size: var(--fs-3xl);
+  line-height: var(--lh-snug);
+  font-weight: var(--fw-semibold);
+}
+h4, .h4 {
+  font-family: var(--font-heading);
+  font-size: var(--fs-2xl);
+  line-height: var(--lh-snug);
+  font-weight: var(--fw-semibold);
+}
+h5, .h5 {
+  font-size: var(--fs-lg);
+  line-height: var(--lh-normal);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+}
+h6, .h6 {
+  font-size: var(--fs-base);
+  line-height: var(--lh-normal);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+  font-weight: var(--fw-semibold);
+}
+
+.eyebrow {
+  font-family: var(--font-body);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--ls-widest);
+  text-transform: uppercase;
+  color: var(--color-primary);
+  margin: 0;
+}
 
 p {
   line-height: var(--lh-relaxed);

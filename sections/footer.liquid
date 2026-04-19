@@ -1,28 +1,147 @@
 {%- comment -%}
-  Footer — Day 2 skeleton.
-  Full footer (nav, trust badges, newsletter, social, legal) lands Day 4.
+  Footer — production version.
+  Columns: brand + newsletter, then up to 3 merchant-configured linklist columns,
+  then trust badges, social, and legal. Klaviyo hookup lands Day 12; for now
+  the newsletter posts to Shopify's native contact_form with a 'newsletter'
+  context flag, which is the same convention Dawn/Horizon use.
 {%- endcomment -%}
 
 <footer class="site-footer" role="contentinfo">
-  <div class="site-footer__inner">
-    <div class="site-footer__trust" aria-label="{{ 'a11y.trust_signals' | t | default: 'Trust signals' }}">
-      {%- if settings.trust_halal -%}<span class="trust-badge">Halal-certified</span>{%- endif -%}
-      {%- if settings.trust_fairtrade -%}<span class="trust-badge">Fair-trade</span>{%- endif -%}
-      {%- if settings.trust_single_origin -%}<span class="trust-badge">Single-origin</span>{%- endif -%}
-      {%- if settings.trust_cold_pressed -%}<span class="trust-badge">Cold-pressed</span>{%- endif -%}
+  <div class="site-footer__inner container stack">
+    <div class="site-footer__grid">
+      <div class="site-footer__col site-footer__col--brand">
+        <a href="{{ routes.root_url }}" class="site-footer__logo" aria-label="{{ shop.name | escape }}">
+          {% render 'icon', name: 'olive-branch', size: 28, class: 'site-footer__logo-icon' %}
+          <span class="site-footer__logo-text">{{ shop.name | escape }}</span>
+        </a>
+        {%- if section.settings.brand_description != blank -%}
+          <p class="site-footer__brand-desc">{{ section.settings.brand_description }}</p>
+        {%- endif -%}
+
+        {%- if section.settings.show_newsletter -%}
+          <div class="site-footer__newsletter">
+            <h2 class="h4 site-footer__newsletter-heading">{{ section.settings.newsletter_heading | default: 'footer.newsletter.heading' | t }}</h2>
+            {%- if section.settings.newsletter_body != blank -%}
+              <p class="site-footer__newsletter-body">{{ section.settings.newsletter_body }}</p>
+            {%- endif -%}
+            {%- form 'contact', class: 'site-footer__newsletter-form' -%}
+              <input type="hidden" name="contact[tags]" value="newsletter">
+              <label for="NewsletterEmail" class="visually-hidden">{{ 'footer.newsletter.email_label' | t }}</label>
+              <div class="site-footer__newsletter-row">
+                <input
+                  id="NewsletterEmail"
+                  type="email"
+                  name="contact[email]"
+                  class="input"
+                  placeholder="{{ 'footer.newsletter.email_placeholder' | t }}"
+                  autocomplete="email"
+                  required
+                >
+                <button type="submit" class="btn btn--primary">
+                  {{ 'footer.newsletter.submit' | t }}
+                </button>
+              </div>
+              {%- if form.posted_successfully? -%}
+                <p class="site-footer__newsletter-success" role="status">{{ 'footer.newsletter.success' | t }}</p>
+              {%- elsif form.errors -%}
+                <p class="site-footer__newsletter-error" role="alert">{{ form.errors.translated_fields.email }} {{ form.errors.messages.email }}</p>
+              {%- endif -%}
+            {%- endform -%}
+          </div>
+        {%- endif -%}
+      </div>
+
+      {%- for column in (1..3) -%}
+        {%- capture linklist_key -%}menu_{{ column }}{%- endcapture -%}
+        {%- capture heading_key -%}menu_{{ column }}_heading{%- endcapture -%}
+        {%- assign handle = section.settings[linklist_key] -%}
+        {%- assign linklist = linklists[handle] -%}
+        {%- if linklist != blank and linklist.links.size > 0 -%}
+          <div class="site-footer__col">
+            <h3 class="site-footer__col-heading">{{ section.settings[heading_key] | default: linklist.title }}</h3>
+            <ul class="site-footer__col-list stack">
+              {%- for link in linklist.links -%}
+                <li><a href="{{ link.url }}" class="site-footer__link">{{ link.title | escape }}</a></li>
+              {%- endfor -%}
+            </ul>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
     </div>
 
-    <p class="site-footer__legal">
-      &copy; {{ 'now' | date: '%Y' }} {{ shop.name | escape }}.
-      <a href="/policies/privacy-policy">Privacy</a> ·
-      <a href="/policies/terms-of-service">Terms</a>
-    </p>
+    {%- if section.settings.show_trust_badges -%}
+      <ul class="site-footer__trust cluster" aria-label="{{ 'a11y.trust_signals' | t }}">
+        {%- if settings.trust_halal -%}
+          <li class="trust-badge">{% render 'icon', name: 'check', size: 16 %} {{ 'shop.trust.halal' | t }}</li>
+        {%- endif -%}
+        {%- if settings.trust_fairtrade -%}
+          <li class="trust-badge">{% render 'icon', name: 'check', size: 16 %} {{ 'shop.trust.fairtrade' | t }}</li>
+        {%- endif -%}
+        {%- if settings.trust_single_origin -%}
+          <li class="trust-badge">{% render 'icon', name: 'check', size: 16 %} {{ 'shop.trust.single_origin' | t }}</li>
+        {%- endif -%}
+        {%- if settings.trust_cold_pressed -%}
+          <li class="trust-badge">{% render 'icon', name: 'check', size: 16 %} {{ 'shop.trust.cold_pressed' | t }}</li>
+        {%- endif -%}
+      </ul>
+    {%- endif -%}
+
+    <div class="site-footer__bottom cluster">
+      <div class="site-footer__social cluster" aria-label="{{ 'footer.social.follow_us' | t }}">
+        {%- if settings.social_instagram != blank -%}
+          <a href="{{ settings.social_instagram }}" class="site-footer__social-link" rel="noopener me" target="_blank" aria-label="{{ 'footer.social.instagram' | t }}">
+            {% render 'icon', name: 'instagram', size: 20 %}
+          </a>
+        {%- endif -%}
+        {%- if settings.social_tiktok != blank -%}
+          <a href="{{ settings.social_tiktok }}" class="site-footer__social-link" rel="noopener me" target="_blank" aria-label="{{ 'footer.social.tiktok' | t }}">
+            {% render 'icon', name: 'tiktok', size: 20 %}
+          </a>
+        {%- endif -%}
+        {%- if settings.social_pinterest != blank -%}
+          <a href="{{ settings.social_pinterest }}" class="site-footer__social-link" rel="noopener me" target="_blank" aria-label="{{ 'footer.social.pinterest' | t }}">
+            {% render 'icon', name: 'pinterest', size: 20 %}
+          </a>
+        {%- endif -%}
+      </div>
+
+      <p class="site-footer__legal">
+        &copy; {{ 'now' | date: '%Y' }} {{ shop.name | escape }}.
+        {{ 'footer.legal.rights' | t }}
+        <a href="/policies/privacy-policy">{{ 'footer.legal.privacy' | t }}</a> ·
+        <a href="/policies/terms-of-service">{{ 'footer.legal.terms' | t }}</a>
+      </p>
+
+      {%- if section.settings.show_locale -%}
+        <div class="site-footer__locale">
+          {% render 'language-switcher', show_language: true, show_currency: true %}
+        </div>
+      {%- endif -%}
+    </div>
   </div>
 </footer>
 
 {% schema %}
 {
   "name": "Footer",
-  "class": "section-footer"
+  "class": "section-footer",
+  "settings": [
+    { "type": "header", "content": "Brand" },
+    { "type": "textarea", "id": "brand_description", "label": "Brand description", "default": "Single-origin pantry staples sourced direct from family farms." },
+    { "type": "header", "content": "Newsletter" },
+    { "type": "checkbox", "id": "show_newsletter", "label": "Show newsletter form", "default": true },
+    { "type": "text", "id": "newsletter_heading", "label": "Newsletter heading", "default": "The grove, in your inbox." },
+    { "type": "textarea", "id": "newsletter_body", "label": "Newsletter body", "default": "Harvest notes, recipes, and early access to new releases. No spam." },
+    { "type": "header", "content": "Link columns" },
+    { "type": "link_list", "id": "menu_1", "label": "Column 1 menu" },
+    { "type": "text", "id": "menu_1_heading", "label": "Column 1 heading override" },
+    { "type": "link_list", "id": "menu_2", "label": "Column 2 menu" },
+    { "type": "text", "id": "menu_2_heading", "label": "Column 2 heading override" },
+    { "type": "link_list", "id": "menu_3", "label": "Column 3 menu" },
+    { "type": "text", "id": "menu_3_heading", "label": "Column 3 heading override" },
+    { "type": "header", "content": "Other elements" },
+    { "type": "checkbox", "id": "show_trust_badges", "label": "Show trust badges row", "default": true },
+    { "type": "checkbox", "id": "show_locale", "label": "Show language/currency switcher", "default": true }
+  ]
 }
 {% endschema %}

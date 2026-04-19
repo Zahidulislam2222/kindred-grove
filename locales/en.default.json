@@ -1,8 +1,10 @@
 {
   "a11y": {
     "primary_nav": "Primary navigation",
+    "secondary_nav": "Secondary navigation",
     "trust_signals": "Trust signals",
-    "skip_to_content": "Skip to main content"
+    "skip_to_content": "Skip to main content",
+    "loading": "Loading"
   },
   "general": {
     "search": {
@@ -19,6 +21,69 @@
       "title": "Cart",
       "count": "({{ count }})"
     }
+  },
+  "header": {
+    "menu": "Menu",
+    "open_menu": "Open menu",
+    "close_menu": "Close menu",
+    "search": "Search",
+    "account": "Account",
+    "language": "Language",
+    "currency": "Currency",
+    "cart": "Cart"
+  },
+  "footer": {
+    "newsletter": {
+      "heading": "The grove, in your inbox.",
+      "body": "Harvest notes, recipes, and early access to new releases. No spam.",
+      "email_label": "Email address",
+      "email_placeholder": "you@example.com",
+      "submit": "Subscribe",
+      "success": "Thank you — check your inbox to confirm."
+    },
+    "social": {
+      "follow_us": "Follow us",
+      "instagram": "Instagram",
+      "tiktok": "TikTok",
+      "pinterest": "Pinterest"
+    },
+    "columns": {
+      "shop": "Shop",
+      "learn": "Learn",
+      "support": "Support"
+    },
+    "legal": {
+      "rights": "All rights reserved.",
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "accessibility": "Accessibility",
+      "cookies": "Cookie preferences"
+    }
+  },
+  "announcement": {
+    "dismiss": "Dismiss announcement"
+  },
+  "hero": {
+    "eyebrow_default": "Single-origin. Traceable. Family-farmed."
+  },
+  "values": {
+    "heading": "Why Kindred Grove"
+  },
+  "newsletter_block": {
+    "heading": "Join the table",
+    "body": "Seasonal recipes and early access to new harvests."
+  },
+  "farm_story": {
+    "eyebrow": "Behind the harvest",
+    "cta": "Read the story"
+  },
+  "reviews": {
+    "heading": "What our table is saying",
+    "star_label": "{{ count }} out of 5 stars"
+  },
+  "instagram": {
+    "heading": "From our kitchen to yours",
+    "cta": "Follow on Instagram"
   },
   "gift_cards": {
     "issued": {

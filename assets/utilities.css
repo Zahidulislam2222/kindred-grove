@@ -147,12 +147,23 @@
 
 /* ---------- Responsive helpers ---------- */
 
-.hidden         { display: none; }
-@media (max-width: 767px) {
-  .md\:hidden { display: none; }
-}
+.hidden { display: none !important; }
+
+/* Mobile-first: these classes apply the matching display only at ≥768px. */
 @media (min-width: 768px) {
-  .md\:block  { display: block; }
-  .md\:flex   { display: flex; }
-  .md\:grid   { display: grid; }
+  .md\:block        { display: block; }
+  .md\:flex         { display: flex; }
+  .md\:inline-flex  { display: inline-flex; }
+  .md\:grid         { display: grid; }
+  .md\:hidden       { display: none !important; }
+}
+
+/* Explicit show/hide by breakpoint — clearer than chaining .hidden + .md:flex
+   when a block is genuinely single-breakpoint. */
+.show-mobile  { display: initial; }
+.show-desktop { display: none; }
+
+@media (min-width: 768px) {
+  .show-mobile  { display: none; }
+  .show-desktop { display: initial; }
 }

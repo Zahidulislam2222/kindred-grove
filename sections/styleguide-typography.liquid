@@ -1,0 +1,52 @@
+{%- comment -%}
+  Styleguide — Typography.
+  Displays every type size with its class name and CSS variable.
+{%- endcomment -%}
+
+<section class="section styleguide-section">
+  <div class="container stack">
+    <header class="stack-sm">
+      <h2 class="h3">Typography</h2>
+      <p class="text-muted">Cormorant Garamond headings. Inter body. Full scale on a 1.25 ratio.</p>
+    </header>
+
+    <div class="stack-lg">
+      <div class="styleguide-type-row">
+        <h1 class="h1">The grove at first light</h1>
+        <code class="styleguide-type-meta">h1 · --fs-5xl</code>
+      </div>
+      <div class="styleguide-type-row">
+        <h2 class="h2">From the grove to your table</h2>
+        <code class="styleguide-type-meta">h2 · --fs-4xl</code>
+      </div>
+      <div class="styleguide-type-row">
+        <h3 class="h3">Single-origin pantry staples</h3>
+        <code class="styleguide-type-meta">h3 · --fs-3xl</code>
+      </div>
+      <div class="styleguide-type-row">
+        <h4 class="h4">Traceable to the harvest</h4>
+        <code class="styleguide-type-meta">h4 · --fs-2xl</code>
+      </div>
+      <div class="styleguide-type-row">
+        <p class="text-lg">Large body — for emphasized short passages, leads, or the opening paragraph of a farm story.</p>
+        <code class="styleguide-type-meta">.text-lg · --fs-lg</code>
+      </div>
+      <div class="styleguide-type-row">
+        <p>Body default — the working voice of the brand. Ingredient-first, warm without cliché, confident without peacock.</p>
+        <code class="styleguide-type-meta">body · --fs-base</code>
+      </div>
+      <div class="styleguide-type-row">
+        <p class="text-sm text-muted">Small muted — used for meta, captions, legal.</p>
+        <code class="styleguide-type-meta">.text-sm .text-muted · --fs-sm</code>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Styleguide — Typography",
+  "class": "section-styleguide-typography",
+  "settings": []
+}
+{% endschema %}

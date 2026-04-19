@@ -1,0 +1,34 @@
+{%- comment -%}
+  Styleguide — Colors.
+  Reads live brand tokens from config/settings_schema.json so the swatches
+  reflect whatever the merchant currently has configured.
+{%- endcomment -%}
+
+<section class="section styleguide-section">
+  <div class="container stack">
+    <header class="stack-sm">
+      <h2 class="h3">Colors</h2>
+      <p class="text-muted">Live token values from the theme customizer. Every component consumes these via CSS variables.</p>
+    </header>
+
+    <div class="grid grid-4">
+      {%- assign swatches = 'color_primary,color_primary_hover,color_accent,color_secondary,color_background,color_surface,color_text,color_text_muted,color_border' | split: ',' -%}
+      {%- for key in swatches -%}
+        {%- assign value = settings[key] -%}
+        <div class="swatch">
+          <div class="swatch__chip" style="background: {{ value }};"></div>
+          <p class="swatch__name">{{ key }}</p>
+          <p class="swatch__value"><code>{{ value }}</code></p>
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Styleguide — Colors",
+  "class": "section-styleguide-colors",
+  "settings": []
+}
+{% endschema %}

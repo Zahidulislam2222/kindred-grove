@@ -1,0 +1,22 @@
+{%- comment -%}
+  Announcement section — static host for one or more announcement-bar blocks.
+  Rendered from layout/theme.liquid so merchants control it globally from the
+  theme editor without needing to add it to every template.
+{%- endcomment -%}
+
+{% content_for 'blocks' %}
+
+{% schema %}
+{
+  "name": "Announcement",
+  "class": "section-announcement",
+  "blocks": [
+    { "type": "announcement-bar" }
+  ],
+  "default": {
+    "blocks": [
+      { "type": "announcement-bar" }
+    ]
+  }
+}
+{% endschema %}
