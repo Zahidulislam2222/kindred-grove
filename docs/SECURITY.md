@@ -116,12 +116,11 @@ No `write_orders`, no `write_customers` on the default install. Adding a new Adm
 
 ## 7. Secrets-in-repo guard
 
-Pre-commit + CI:
-
 - `.gitignore` blocks: `.env`, `docs/SOW.md`, `docs/BRAND-BRIEF.md`, `docs/BUILD-LOG.md`, `docs/CI-SECRETS.md`, `PROJECT_PLAN.md`, `shopify_dev_requirements_checklist.html`, `node_modules/`, `test-results/`, `playwright-report/`, `.shopify/`.
 - `.env.example` is the public template — all values blank.
 - Historical scrub: on Day 10, the 4 confidential docs plus the Cloudflare Account ID were purged from the entire git history via `git filter-repo`. All 10 day-tags were re-pushed to point at rewritten commits.
-- **TODO Day 19:** add a `gitleaks` pre-commit hook + CI check (stretch — current repo is already clean per manual audit).
+- **Gitleaks CI check** (`.github/workflows/gitleaks.yml`) — runs on every PR, every push to `main`, plus a weekly scheduled deep-scan every Monday 06:00 UTC. Config at `.gitleaks.toml` inherits the default rule set (AWS keys, Shopify tokens, GitHub PATs, Sentry DSNs, Slack webhooks, and ~140 more) and adds a tight allowlist for known placeholder strings (`shpat_xxx`, `web_…`, `G-XXXXXXXXXX`, etc.) so the handful of legitimate example values in `docs/`, `scripts/`, and `.env.example` don't trip the scanner.
+- **Manual audit:** no `shpat_`/`shpss_`/`shptka_` strings anywhere in tracked files except the documented placeholders.
 
 ---
 
@@ -158,9 +157,9 @@ Found a vulnerability? Email `security@<project-domain>` (set by the merchant). 
 
 ---
 
-## Deferred items (Week 3 Day 19)
+## Deferred items (Phase 2 / Week 4 pre-ship)
 
-- `gitleaks` pre-commit + CI
-- Subresource Integrity on external script tags
-- More aggressive CSP once the Shopify platform supports nonces
+- Subresource Integrity on external script tags (planned Phase 2 with Hydrogen migration)
+- Nonce-based CSP — replaces `'unsafe-inline'` for scripts once Shopify Liquid exposes a nonce primitive
 - Penetration test of the wholesale Worker before production deployment
+- Pre-commit `gitleaks` hook (CI scan is active; local pre-commit is nice-to-have)

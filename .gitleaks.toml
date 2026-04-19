@@ -1,0 +1,39 @@
+# Gitleaks config — extends the default ruleset with project-specific
+# allowlists so documented placeholders and JSDoc examples don't trip
+# the scanner.
+#
+# Docs: https://github.com/gitleaks/gitleaks#configuration
+
+[extend]
+# Inherit all default rules (AWS, Shopify, GitHub PATs, Sentry DSNs, etc.)
+useDefault = true
+
+[allowlist]
+description = "Kindred Grove — false-positive allowlist"
+
+# Files that contain documented placeholders or test fixtures.
+paths = [
+  '''(?i)\.env\.example''',
+  '''(?i)docs/CI-SECRETS\.md''',
+  '''(?i)docs/SECURITY\.md''',
+  '''(?i)scripts/seed-dev-store\.mjs''',
+  '''(?i)scripts/wholesale-draft-order-worker\.js''',
+  '''(?i)tests/a11y/axe\.spec\.ts''',
+  '''(?i)package-lock\.json''',
+]
+
+# Literal strings that are intentional example/placeholder values.
+regexes = [
+  '''shpat_xxx''',
+  '''shpat_xxxxxxxxxxxxxx''',
+  '''shpat_…''',
+  '''shptka_\.\.\.''',
+  '''web_…''',
+  '''_GrabberButton''',
+  '''G-XXXXXXXXXX''',
+]
+
+# Commits that have been historically scrubbed (via git filter-repo)
+# and may contain pre-scrub secret material at the object level.
+# Keeping this list short — we re-verify on schedule.
+commits = []
