@@ -1,9 +1,22 @@
 {%- comment -%}
-  Newsletter block — inline signup form for midpage placement. Uses the
-  same Shopify contact_form + 'newsletter' tag convention as the footer
-  form. Full Klaviyo API wiring deferred to Day 12 per PROJECT_PLAN §11.
-  If a Klaviyo list ID is set, the form posts to Klaviyo's endpoint.
+  Newsletter block — inline signup form. Progressive enhancement:
+
+    1. No JS, no Klaviyo keys:   Submits to Shopify `/contact` with
+                                  `contact[tags]=newsletter`.
+    2. Klaviyo list ID + public API key set (theme settings):
+                                  <kg-newsletter> JS intercepts submit,
+                                  POSTs to Klaviyo's public subscribe
+                                  endpoint. Falls back to /contact on
+                                  any failure so no signups are lost.
+
+  The Klaviyo public API key lives in theme settings (Observability
+  group) so it's shared across the footer + midpage newsletter + any
+  other embed without duplicating the ID per block.
 {%- endcomment -%}
+
+{%- assign klaviyo_list = block.settings.klaviyo_list_id | strip -%}
+{%- assign klaviyo_pk   = settings.klaviyo_public_api_key | strip -%}
+{%- assign honeypot_name = 'newsletter_company' -%}
 
 <section class="kg-newsletter section" {{ block.shopify_attributes }}>
   <div class="container stack">
@@ -17,27 +30,34 @@
       {%- endif -%}
     </header>
 
-    {%- form 'contact', class: 'kg-newsletter__form' -%}
-      <input type="hidden" name="contact[tags]" value="newsletter">
-      <div class="kg-newsletter__row">
-        <label for="NewsletterBlockEmail" class="visually-hidden">{{ 'footer.newsletter.email_label' | t }}</label>
-        <input
-          id="NewsletterBlockEmail"
-          type="email"
-          name="contact[email]"
-          class="input"
-          placeholder="{{ 'footer.newsletter.email_placeholder' | t }}"
-          autocomplete="email"
-          required
-        >
-        {% render 'button', label: 'Subscribe', variant: 'primary', type: 'submit' %}
-      </div>
-      {%- if form.posted_successfully? -%}
-        <p class="kg-newsletter__success" role="status">{{ 'footer.newsletter.success' | t }}</p>
-      {%- elsif form.errors -%}
-        <p class="kg-newsletter__error" role="alert">{{ form.errors.translated_fields.email }} {{ form.errors.messages.email }}</p>
-      {%- endif -%}
-    {%- endform -%}
+    <kg-newsletter
+      data-klaviyo-list="{{ klaviyo_list | escape }}"
+      data-klaviyo-pk="{{ klaviyo_pk | escape }}"
+    >
+      {%- form 'contact', class: 'kg-newsletter__form', data-kg-newsletter-form: '' -%}
+        <input type="hidden" name="contact[tags]" value="newsletter">
+        <div class="kg-newsletter__row">
+          <label for="NewsletterBlockEmail" class="visually-hidden">{{ 'footer.newsletter.email_label' | t }}</label>
+          <input
+            id="NewsletterBlockEmail"
+            type="email"
+            name="contact[email]"
+            class="input"
+            placeholder="{{ 'footer.newsletter.email_placeholder' | t }}"
+            autocomplete="email"
+            required
+          >
+          {% render 'button', label: 'Subscribe', variant: 'primary', type: 'submit' %}
+        </div>
+        {% render 'form-honeypot', name: honeypot_name %}
+        {%- if form.posted_successfully? -%}
+          <p class="kg-newsletter__success" role="status">{{ 'footer.newsletter.success' | t }}</p>
+        {%- elsif form.errors -%}
+          <p class="kg-newsletter__error" role="alert">{{ form.errors.translated_fields.email }} {{ form.errors.messages.email }}</p>
+        {%- endif -%}
+        <p class="kg-newsletter__status text-sm text-muted" role="status" data-kg-newsletter-status hidden></p>
+      {%- endform -%}
+    </kg-newsletter>
   </div>
 </section>
 
@@ -49,7 +69,7 @@
     { "type": "text", "id": "heading", "label": "Heading", "default": "Join the table" },
     { "type": "textarea", "id": "body", "label": "Body", "default": "Seasonal recipes, harvest notes, and first access to new releases. No spam — ever." },
     { "type": "header", "content": "Klaviyo" },
-    { "type": "text", "id": "klaviyo_list_id", "label": "Klaviyo list ID", "info": "Full Klaviyo API posting lands Day 12; form currently uses Shopify's built-in contact form with a 'newsletter' tag." }
+    { "type": "text", "id": "klaviyo_list_id", "label": "Klaviyo list ID", "info": "When set AND a public API key is configured in theme settings, the form posts directly to Klaviyo. Otherwise it falls back to Shopify's contact form." }
   ],
   "presets": [
     { "name": "Newsletter", "category": "Marketing" }

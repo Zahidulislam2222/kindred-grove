@@ -16,7 +16,7 @@
       style-src 'self' 'unsafe-inline' *.shopify.com *.shopifycdn.com;
       img-src 'self' data: blob: *.shopify.com *.shopifycdn.com;
       font-src 'self' data: *.shopifycdn.com;
-      connect-src 'self' *.shopify.com *.shopifycdn.com *.sentry.io *.ingest.sentry.io ajax.googleapis.com;
+      connect-src 'self' *.shopify.com *.shopifycdn.com *.sentry.io *.ingest.sentry.io ajax.googleapis.com a.klaviyo.com;
       frame-ancestors 'none';
     ">
 
@@ -190,6 +190,8 @@
     <script src="{{ 'cart-drawer.js' | asset_url }}" defer></script>
     <script src="{{ 'pantry-quiz.js' | asset_url }}" defer></script>
     <script src="{{ 'wholesale-form.js' | asset_url }}" defer></script>
+    <script src="{{ 'predictive-search.js' | asset_url }}" defer></script>
+    <script src="{{ 'newsletter.js' | asset_url }}" defer></script>
     <script src="{{ 'theme.js' | asset_url }}" defer></script>
   </body>
 </html>

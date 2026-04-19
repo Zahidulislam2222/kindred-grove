@@ -243,6 +243,20 @@
         "unit": "%",
         "default": 100,
         "info": "Percent of sessions that report Web Vitals. 100 on dev/staging, lower on production if traffic grows."
+      },
+      {
+        "type": "header",
+        "content": "Email marketing (Klaviyo)"
+      },
+      {
+        "type": "paragraph",
+        "content": "When the public API key is set AND a block-level list ID is configured on the newsletter block, the form posts directly to Klaviyo. Otherwise it falls back to Shopify's /contact endpoint."
+      },
+      {
+        "type": "text",
+        "id": "klaviyo_public_api_key",
+        "label": "Klaviyo public API key (company_id)",
+        "info": "Find in Klaviyo → Account → Settings → API Keys. Public keys are safe to expose in storefront JS."
       }
     ]
   },

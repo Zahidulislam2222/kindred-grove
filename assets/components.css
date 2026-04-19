@@ -2573,3 +2573,110 @@
   border-radius: var(--radius-lg);
   background: var(--color-surface-muted);
 }
+
+/* ============================================================
+   PREDICTIVE SEARCH (Day 12)
+   ============================================================ */
+
+.kg-search {
+  position: relative;
+  display: block;
+  max-width: 40rem;
+}
+
+.kg-search__form {
+  display: flex;
+  gap: var(--space-1);
+  align-items: stretch;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  padding: var(--space-1) var(--space-1) var(--space-1) var(--space-5);
+}
+
+.kg-search__input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: var(--space-2) 0;
+  box-shadow: none;
+  font-size: var(--fs-base);
+}
+.kg-search__input:focus { outline: none; box-shadow: none; }
+.kg-search__form:focus-within {
+  border-color: var(--color-primary-hover, #576839);
+  box-shadow: 0 0 0 3px color-mix(in oklab, #576839 20%, transparent);
+}
+
+.kg-search__submit {
+  border-radius: var(--radius-pill);
+  padding-inline: var(--space-4);
+}
+
+.kg-search__results {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: 0;
+  right: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft, 0 8px 24px rgba(31, 26, 20, 0.08));
+  padding: var(--space-4);
+  z-index: var(--z-dropdown);
+  max-height: 75vh;
+  overflow-y: auto;
+}
+
+.kg-search__group + .kg-search__group { margin-top: var(--space-4); }
+.kg-search__group-title { margin: 0 0 var(--space-2); }
+
+.kg-search__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-1);
+}
+
+.kg-search__list a {
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  text-decoration: none;
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.kg-search__list a img {
+  width: 44px; height: 44px; object-fit: cover; border-radius: var(--radius-sm);
+}
+
+.kg-search__ph {
+  width: 44px; height: 44px;
+  background: var(--color-surface-muted);
+  border-radius: var(--radius-sm);
+}
+
+.kg-search__title { font-weight: var(--fw-medium); }
+
+.kg-search__meta {
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.kg-search__list [role="option"].is-active > a,
+.kg-search__list a:hover {
+  background: var(--color-surface-muted);
+}
+
+.kg-search__empty {
+  text-align: center;
+  color: var(--color-text-muted);
+  padding: var(--space-4);
+  margin: 0;
+}

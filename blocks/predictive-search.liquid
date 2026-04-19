@@ -1,0 +1,83 @@
+{%- comment -%}
+  <kg-predictive-search> — dropdown search with live results.
+
+  Progressive enhancement: the underlying <form> posts to /search on
+  submit (native no-JS fallback). The web component upgrades the input
+  to fire debounced fetches against /search/suggest.json every 300ms
+  after 2+ characters, rendering product + page + article hits under
+  the input as a listbox.
+
+  Accessibility: aria-expanded on the input mirrors the dropdown state,
+  aria-activedescendant tracks the highlighted option, arrow-key nav
+  moves through results, Enter follows the highlighted link, Escape
+  closes. The underlying submit button is never hidden — keyboard-only
+  users with JS off still get native search.
+
+  Schema knobs:
+    placeholder   (translated, default "Search products, farms, recipes…")
+    resource_types (CSV — default "product,page,article")
+    limit         (per-type, 1-10, default 4)
+{%- endcomment -%}
+
+{%- assign types = block.settings.resource_types | default: 'product,page,article' -%}
+{%- assign limit = block.settings.limit | default: 4 -%}
+
+<kg-predictive-search
+  class="kg-search"
+  data-endpoint="{{ routes.predictive_search_url }}"
+  data-types="{{ types | escape }}"
+  data-limit="{{ limit }}"
+  {{ block.shopify_attributes }}
+>
+  <form action="{{ routes.search_url }}" method="get" role="search" class="kg-search__form">
+    <label for="kg-search-input" class="visually-hidden">{{ 'general.search.label' | t }}</label>
+    <input
+      id="kg-search-input"
+      type="search"
+      name="q"
+      autocomplete="off"
+      placeholder="{{ 'general.search.placeholder' | t }}"
+      class="kg-search__input input"
+      aria-controls="kg-search-results"
+      aria-expanded="false"
+      aria-autocomplete="list"
+      data-kg-search-input
+    >
+    <button type="submit" class="kg-search__submit button button--ghost button--sm" aria-label="{{ 'general.search.submit' | t }}">
+      {% render 'icon', name: 'search', size: 18 %}
+    </button>
+  </form>
+  <div
+    id="kg-search-results"
+    class="kg-search__results"
+    role="listbox"
+    aria-label="{{ 'general.search.label' | t }}"
+    hidden
+    data-kg-search-results
+  ></div>
+</kg-predictive-search>
+
+{% schema %}
+{
+  "name": "Predictive search",
+  "settings": [
+    {
+      "type": "text",
+      "id": "resource_types",
+      "label": "Result types (CSV)",
+      "info": "Any of: product, page, article, collection. Default: product,page,article",
+      "default": "product,page,article"
+    },
+    {
+      "type": "range",
+      "id": "limit",
+      "label": "Results per type",
+      "min": 1, "max": 10, "step": 1,
+      "default": 4
+    }
+  ],
+  "presets": [
+    { "name": "Search (predictive)" }
+  ]
+}
+{% endschema %}
