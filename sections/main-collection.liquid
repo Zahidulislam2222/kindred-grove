@@ -52,9 +52,15 @@
         </noscript>
       </form>
 
+      {%- liquid
+        assign range_start = paginate.current_offset | plus: 1
+        assign range_end = paginate.current_offset | plus: per_page
+        if range_end > paginate.items
+          assign range_end = paginate.items
+        endif
+      -%}
       <p class="kg-collection__count text-sm text-muted" aria-live="polite">
-        Showing {{ paginate.current_offset | plus: 1 }}&ndash;{% if paginate.current_offset | plus: per_page > paginate.items %}{{ paginate.items }}{% else %}{{ paginate.current_offset | plus: per_page }}{% endif %}
-        of {{ paginate.items }} products
+        Showing {{ range_start }}&ndash;{{ range_end }} of {{ paginate.items }} products
       </p>
 
       {%- if collection.products.size > 0 -%}

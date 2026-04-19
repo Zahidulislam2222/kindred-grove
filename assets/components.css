@@ -42,15 +42,18 @@
 /* Variants */
 
 .button--primary {
-  background-color: var(--color-primary);
-  color: var(--color-text-inverse);
+  background-color: #576839; /* deeper olive — 6.26:1 on white (WCAG AA) */
+  background-color: var(--color-primary-hover, #576839);
+  color: #FFFFFF;
 }
 .button--primary:hover {
-  background-color: var(--color-primary-hover);
-  color: var(--color-text-inverse);
+  background-color: #3E4928; /* even deeper on hover */
+  background-color: var(--color-primary-active, #3E4928);
+  color: #FFFFFF;
 }
 .button--primary:active {
-  background-color: var(--color-primary-active);
+  background-color: #3E4928;
+  background-color: var(--color-primary-active, #3E4928);
   transform: translateY(1px);
 }
 
@@ -909,8 +912,10 @@
   background: rgba(15, 12, 8, var(--overlay-opacity, 0.35));
 }
 
+.kg-hero { background-color: #1F1A14; }
 .kg-hero--text-light { color: var(--color-text-inverse); }
 .kg-hero--text-light .text-muted { color: rgba(255, 255, 255, 0.8); }
+.kg-hero--text-light .eyebrow { color: #D4A847; color: var(--color-accent, #D4A847); }
 
 .kg-hero--align-start  { text-align: start; }
 .kg-hero--align-center { text-align: center; }
@@ -1219,7 +1224,8 @@
   flex-wrap: wrap;
   font-size: var(--fs-base);
   font-weight: var(--fw-semibold);
-  color: var(--color-primary);
+  color: #576839; /* deeper olive — 5.76:1 on cream (WCAG AA) */
+  color: var(--color-primary-hover, #576839);
 }
 
 .product-card__price-range { font-weight: var(--fw-regular); font-size: var(--fs-xs); }
@@ -2414,4 +2420,15 @@
 .kg-quiz__noscript {
   text-align: center;
   padding-block: var(--space-8);
+}
+
+/* ============================================================
+   SEARCH RESULTS TEMPLATE
+   ============================================================ */
+
+.search__price {
+  margin: var(--space-1) 0 0;
+  font-weight: var(--fw-semibold);
+  color: #576839; /* deeper olive — 5.76:1 on cream */
+  color: var(--color-primary-hover, #576839);
 }

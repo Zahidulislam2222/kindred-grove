@@ -38,7 +38,7 @@
         {%- if quote != blank -%}
           <li class="kg-reviews__card card">
             <div class="card__body stack-sm">
-              <div class="kg-reviews__stars" aria-label="{{ 'reviews.star_label' | t: count: block.settings[r_key] }}">
+              <div class="kg-reviews__stars" role="img" aria-label="{{ 'reviews.star_label' | t: count: block.settings[r_key] }}">
                 {%- for star in (1..5) -%}
                   {%- if star <= block.settings[r_key] -%}
                     {% render 'icon', name: 'star-filled', size: 16 %}

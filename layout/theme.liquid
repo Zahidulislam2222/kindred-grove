@@ -93,18 +93,18 @@
 
     <style>
       :root {
-        --color-primary:        {{ settings.color_primary }};
-        --color-primary-hover:  {{ settings.color_primary_hover }};
-        --color-accent:         {{ settings.color_accent }};
-        --color-secondary:      {{ settings.color_secondary }};
-        --color-background:     {{ settings.color_background }};
-        --color-surface:        {{ settings.color_surface }};
-        --color-text:           {{ settings.color_text }};
-        --color-text-muted:     {{ settings.color_text_muted }};
-        --color-border:         {{ settings.color_border }};
-        --page-width:           {{ settings.page_width }}px;
-        --section-spacing:      {{ settings.section_spacing }}px;
-        --fs-base:              {{ settings.font_size_base }}px;
+        {%- if settings.color_primary != blank %}--color-primary: {{ settings.color_primary }};{% endif -%}
+        {%- if settings.color_primary_hover != blank %}--color-primary-hover: {{ settings.color_primary_hover }};{% endif -%}
+        {%- if settings.color_accent != blank %}--color-accent: {{ settings.color_accent }};{% endif -%}
+        {%- if settings.color_secondary != blank %}--color-secondary: {{ settings.color_secondary }};{% endif -%}
+        {%- if settings.color_background != blank %}--color-background: {{ settings.color_background }};{% endif -%}
+        {%- if settings.color_surface != blank %}--color-surface: {{ settings.color_surface }};{% endif -%}
+        {%- if settings.color_text != blank %}--color-text: {{ settings.color_text }};{% endif -%}
+        {%- if settings.color_text_muted != blank %}--color-text-muted: {{ settings.color_text_muted }};{% endif -%}
+        {%- if settings.color_border != blank %}--color-border: {{ settings.color_border }};{% endif -%}
+        {%- if settings.page_width != blank %}--page-width: {{ settings.page_width }}px;{% endif -%}
+        {%- if settings.section_spacing != blank %}--section-spacing: {{ settings.section_spacing }}px;{% endif -%}
+        {%- if settings.font_size_base != blank %}--fs-base: {{ settings.font_size_base }}px;{% endif -%}
       }
     </style>
 
