@@ -87,7 +87,7 @@
     {%- endif -%}
 
     <div class="site-footer__bottom cluster">
-      <div class="site-footer__social cluster" aria-label="{{ 'footer.social.follow_us' | t }}">
+      <nav class="site-footer__social cluster" aria-label="{{ 'footer.social.follow_us' | t }}">
         {%- if settings.social_instagram != blank -%}
           <a href="{{ settings.social_instagram }}" class="site-footer__social-link" rel="noopener me" target="_blank" aria-label="{{ 'footer.social.instagram' | t }}">
             {% render 'icon', name: 'instagram', size: 20 %}
@@ -103,7 +103,7 @@
             {% render 'icon', name: 'pinterest', size: 20 %}
           </a>
         {%- endif -%}
-      </div>
+      </nav>
 
       <p class="site-footer__legal">
         &copy; {{ 'now' | date: '%Y' }} {{ shop.name | escape }}.
