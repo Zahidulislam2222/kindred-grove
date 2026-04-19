@@ -42,15 +42,19 @@
 /* Variants */
 
 .button--primary {
-  background-color: var(--color-primary);
-  color: var(--color-text-inverse);
+  background-color: #6B7F47;
+  background-color: var(--color-primary, #6B7F47);
+  color: #F8F4EC;
+  color: var(--color-text-inverse, #F8F4EC);
 }
 .button--primary:hover {
-  background-color: var(--color-primary-hover);
-  color: var(--color-text-inverse);
+  background-color: #576839;
+  background-color: var(--color-primary-hover, #576839);
+  color: #F8F4EC;
+  color: var(--color-text-inverse, #F8F4EC);
 }
 .button--primary:active {
-  background-color: var(--color-primary-active);
+  background-color: var(--color-primary-active, #3E4928);
   transform: translateY(1px);
 }
 
@@ -909,8 +913,10 @@
   background: rgba(15, 12, 8, var(--overlay-opacity, 0.35));
 }
 
+.kg-hero { background-color: #1F1A14; }
 .kg-hero--text-light { color: var(--color-text-inverse); }
 .kg-hero--text-light .text-muted { color: rgba(255, 255, 255, 0.8); }
+.kg-hero--text-light .eyebrow { color: #D4A847; color: var(--color-accent, #D4A847); }
 
 .kg-hero--align-start  { text-align: start; }
 .kg-hero--align-center { text-align: center; }
