@@ -96,8 +96,8 @@ h6, .h6 {
   font-weight: var(--fw-semibold);
   letter-spacing: var(--ls-widest);
   text-transform: uppercase;
-  color: #6B7F47;
-  color: var(--color-primary, #6B7F47);
+  color: #576839; /* deeper olive — 5.76:1 on cream (WCAG AA for small text) */
+  color: var(--color-primary-hover, #576839);
   margin: 0;
 }
 

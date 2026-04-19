@@ -46,8 +46,8 @@ const products = [
       {
         price: '28.00',
         sku: 'KG-OO-500',
-        inventory_management: 'shopify',
-        inventory_policy: 'deny',
+        inventory_management: null,
+        inventory_policy: 'continue',
         requires_shipping: true,
         taxable: true,
       },
@@ -67,8 +67,8 @@ const products = [
       {
         price: '18.00',
         sku: 'KG-DT-400',
-        inventory_management: 'shopify',
-        inventory_policy: 'deny',
+        inventory_management: null,
+        inventory_policy: 'continue',
         requires_shipping: true,
         taxable: true,
       },
