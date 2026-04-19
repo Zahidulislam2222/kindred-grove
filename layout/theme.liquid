@@ -6,16 +6,17 @@
     <meta name="theme-color" content="{{ settings.color_primary }}">
 
     {%- comment -%}
-      Content Security Policy — baseline.
-      Refined in docs/SECURITY.md on Day 11/19 with Klaviyo, Sentry, GA4 hosts added.
+      Content Security Policy — baseline + observability hosts.
+      Refined further in docs/SECURITY.md on Day 11/19 when Klaviyo, Judge.me lands.
+      Sentry hosts whitelisted per ADR-005. web-vitals fetched from unpkg.
     {%- endcomment -%}
     <meta http-equiv="Content-Security-Policy" content="
       default-src 'self' *.shopify.com *.shopifycdn.com *.myshopify.com;
-      script-src 'self' 'unsafe-inline' *.shopify.com *.shopifycdn.com;
+      script-src 'self' 'unsafe-inline' *.shopify.com *.shopifycdn.com js.sentry-cdn.com browser.sentry-cdn.com unpkg.com;
       style-src 'self' 'unsafe-inline' *.shopify.com *.shopifycdn.com;
       img-src 'self' data: *.shopify.com *.shopifycdn.com;
       font-src 'self' data: *.shopifycdn.com;
-      connect-src 'self' *.shopify.com *.shopifycdn.com;
+      connect-src 'self' *.shopify.com *.shopifycdn.com *.sentry.io *.ingest.sentry.io;
       frame-ancestors 'none';
     ">
 
@@ -81,10 +82,55 @@
     </style>
 
     {%- comment -%}
-      Sentry init placeholder. Day 3 adds settings.sentry_dsn to the
-      customizer, then this block wires `window.__KG_SENTRY_DSN__` for
-      `assets/theme.js` to read. Until then, a no-op.
+      Observability bootstrap — picks up merchant settings from the Observability group
+      and hands them to assets/theme.js. Script is inline and tiny so it runs before
+      the deferred theme bundle parses. `window.sentryOnLoad` is the Loader-Script hook
+      (see ADR-005 + docs/CI-SECRETS.md).
     {%- endcomment -%}
+    <script>
+      window.__KG_OBS__ = {
+        sentryDsn:   {{ settings.sentry_dsn | default: '' | json }},
+        sentryEnv:   {{ settings.sentry_env | default: 'development' | json }},
+        rumSample:   {{ settings.rum_sample_rate | default: 100 | json }},
+        themeId:     {{ theme.id | json }},
+        themeName:   {{ theme.name | json }},
+        shopDomain:  {{ shop.permanent_domain | json }}
+      };
+      window.sentryOnLoad = function () {
+        if (!window.Sentry || !window.__KG_OBS__.sentryDsn) return;
+        window.Sentry.init({
+          dsn: window.__KG_OBS__.sentryDsn,
+          environment: window.__KG_OBS__.sentryEnv,
+          release: 'kindred-grove@' + window.__KG_OBS__.themeId,
+          sendDefaultPii: false,
+          tracesSampleRate: 0,
+          ignoreErrors: [
+            'Non-Error promise rejection captured',
+            'ResizeObserver loop limit exceeded',
+            'ResizeObserver loop completed with undelivered notifications.'
+          ],
+          beforeSend: function (event) {
+            if (event.user) {
+              delete event.user.email;
+              delete event.user.ip_address;
+              delete event.user.username;
+            }
+            if (event.request && event.request.url) {
+              event.request.url = event.request.url.split('?')[0];
+            }
+            return event;
+          }
+        });
+      };
+    </script>
+    {%- if settings.sentry_dsn != blank -%}
+      {%- assign sentry_key = settings.sentry_dsn | split: '@' | first | split: '//' | last -%}
+      {%- if sentry_key != blank -%}
+        {%- # theme-check-disable RemoteAsset -%}
+        <script src="https://js.sentry-cdn.com/{{ sentry_key }}.min.js" crossorigin="anonymous" async></script>
+        {%- # theme-check-enable RemoteAsset -%}
+      {%- endif -%}
+    {%- endif -%}
   </head>
   <body class="template-{{ template | replace: '.', '-' | handle }}">
     <a class="skip-link" href="#main">Skip to main content</a>

@@ -196,5 +196,54 @@
         "default": true
       }
     ]
+  },
+  {
+    "name": "Observability",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Error tracking (Sentry)"
+      },
+      {
+        "type": "paragraph",
+        "content": "Sentry loads only when a DSN is set. See docs/adr/005-sentry-over-grafana-faro.md for PII-scrubbing and CSP rationale."
+      },
+      {
+        "type": "text",
+        "id": "sentry_dsn",
+        "label": "Sentry DSN",
+        "info": "Paste the full DSN from Sentry → Project → Client Keys. Leave empty to disable."
+      },
+      {
+        "type": "select",
+        "id": "sentry_env",
+        "label": "Sentry environment tag",
+        "options": [
+          { "value": "development", "label": "Development" },
+          { "value": "staging", "label": "Staging" },
+          { "value": "production", "label": "Production" }
+        ],
+        "default": "development"
+      },
+      {
+        "type": "header",
+        "content": "Real User Monitoring (Web Vitals → GA4)"
+      },
+      {
+        "type": "paragraph",
+        "content": "Core Web Vitals (LCP, INP, CLS, FCP, TTFB) ship as GA4 custom events when a GA4 measurement ID is active on the shop. No extra setting needed here; the theme auto-detects gtag."
+      },
+      {
+        "type": "range",
+        "id": "rum_sample_rate",
+        "label": "RUM sampling rate",
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "unit": "%",
+        "default": 100,
+        "info": "Percent of sessions that report Web Vitals. 100 on dev/staging, lower on production if traffic grows."
+      }
+    ]
   }
 ]
