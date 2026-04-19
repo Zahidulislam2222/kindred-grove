@@ -91,10 +91,10 @@ Record how long tasks take with vs. without AI assistance where the comparison i
 - Branch protection active on `main` (1 review, strict checks, linear history, no force push).
 - Shopify Dev MCP Server installed (`@shopify/dev-mcp@latest`) and configured in `.mcp.json` (project-scoped). Verified `✓ Connected` in `claude mcp list`.
 - Shopify CLI authenticated via device code flow to `kindred-grove.myshopify.com`.
-- 3 theme environments created on the dev store:
-  - `kindred-grove-dev` (ID 139677040699)
-  - `kindred-grove-staging` (ID 139677073467)
-  - `kindred-grove-production` (ID 139677106235)
+- 3 theme environments created on the dev store (numeric IDs in local `.env`, referenced in CI via GitHub Secrets):
+  - `kindred-grove-dev`
+  - `kindred-grove-staging`
+  - `kindred-grove-production`
 
 **Decisions logged:**
 - Theme bootstrap uses minimal `layout/theme.liquid`, `templates/index.liquid`, `config/settings_schema.json`, `config/settings_data.json` just to satisfy Shopify's "valid theme" requirement. Day 2 replaces with full Theme Blocks architecture.

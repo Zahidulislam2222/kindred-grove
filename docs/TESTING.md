@@ -62,15 +62,15 @@ Tests expect the preview theme to already be live on the dev store. Push it firs
 
 ```bash
 shopify theme push \
-  --theme 139677040699 \
+  --theme $SHOPIFY_THEME_ID_DEV \
   --store $SHOPIFY_STORE_URL
 ```
 
 Then run the suites with `BASE_URL` pointing at the storefront host and `PREVIEW_URL` carrying the `?preview_theme_id=<id>` query:
 
 ```bash
-BASE_URL="https://kindred-grove.myshopify.com" \
-PREVIEW_URL="https://kindred-grove.myshopify.com?preview_theme_id=139677040699" \
+BASE_URL="https://$SHOPIFY_STORE_URL" \
+PREVIEW_URL="https://$SHOPIFY_STORE_URL?preview_theme_id=$SHOPIFY_THEME_ID_DEV" \
 STORE_PASSWORD="$SHOPIFY_STORE_PASSWORD" \
 npm run test:e2e
 ```
