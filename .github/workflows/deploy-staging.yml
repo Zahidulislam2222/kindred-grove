@@ -1,0 +1,52 @@
+name: Deploy — Staging theme
+
+on:
+  push:
+    branches: [staging]
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+      - '.gitignore'
+      - '.editorconfig'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Push to staging theme
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: staging
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Shopify CLI
+        run: npm install -g @shopify/cli@latest
+
+      - name: Theme check (fail fast)
+        run: shopify theme check --fail-level=error
+
+      - name: Push to staging theme
+        env:
+          SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_CLI_THEME_TOKEN }}
+          SHOPIFY_FLAG_STORE: ${{ secrets.SHOPIFY_STORE }}
+          SHOPIFY_FLAG_FORCE: '1'
+        run: |
+          shopify theme push \
+            --json \
+            --theme ${{ secrets.SHOPIFY_THEME_ID_STAGING }} \
+            --store "$SHOPIFY_FLAG_STORE" \
+            --password "$SHOPIFY_CLI_THEME_TOKEN"

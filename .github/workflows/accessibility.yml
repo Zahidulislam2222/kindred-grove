@@ -1,0 +1,96 @@
+name: Accessibility
+
+on:
+  pull_request:
+    branches: [main, staging]
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+      - '.gitignore'
+      - '.editorconfig'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: axe-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  axe:
+    name: axe-core CLI
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Shopify CLI
+        run: npm install -g @shopify/cli@latest
+
+      - name: Install axe-core CLI
+        run: npm install -g @axe-core/cli@latest
+
+      - name: Push PR theme for preview URL
+        id: push
+        env:
+          SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_CLI_THEME_TOKEN }}
+          SHOPIFY_FLAG_STORE: ${{ secrets.SHOPIFY_STORE }}
+          SHOPIFY_FLAG_FORCE: '1'
+        run: |
+          set -e
+          shopify theme push \
+            --unpublished \
+            --json \
+            --store "$SHOPIFY_FLAG_STORE" \
+            --password "$SHOPIFY_CLI_THEME_TOKEN" \
+            > push-output.json
+          PREVIEW_URL=$(node -e "const d=require('./push-output.json'); console.log(d.theme?.preview_url || d.preview_url || '')")
+          if [ -z "$PREVIEW_URL" ]; then
+            echo "::error::Could not extract preview URL from shopify theme push output"
+            cat push-output.json
+            exit 1
+          fi
+          THEME_ID=$(node -e "const d=require('./push-output.json'); console.log(d.theme?.id || d.theme_id || '')")
+          echo "preview_url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
+          echo "theme_id=$THEME_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Run axe-core on key routes
+        env:
+          STORE_PASSWORD: ${{ secrets.SHOPIFY_STORE_PASSWORD }}
+          PREVIEW_URL: ${{ steps.push.outputs.preview_url }}
+        run: |
+          set -e
+          ROUTES=("/" "/cart" "/collections/all" "/search")
+          FAILED=0
+          for route in "${ROUTES[@]}"; do
+            echo "::group::axe-core $route"
+            axe "${PREVIEW_URL}${route}" \
+              --tags wcag2a,wcag2aa,wcag21a,wcag21aa \
+              --exit \
+              --timeout 60 || FAILED=1
+            echo "::endgroup::"
+          done
+          if [ "$FAILED" -ne 0 ]; then
+            echo "::error::axe-core found WCAG 2.1 AA violations — fix before merging"
+            exit 1
+          fi
+
+      - name: Clean up preview theme
+        if: always() && steps.push.outputs.theme_id != ''
+        env:
+          SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_CLI_THEME_TOKEN }}
+          SHOPIFY_FLAG_STORE: ${{ secrets.SHOPIFY_STORE }}
+          SHOPIFY_FLAG_FORCE: '1'
+        continue-on-error: true
+        run: |
+          shopify theme delete \
+            --theme "${{ steps.push.outputs.theme_id }}" \
+            --store "$SHOPIFY_FLAG_STORE" \
+            --password "$SHOPIFY_CLI_THEME_TOKEN"
