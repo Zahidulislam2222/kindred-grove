@@ -1,0 +1,25 @@
+{%- comment -%}
+  Quick view modal shell — renders once per page. Content is hydrated by
+  assets/quick-view.js when a [data-kg-quick-view] button fires. Uses the
+  native <dialog> element for focus management + ESC semantics.
+{%- endcomment -%}
+
+<kg-quick-view class="kg-qv" {{ block.shopify_attributes }}>
+  <dialog class="kg-qv__dialog" aria-labelledby="KgQvTitle" aria-describedby="KgQvDesc">
+    <div class="kg-qv__inner">
+      <button type="button" class="kg-qv__close" aria-label="Close quick view" data-kg-qv-close>
+        {% render 'icon', name: 'close', size: 20 %}
+      </button>
+      <div class="kg-qv__body" data-kg-qv-body>
+        <div class="kg-qv__loading" role="status" aria-live="polite">Loading&hellip;</div>
+      </div>
+    </div>
+  </dialog>
+</kg-quick-view>
+
+{% schema %}
+{
+  "name": "Quick view modal",
+  "settings": []
+}
+{% endschema %}

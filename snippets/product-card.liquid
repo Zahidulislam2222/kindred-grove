@@ -1,0 +1,120 @@
+{%- comment -%}
+  Product card — reusable across PLP, featured collections, recently viewed,
+  recommendations, cart upsell. Semantic HTML with CLS-safe image, a11y-correct
+  price display, and an optional quick-view trigger.
+
+  Accepts:
+    product         (Product, required)
+    size            (string)  — sm | md | lg [default: md]
+    show_vendor     (bool)    — default true
+    show_quick_view (bool)    — default true (if quick-view modal present)
+    show_rating     (bool)    — default false (wires up Day 12 with Judge.me)
+    img_sizes       (string)  — CSS sizes override for responsive srcset
+    eager           (bool)    — first-fold cards above the fold; loads eagerly
+
+  Example:
+    {% render 'product-card', product: product, size: 'md', show_quick_view: true %}
+{%- endcomment -%}
+
+{%- liquid
+  assign card_size = size | default: 'md'
+  assign show_vendor = show_vendor | default: true
+  assign show_qv = show_quick_view | default: true
+  assign show_rating_resolved = false
+  if show_rating
+    assign show_rating_resolved = true
+  endif
+  assign img_sizes_resolved = img_sizes | default: '(min-width: 768px) 25vw, 50vw'
+  assign load_mode = 'lazy'
+  if eager
+    assign load_mode = 'eager'
+  endif
+
+  assign price = product.price_min
+  assign has_range = false
+  if product.price_min != product.price_max
+    assign has_range = true
+  endif
+  assign is_sold_out = false
+  if product.available == false
+    assign is_sold_out = true
+  endif
+  assign on_sale = false
+  if product.compare_at_price_min > product.price_min
+    assign on_sale = true
+  endif
+-%}
+
+<article class="product-card product-card--{{ card_size }}{% if is_sold_out %} product-card--sold-out{% endif %}" data-product-id="{{ product.id }}">
+  <a href="{{ product.url }}" class="product-card__media-link" aria-label="{{ product.title | escape }}">
+    <div class="product-card__media">
+      {%- if product.featured_image != blank -%}
+        {% render 'image',
+           image: product.featured_image,
+           sizes: img_sizes_resolved,
+           loading: load_mode,
+           class: 'product-card__image'
+        %}
+      {%- endif -%}
+      {%- if on_sale and is_sold_out == false -%}
+        <span class="product-card__flag badge badge--accent">Sale</span>
+      {%- endif -%}
+      {%- if is_sold_out -%}
+        <span class="product-card__flag badge">Sold out</span>
+      {%- endif -%}
+    </div>
+  </a>
+
+  <div class="product-card__body">
+    {%- if show_vendor and product.vendor != blank -%}
+      <p class="product-card__vendor text-xs text-muted">{{ product.vendor | escape }}</p>
+    {%- endif -%}
+
+    <h3 class="product-card__title">
+      <a href="{{ product.url }}" class="product-card__title-link">{{ product.title | escape }}</a>
+    </h3>
+
+    {%- if show_rating_resolved -%}
+      {%- comment -%} Day 12: Judge.me swaps this stub for real aggregate rating. {%- endcomment -%}
+      <div class="product-card__rating" aria-label="Rating placeholder">
+        {% render 'icon', name: 'star-filled', size: 12 %}
+        {% render 'icon', name: 'star-filled', size: 12 %}
+        {% render 'icon', name: 'star-filled', size: 12 %}
+        {% render 'icon', name: 'star-filled', size: 12 %}
+        {% render 'icon', name: 'star-filled', size: 12 %}
+        <span class="text-xs text-muted">5.0</span>
+      </div>
+    {%- endif -%}
+
+    <div class="product-card__price">
+      {%- if has_range -%}
+        <span class="product-card__price-range text-muted">From</span>
+        <span class="product-card__price-amount">{{ product.price_min | money }}</span>
+      {%- else -%}
+        {%- if on_sale -%}
+          <span class="product-card__price-amount product-card__price-amount--sale">{{ price | money }}</span>
+          <s class="product-card__price-compare text-muted">{{ product.compare_at_price_min | money }}</s>
+        {%- else -%}
+          <span class="product-card__price-amount">{{ price | money }}</span>
+        {%- endif -%}
+      {%- endif -%}
+      {%- if product.selected_or_first_available_variant.unit_price -%}
+        <span class="product-card__unit-price text-xs text-muted">
+          ({{ product.selected_or_first_available_variant.unit_price | money }} / {{ product.selected_or_first_available_variant.unit_price_measurement.reference_unit }})
+        </span>
+      {%- endif -%}
+    </div>
+
+    {%- if show_qv and is_sold_out == false -%}
+      <button
+        type="button"
+        class="product-card__quick-view button button--ghost button--sm"
+        data-kg-quick-view
+        data-product-handle="{{ product.handle }}"
+        aria-label="Quick view {{ product.title | escape }}"
+      >
+        Quick view
+      </button>
+    {%- endif -%}
+  </div>
+</article>

@@ -1,0 +1,29 @@
+{%- comment -%}
+  Sort control. Uses Shopify's native sort_by query param. Rendered as a
+  select inside the collection filter form — auto-submits on change.
+{%- endcomment -%}
+
+{%- liquid
+  assign default_sort = collection.default_sort_by
+  assign current_sort = collection.sort_by | default: default_sort
+-%}
+
+<div class="kg-sort" {{ block.shopify_attributes }}>
+  <label for="SortSelect" class="kg-sort__label">
+    <span class="h6">Sort by</span>
+  </label>
+  <select id="SortSelect" name="sort_by" class="select kg-sort__select" data-kg-filter-input>
+    {%- for option in collection.sort_options -%}
+      <option value="{{ option.value }}" {% if option.value == current_sort %}selected{% endif %}>
+        {{ option.name | escape }}
+      </option>
+    {%- endfor -%}
+  </select>
+</div>
+
+{% schema %}
+{
+  "name": "Sort",
+  "settings": []
+}
+{% endschema %}

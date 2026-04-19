@@ -1,0 +1,57 @@
+{%- comment -%}
+  Filter — price range. Renders native min/max number inputs tied to the
+  collection.filters price_range filter. Validates on submit; no JS needed
+  for base behavior — collection-filters.js adds optional debounced auto-submit.
+{%- endcomment -%}
+
+{%- liquid
+  assign pf = null
+  for f in collection.filters
+    if f.type == 'price_range'
+      assign pf = f
+      break
+    endif
+  endfor
+-%}
+
+{%- if pf != null -%}
+  <fieldset class="kg-filter kg-filter--price" {{ block.shopify_attributes }}>
+    <legend class="kg-filter__legend h6">{{ pf.label | escape }}</legend>
+    <div class="kg-filter__price-inputs cluster">
+      <label class="kg-filter__price-field">
+        <span class="text-xs text-muted">Min</span>
+        <input
+          type="number"
+          class="input input--sm"
+          name="{{ pf.min_value.param_name }}"
+          min="0"
+          max="{{ pf.range_max | money_without_currency | replace: ',', '' }}"
+          value="{{ pf.min_value.value | default: '' }}"
+          placeholder="0"
+          data-kg-filter-input
+        >
+      </label>
+      <span aria-hidden="true">—</span>
+      <label class="kg-filter__price-field">
+        <span class="text-xs text-muted">Max</span>
+        <input
+          type="number"
+          class="input input--sm"
+          name="{{ pf.max_value.param_name }}"
+          min="0"
+          max="{{ pf.range_max | money_without_currency | replace: ',', '' }}"
+          value="{{ pf.max_value.value | default: '' }}"
+          placeholder="{{ pf.range_max | money_without_currency | replace: ',', '' }}"
+          data-kg-filter-input
+        >
+      </label>
+    </div>
+  </fieldset>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Filter — price",
+  "settings": []
+}
+{% endschema %}

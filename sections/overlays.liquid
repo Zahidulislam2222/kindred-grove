@@ -1,0 +1,24 @@
+{%- comment -%}
+  Overlays — global host for modal/drawer blocks (quick view, future
+  cart drawer, exit-intent email capture). Rendered from layout/theme.liquid
+  at the end of <body>. Merchant can toggle/add overlays in the theme
+  editor without touching each template.
+{%- endcomment -%}
+
+{% content_for 'blocks' %}
+
+{% schema %}
+{
+  "name": "Overlays",
+  "class": "section-overlays",
+  "blocks": [
+    { "type": "quick-view-modal" },
+    { "type": "@theme" }
+  ],
+  "default": {
+    "blocks": [
+      { "type": "quick-view-modal" }
+    ]
+  }
+}
+{% endschema %}

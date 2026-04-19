@@ -1,0 +1,45 @@
+{%- comment -%}
+  Filter — availability (in-stock toggle). Reads from collection.filters;
+  renders nothing when no availability filter is configured on the store.
+{%- endcomment -%}
+
+{%- liquid
+  assign af = null
+  for f in collection.filters
+    if f.param_name contains 'availability'
+      assign af = f
+      break
+    endif
+  endfor
+-%}
+
+{%- if af != null -%}
+  <fieldset class="kg-filter" {{ block.shopify_attributes }}>
+    <legend class="kg-filter__legend h6">{{ af.label | escape }}</legend>
+    <ul class="kg-filter__list stack-sm">
+      {%- for v in af.values -%}
+        <li class="kg-filter__item">
+          <label class="kg-filter__checkbox-label">
+            <input
+              type="checkbox"
+              class="kg-filter__checkbox"
+              name="{{ v.param_name }}"
+              value="{{ v.value }}"
+              {% if v.active %}checked{% endif %}
+              data-kg-filter-input
+            >
+            <span>{{ v.label | escape }}</span>
+            <span class="text-xs text-muted">({{ v.count }})</span>
+          </label>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </fieldset>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Filter — availability",
+  "settings": []
+}
+{% endschema %}

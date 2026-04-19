@@ -1145,3 +1145,362 @@
   opacity: 1;
   background: rgba(0, 0, 0, 0.35);
 }
+
+/* ============================================================
+   PRODUCT CARD (Day 6)
+   ============================================================ */
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.product-card__media-link {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-muted);
+  aspect-ratio: 4 / 5;
+}
+
+.product-card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--duration-slow) var(--ease-out);
+}
+
+.product-card:hover .product-card__image,
+.product-card:focus-within .product-card__image {
+  transform: scale(1.04);
+}
+
+.product-card--sold-out .product-card__image { opacity: 0.7; }
+
+.product-card__flag {
+  position: absolute;
+  top: var(--space-3);
+  inset-inline-start: var(--space-3);
+}
+
+.product-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-1);
+}
+
+.product-card__vendor { margin: 0; text-transform: uppercase; letter-spacing: var(--ls-wide); }
+
+.product-card__title {
+  font-family: var(--font-heading);
+  font-size: var(--fs-lg);
+  line-height: var(--lh-snug);
+  margin: 0;
+  font-weight: var(--fw-semibold);
+}
+
+.product-card__title-link { color: inherit; text-decoration: none; }
+.product-card__title-link:hover { color: var(--color-primary); }
+
+.product-card__rating {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-accent);
+}
+
+.product-card__price {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  font-size: var(--fs-base);
+  font-weight: var(--fw-semibold);
+  color: var(--color-primary);
+}
+
+.product-card__price-range { font-weight: var(--fw-regular); font-size: var(--fs-xs); }
+.product-card__price-amount--sale { color: var(--color-error); }
+.product-card__price-compare { font-weight: var(--fw-regular); }
+
+.product-card__unit-price { font-weight: var(--fw-regular); width: 100%; }
+
+.product-card__quick-view {
+  align-self: flex-start;
+  margin-top: var(--space-2);
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity var(--duration-fast), transform var(--duration-fast);
+}
+
+.product-card:hover .product-card__quick-view,
+.product-card:focus-within .product-card__quick-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 767px) {
+  .product-card__quick-view { opacity: 1; transform: none; }
+}
+
+/* ============================================================
+   COLLECTION PAGE (Day 6)
+   ============================================================ */
+
+.kg-collection__hero {
+  position: relative;
+  isolation: isolate;
+  min-height: 40vh;
+  display: grid;
+  align-items: center;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  color: var(--color-text-inverse);
+}
+
+.kg-collection__hero-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+}
+
+.kg-collection__hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 12, 8, 0.35);
+  z-index: -1;
+}
+
+.kg-collection__hero-content {
+  padding-block: var(--space-12);
+}
+
+.kg-collection__controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-block: var(--space-4);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  margin-block: var(--space-6);
+}
+
+.kg-collection__blocks {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: 1fr;
+  align-items: start;
+}
+
+@media (min-width: 768px) {
+  .kg-collection__blocks {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    align-items: end;
+  }
+}
+
+.kg-collection__count { margin: 0 0 var(--space-4); }
+
+.kg-collection__grid { list-style: none; margin: 0; padding: 0; }
+.kg-collection__grid li { height: 100%; }
+
+.kg-collection__pagination {
+  margin-top: var(--space-10);
+  display: flex;
+  justify-content: center;
+}
+
+.kg-collection__pagination ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  gap: var(--space-1);
+}
+
+.kg-collection__empty {
+  padding-block: var(--space-16);
+  gap: var(--space-4);
+  align-items: center;
+}
+
+/* ============================================================
+   FILTERS (Day 6)
+   ============================================================ */
+
+.kg-filter {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.kg-filter__legend {
+  padding: 0;
+  font-size: var(--fs-xs);
+  letter-spacing: var(--ls-widest);
+  color: var(--color-text-muted);
+}
+
+.kg-filter__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  --stack-space: var(--space-2);
+}
+
+.kg-filter__checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  font-size: var(--fs-sm);
+}
+
+.kg-filter__checkbox {
+  accent-color: var(--color-primary);
+}
+
+.kg-filter__price-inputs { gap: var(--space-2); }
+
+.kg-filter__price-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  flex: 1;
+}
+
+.input--sm { padding: var(--space-2) var(--space-3); font-size: var(--fs-sm); }
+
+.kg-sort {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.kg-sort__label .h6 {
+  font-size: var(--fs-xs);
+  letter-spacing: var(--ls-widest);
+  color: var(--color-text-muted);
+}
+
+/* ============================================================
+   QUICK VIEW DIALOG (Day 6)
+   ============================================================ */
+
+.kg-qv__dialog {
+  width: min(92vw, 860px);
+  max-height: 90vh;
+  border: none;
+  border-radius: var(--radius-xl);
+  padding: 0;
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+.kg-qv__dialog::backdrop {
+  background: rgba(15, 12, 8, 0.55);
+}
+
+.kg-qv__inner { position: relative; overflow-y: auto; max-height: 90vh; }
+
+.kg-qv__close {
+  position: absolute;
+  top: var(--space-3);
+  inset-inline-end: var(--space-3);
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-circle);
+  color: var(--color-text);
+  cursor: pointer;
+  z-index: 2;
+}
+
+.kg-qv__close:hover { background: var(--color-surface-muted); }
+
+.kg-qv__body { padding: 0; min-height: 200px; }
+
+.kg-qv__layout {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .kg-qv__layout { grid-template-columns: 1fr 1fr; }
+}
+
+.kg-qv__media {
+  aspect-ratio: 4 / 5;
+  background: var(--color-surface-muted);
+  overflow: hidden;
+}
+.kg-qv__media img { width: 100%; height: 100%; object-fit: cover; }
+
+.kg-qv__content {
+  padding: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.kg-qv__price {
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-semibold);
+  color: var(--color-primary);
+  margin: 0;
+}
+
+.kg-qv__price-now { color: var(--color-error); }
+
+.kg-qv__option {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.kg-qv__pill {
+  display: inline-flex;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  font-size: var(--fs-sm);
+  transition: background-color var(--duration-fast), border-color var(--duration-fast);
+}
+
+.kg-qv__pill input { position: absolute; opacity: 0; pointer-events: none; }
+
+.kg-qv__pill:has(input:checked) {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  border-color: var(--color-primary);
+}
+
+.kg-qv__pill:hover { border-color: var(--color-primary); }
+
+.kg-qv__loading { padding: var(--space-12); text-align: center; color: var(--color-text-muted); }
+
+.kg-qv__error {
+  color: var(--color-error);
+  font-weight: var(--fw-medium);
+  margin: 0;
+}
+
+.kg-qv__more { margin: 0; font-size: var(--fs-sm); }

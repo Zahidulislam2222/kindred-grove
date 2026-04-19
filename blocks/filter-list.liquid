@@ -1,0 +1,52 @@
+{%- comment -%}
+  Filter — generic checkbox list. Merchant picks which filter (by label
+  substring — since collection.filters don't expose a stable id we can key
+  by). When multiple filters match, the first match wins.
+{%- endcomment -%}
+
+{%- liquid
+  assign hint = block.settings.filter_label | default: '' | downcase
+  assign match = null
+  for f in collection.filters
+    if f.type == 'list'
+      assign lbl = f.label | downcase
+      if hint == '' or lbl contains hint
+        assign match = f
+        break
+      endif
+    endif
+  endfor
+-%}
+
+{%- if match != null -%}
+  <fieldset class="kg-filter" {{ block.shopify_attributes }}>
+    <legend class="kg-filter__legend h6">{{ match.label | escape }}</legend>
+    <ul class="kg-filter__list stack-sm">
+      {%- for v in match.values -%}
+        <li class="kg-filter__item">
+          <label class="kg-filter__checkbox-label">
+            <input
+              type="checkbox"
+              class="kg-filter__checkbox"
+              name="{{ v.param_name }}"
+              value="{{ v.value }}"
+              {% if v.active %}checked{% endif %}
+              data-kg-filter-input
+            >
+            <span>{{ v.label | escape }}</span>
+            <span class="text-xs text-muted">({{ v.count }})</span>
+          </label>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </fieldset>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Filter — list",
+  "settings": [
+    { "type": "text", "id": "filter_label", "label": "Match filter by label contains", "info": "e.g. 'vendor', 'type', 'tag'. Leave blank to bind to the first list-type filter." }
+  ]
+}
+{% endschema %}

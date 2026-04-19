@@ -1,0 +1,127 @@
+{%- comment -%}
+  Collection page section. Header with title/description, then the
+  filter/sort @theme blocks slot, then the product grid, then pagination.
+
+  Filters use Shopify's native collection.filters API — each filter block
+  renders a fragment of the same <form method="get"> so a single Apply
+  submission updates the URL. When merchants compose filter blocks in the
+  theme editor, they compose the form.
+{%- endcomment -%}
+
+{%- liquid
+  assign per_page = section.settings.products_per_page | default: 24
+  assign cols = section.settings.columns_desktop | default: 4
+-%}
+
+<section class="kg-collection section" aria-label="{{ collection.title | escape }}">
+  <div class="container stack">
+    <header class="kg-collection__header stack-sm">
+      {%- if collection.image != blank and section.settings.show_hero -%}
+        <div class="kg-collection__hero">
+          {% render 'image',
+             image: collection.image,
+             sizes: '100vw',
+             loading: 'eager',
+             fetchpriority: 'high',
+             class: 'kg-collection__hero-image'
+          %}
+          <div class="kg-collection__hero-overlay" aria-hidden="true"></div>
+          <div class="kg-collection__hero-content container">
+            <h1 class="h1 kg-collection__title">{{ collection.title | escape }}</h1>
+            {%- if collection.description != blank -%}
+              <div class="kg-collection__description text-lg rte">{{ collection.description }}</div>
+            {%- endif -%}
+          </div>
+        </div>
+      {%- else -%}
+        <p class="eyebrow">Collection</p>
+        <h1 class="h1 kg-collection__title">{{ collection.title | escape }}</h1>
+        {%- if collection.description != blank -%}
+          <div class="kg-collection__description text-lg text-muted rte">{{ collection.description }}</div>
+        {%- endif -%}
+      {%- endif -%}
+    </header>
+
+    {%- paginate collection.products by per_page -%}
+      <form method="get" class="kg-collection__controls" id="CollectionFilterForm" data-kg-filter-form>
+        <div class="kg-collection__blocks">
+          {% content_for 'blocks' %}
+        </div>
+        <noscript>
+          <button type="submit" class="button button--primary button--sm">Apply filters</button>
+        </noscript>
+      </form>
+
+      <p class="kg-collection__count text-sm text-muted" aria-live="polite">
+        Showing {{ paginate.current_offset | plus: 1 }}&ndash;{% if paginate.current_offset | plus: per_page > paginate.items %}{{ paginate.items }}{% else %}{{ paginate.current_offset | plus: per_page }}{% endif %}
+        of {{ paginate.items }} products
+      </p>
+
+      {%- if collection.products.size > 0 -%}
+        <ul class="kg-collection__grid grid grid-{{ cols }}">
+          {%- for product in collection.products -%}
+            <li>
+              {% render 'product-card',
+                 product: product,
+                 size: 'md',
+                 show_quick_view: true,
+                 eager: forloop.index0 < 4
+              %}
+            </li>
+          {%- endfor -%}
+        </ul>
+
+        {%- if paginate.pages > 1 -%}
+          <nav class="kg-collection__pagination" aria-label="Pagination">
+            <ul class="cluster">
+              {%- if paginate.previous -%}
+                <li><a href="{{ paginate.previous.url }}" class="button button--ghost button--sm" rel="prev">{% render 'icon', name: 'arrow-left', size: 14 %} Previous</a></li>
+              {%- endif -%}
+              {%- for part in paginate.parts -%}
+                <li>
+                  {%- if part.is_link -%}
+                    <a href="{{ part.url }}" class="button button--ghost button--sm">{{ part.title }}</a>
+                  {%- elsif part.title == paginate.current_page -%}
+                    <span class="button button--primary button--sm" aria-current="page">{{ part.title }}</span>
+                  {%- else -%}
+                    <span class="text-muted">{{ part.title }}</span>
+                  {%- endif -%}
+                </li>
+              {%- endfor -%}
+              {%- if paginate.next -%}
+                <li><a href="{{ paginate.next.url }}" class="button button--ghost button--sm" rel="next">Next {% render 'icon', name: 'arrow-right', size: 14 %}</a></li>
+              {%- endif -%}
+            </ul>
+          </nav>
+        {%- endif -%}
+      {%- else -%}
+        <div class="kg-collection__empty text-center stack">
+          <p class="text-lg">No products match your current filters.</p>
+          <a href="{{ collection.url }}" class="button button--secondary">Clear filters</a>
+        </div>
+      {%- endif -%}
+    {%- endpaginate -%}
+  </div>
+</section>
+
+<script src="{{ 'collection-filters.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Main collection",
+  "class": "section-main-collection",
+  "settings": [
+    { "type": "checkbox", "id": "show_hero", "label": "Show collection image as hero", "default": true },
+    { "type": "range", "id": "products_per_page", "label": "Products per page", "min": 12, "max": 48, "step": 6, "default": 24 },
+    { "type": "select", "id": "columns_desktop", "label": "Columns on desktop", "options": [
+      { "value": "2", "label": "2" },
+      { "value": "3", "label": "3" },
+      { "value": "4", "label": "4" }
+    ], "default": "4" }
+  ],
+  "blocks": [
+    { "type": "@theme" },
+    { "type": "@app" }
+  ]
+}
+{% endschema %}

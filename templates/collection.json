@@ -1,0 +1,14 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-collection",
+      "blocks": {
+        "sort": { "type": "sort" },
+        "filter_availability": { "type": "filter-availability" },
+        "filter_price": { "type": "filter-price" }
+      },
+      "block_order": ["sort", "filter_availability", "filter_price"]
+    }
+  },
+  "order": ["main"]
+}
