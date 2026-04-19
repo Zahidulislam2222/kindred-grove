@@ -1,0 +1,63 @@
+<section class="kg-account section">
+  <div class="container stack">
+    <header class="kg-account__header stack-sm">
+      <p class="eyebrow"><a href="{{ routes.account_url }}" class="kg-account__link">{{ 'customer.account.back' | t }}</a></p>
+      <h1 class="h1">{{ 'customer.order.title' | t: name: order.name }}</h1>
+      <p class="text-muted text-sm">
+        <time datetime="{{ order.created_at | date: '%Y-%m-%d' }}">{{ order.created_at | date: '%B %-d, %Y' }}</time>
+        · {{ order.financial_status_label }}
+        · {{ order.fulfillment_status_label }}
+      </p>
+    </header>
+
+    <div class="kg-account__grid">
+      <section class="kg-account__lines stack">
+        <h2 class="h3">{{ 'customer.order.items' | t }}</h2>
+        <ul class="kg-account__lines-list list-none stack-sm">
+          {%- for line in order.line_items -%}
+            <li class="kg-account__line">
+              <div class="kg-account__line-title">
+                <strong>{{ line.title | escape }}</strong>
+                {%- if line.variant.title and line.variant.title != 'Default Title' -%}
+                  <span class="text-muted"> — {{ line.variant.title | escape }}</span>
+                {%- endif -%}
+              </div>
+              <div class="kg-account__line-meta text-sm text-muted">
+                {{ 'customer.order.quantity' | t }}: {{ line.quantity }} · {{ line.final_line_price | money }}
+              </div>
+              {%- if line.fulfillment.tracking_number -%}
+                <p class="text-sm">{{ 'customer.order.tracking' | t }}: <a href="{{ line.fulfillment.tracking_url }}">{{ line.fulfillment.tracking_number }}</a></p>
+              {%- endif -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+
+        <dl class="kg-account__totals">
+          <dt>{{ 'customer.order.subtotal' | t }}</dt><dd>{{ order.subtotal_price | money }}</dd>
+          {%- for discount in order.discount_applications -%}
+            <dt>{{ discount.title | escape }}</dt><dd>−{{ discount.total_allocated_amount | money }}</dd>
+          {%- endfor -%}
+          <dt>{{ 'customer.order.shipping' | t }}</dt><dd>{{ order.shipping_price | money }}</dd>
+          <dt>{{ 'customer.order.tax' | t }}</dt><dd>{{ order.tax_price | money }}</dd>
+          <dt class="kg-account__totals-grand">{{ 'customer.order.total' | t }}</dt>
+          <dd class="kg-account__totals-grand">{{ order.total_price | money }} {{ order.currency }}</dd>
+        </dl>
+      </section>
+
+      <aside class="kg-account__sidebar stack">
+        {%- if order.shipping_address -%}
+          <section class="kg-account__panel stack-sm">
+            <h2 class="h4">{{ 'customer.order.shipping_address' | t }}</h2>
+            <address>{{ order.shipping_address | format_address }}</address>
+          </section>
+        {%- endif -%}
+        {%- if order.billing_address -%}
+          <section class="kg-account__panel stack-sm">
+            <h2 class="h4">{{ 'customer.order.billing_address' | t }}</h2>
+            <address>{{ order.billing_address | format_address }}</address>
+          </section>
+        {%- endif -%}
+      </aside>
+    </div>
+  </div>
+</section>

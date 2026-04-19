@@ -1,0 +1,31 @@
+{
+  "sections": {
+    "hero": {
+      "type": "main-index",
+      "blocks": {
+        "gift-hero": {
+          "type": "hero",
+          "settings": {
+            "eyebrow": "Gift boxes",
+            "headline": "A table-ready gift.",
+            "body": "Curated pantry bundles in reusable boxes — the Harvest, the Apothecary, the Weeknight, the Breakfast. Hand-tied, hand-noted.",
+            "height": "small",
+            "overlay_opacity": 45,
+            "cta_primary_label": "Shop collections",
+            "cta_primary_link": "#kg-gift-grid"
+          }
+        }
+      },
+      "block_order": ["gift-hero"]
+    },
+    "main": {
+      "type": "main-collection",
+      "settings": {
+        "show_hero": false,
+        "products_per_page": 12,
+        "columns_desktop": "4"
+      }
+    }
+  },
+  "order": ["hero", "main"]
+}

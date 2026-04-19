@@ -1,0 +1,29 @@
+<section class="kg-account section">
+  <div class="container kg-account__shell stack">
+    <header class="stack-sm text-center">
+      <p class="eyebrow">{{ 'customer.account.breadcrumb' | t }}</p>
+      <h1 class="h1">{{ 'customer.register.title' | t }}</h1>
+    </header>
+
+    <div class="kg-account__panel">
+      {%- form 'create_customer', class: 'stack-sm' -%}
+        {%- if form.errors -%}
+          <ul class="kg-wholesale-form__errors" role="alert">
+            {%- for field in form.errors -%}
+              <li>{{ form.errors.messages[field] | escape }}</li>
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}
+        {% render 'form-field', id: 'RegisterFirstName', name: 'customer[first_name]', label: 'customer.register.first_name' | t, required: true, autocomplete: 'given-name' %}
+        {% render 'form-field', id: 'RegisterLastName', name: 'customer[last_name]', label: 'customer.register.last_name' | t, required: true, autocomplete: 'family-name' %}
+        {% render 'form-field', id: 'RegisterEmail', type: 'email', name: 'customer[email]', label: 'customer.register.email' | t, required: true, autocomplete: 'email' %}
+        {% render 'form-field', id: 'RegisterPassword', type: 'password', name: 'customer[password]', label: 'customer.register.password' | t, required: true, autocomplete: 'new-password' %}
+        {% render 'form-honeypot', name: 'register_company' %}
+        <button type="submit" class="button button--primary">{{ 'customer.register.submit' | t }}</button>
+      {%- endform -%}
+      <p class="kg-account__divider">
+        {{ 'customer.register.have_account_html' | t: url: routes.account_login_url }}
+      </p>
+    </div>
+  </div>
+</section>

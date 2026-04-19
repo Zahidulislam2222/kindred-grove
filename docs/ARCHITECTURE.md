@@ -257,5 +257,68 @@ Branch protection on `main`: 1 PR review, strict status checks, linear history, 
 3. New UI primitive? Add to `blocks/` with a proper schema. Do not inline styles in sections.
 4. New component style? Add to `assets/components.css`. Do not branch component styles per section.
 5. New page template? Start from the Theme Blocks pattern, never copy a legacy section layout.
-6. Commit with conventional commits and the `AI-assisted:` trailer if Claude Code wrote any part.
+6. Commit with conventional commits and the `Co-Authored-By: Claude Opus 4.7` trailer if Claude Code wrote any part (see `docs/AI_GOVERNANCE.md`).
 7. Run `shopify theme check` before pushing. CI blocks on violations.
+
+---
+
+## What landed in Days 11–21 (architecture deltas)
+
+### New templates (Days 11 + completion pass)
+
+- `templates/page.wholesale.json` + `sections/main-wholesale.liquid` + `blocks/wholesale-form.liquid` — B2B inquiry capture with honeypot, client rate-limit, optional Cloudflare Worker proxy for Admin-API draft-order creation (`scripts/wholesale-draft-order-worker.js`).
+- `templates/page.origin.json` + `sections/main-origin.liquid` — metaobject-driven farm detail pages. Reads `page.metafields.custom.farm` (→ `farm` metaobject) + `page.metafields.custom.linked_products`.
+- `templates/blog.json` + `sections/main-blog.liquid` — article grid with pagination.
+- `templates/article.json` + `sections/main-article.liquid` — single article view, emits `schema-article` JSON-LD + native comment form.
+- `templates/collection.gift-boxes.json` — custom collection-template variant with hero + tightened grid for the gift-boxes collection handle.
+- `templates/customers/login.liquid` + `register.liquid` + `account.liquid` + `addresses.liquid` + `order.liquid` + `reset_password.liquid` + `activate_account.liquid` — classic customer account pages.
+
+### New blocks (Days 11–12)
+
+- `blocks/wholesale-form.liquid` — `<kg-wholesale-form>` web component.
+- `blocks/predictive-search.liquid` — `<kg-predictive-search>` debounced live search (300ms, 2-char min, full keyboard nav, aria-activedescendant).
+- `blocks/newsletter.liquid` upgraded to `<kg-newsletter>` — progressive Klaviyo subscribe with `/contact` fallback.
+
+### New snippets (Days 11 + 18)
+
+- `snippets/form-honeypot.liquid` — reusable bot filter used by wholesale, newsletter, comment forms.
+- `snippets/schema-organization.liquid` — Organization JSON-LD on every page.
+- `snippets/schema-breadcrumb.liquid` — BreadcrumbList auto-built by template.
+- `snippets/schema-faq.liquid` — FAQPage gated on non-empty items.
+- `snippets/schema-article.liquid` — Article JSON-LD.
+- `snippets/schema-recipe.liquid` — Recipe JSON-LD for recipe metaobjects.
+- `snippets/schema-product.liquid` (Day 12 extension) — AggregateRating from Judge.me `reviews.rating` metafields.
+
+### New assets (Days 11–12)
+
+- `assets/wholesale-form.js`, `assets/predictive-search.js`, `assets/newsletter.js` — all vanilla Web Components, zero runtime deps.
+
+### New scripts (Day 11)
+
+- `scripts/seed-dev-store.mjs` — idempotent Admin-API product seeder.
+- `scripts/wholesale-draft-order-worker.js` — Cloudflare Worker scaffold (deploy separately via `wrangler`).
+
+### New CI (Days 11 + 19)
+
+- `.github/workflows/gitleaks.yml` + `.gitleaks.toml` — PR / push / weekly secret scanning with project allowlist.
+- `.github/dependabot.yml` — weekly npm + github-actions updates grouped by vendor.
+
+### Locales
+
+- `locales/ar.json` — Arabic mirror of `en.default.json` (~220 keys, CLDR plurals).
+- `layout/theme.liquid` — hreflang loop over `shop.published_locales`.
+
+### Performance
+
+- `layout/theme.liquid` — inline ~2KB critical CSS (tokens, html/body defaults, skip-link, header + hero skeleton, `.container`).
+- `lighthouserc.json` — per-metric Lighthouse assertion budgets (LCP ≤ 2.5s, CLS ≤ 0.1, byte budgets).
+
+### Docs
+
+- Public (in repo): `README.md`, `CONTRIBUTING.md`, `LICENSE`, `docs/SECURITY.md`, `docs/TESTING.md`, `docs/ACCESSIBILITY.md`, `docs/PERFORMANCE.md`, `docs/MERCHANT-GUIDE.md`, `docs/CHANGELOG.md`, `docs/ROADMAP.md`, `docs/AI_GOVERNANCE.md`.
+- Schema reference: `docs/metaobjects/SCHEMAS.md` extended with page-metafield definitions.
+
+### CSP additions
+
+- `connect-src` extended to allow `a.klaviyo.com` (Day 12 Klaviyo subscribe endpoint).
+- `dns-prefetch` for `cdn.shopify.com` alongside existing `preconnect` (Day 16 LCP hint).

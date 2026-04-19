@@ -175,5 +175,114 @@
     "certifications_heading": "Certifications",
     "products_heading": "From this grove",
     "no_farm": "This page is set up but no farm record is linked yet. Open the page editor and choose a farm from Custom data → Metaobjects → Farm."
+  },
+  "blog": {
+    "heading": "The Grove Journal",
+    "pagination": "Pagination",
+    "next": "Older",
+    "prev": "Newer",
+    "empty": "No posts yet — the kitchen is still warming up.",
+    "article": {
+      "tagged": "Tagged",
+      "comments_heading": "Comments",
+      "comment_pending": "Thanks — your comment is awaiting moderation.",
+      "comment_author": "Name",
+      "comment_email": "Email",
+      "comment_body": "Your comment",
+      "comment_submit": "Post comment"
+    }
+  },
+  "customer": {
+    "account": {
+      "breadcrumb": "Account",
+      "title": "Hi, {{ name }}",
+      "hello": "Welcome back, {{ name }}.",
+      "hello_fallback": "Welcome to your account.",
+      "logout": "Log out",
+      "back": "← Back to account"
+    },
+    "login": {
+      "title": "Sign in",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign in",
+      "forgot_password": "Forgot your password?",
+      "no_account_html": "New here? <a href=\"{{ url }}\">Create an account</a>."
+    },
+    "recover_password": {
+      "title": "Recover password",
+      "subtext": "We'll email you a reset link.",
+      "success": "Check your inbox for the reset link.",
+      "submit": "Send reset link",
+      "cancel": "Back to sign in"
+    },
+    "register": {
+      "title": "Create an account",
+      "first_name": "First name",
+      "last_name": "Last name",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Create account",
+      "have_account_html": "Have an account? <a href=\"{{ url }}\">Sign in</a>."
+    },
+    "reset_password": {
+      "title": "Set a new password",
+      "subtext": "Pick a password you haven't used before.",
+      "password": "New password",
+      "confirm": "Confirm new password",
+      "submit": "Save new password"
+    },
+    "activate_account": {
+      "title": "Activate your account",
+      "subtext": "Finish setting up your account by choosing a password.",
+      "password": "Password",
+      "confirm": "Confirm password",
+      "submit": "Activate",
+      "decline": "Decline invitation"
+    },
+    "orders": {
+      "title": "Orders",
+      "order_number": "Order",
+      "date": "Date",
+      "payment_status": "Payment",
+      "fulfillment_status": "Fulfillment",
+      "total": "Total",
+      "none": "No orders yet.",
+      "browse": "Start shopping."
+    },
+    "addresses": {
+      "title": "Addresses",
+      "heading": "Your addresses",
+      "none": "No address on file.",
+      "manage": "Manage addresses",
+      "add_new": "Add new address",
+      "first_name": "First name",
+      "last_name": "Last name",
+      "company": "Company (optional)",
+      "address1": "Street address",
+      "address2": "Apt, suite, etc. (optional)",
+      "city": "City",
+      "zip": "Postal code",
+      "phone": "Phone (optional)",
+      "set_default": "Set as default address",
+      "submit": "Save address",
+      "update": "Update",
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirm_delete": "Delete this address?",
+      "default": "Default"
+    },
+    "order": {
+      "title": "Order {{ name }}",
+      "items": "Items",
+      "quantity": "Qty",
+      "tracking": "Tracking",
+      "subtotal": "Subtotal",
+      "shipping": "Shipping",
+      "tax": "Tax",
+      "total": "Total",
+      "shipping_address": "Shipping address",
+      "billing_address": "Billing address"
+    }
   }
 }

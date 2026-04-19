@@ -1,0 +1,73 @@
+<section class="kg-account section">
+  <div class="container stack">
+    <header class="kg-account__header stack-sm">
+      <p class="eyebrow">{{ 'customer.account.breadcrumb' | t }}</p>
+      <h1 class="h1">{{ 'customer.account.title' | t: name: customer.first_name }}</h1>
+      <p class="text-muted">
+        {{ 'customer.account.hello' | t: name: customer.first_name | default: 'customer.account.hello_fallback' | t }}
+        · <a href="{{ routes.account_logout_url }}" class="kg-account__link">{{ 'customer.account.logout' | t }}</a>
+      </p>
+    </header>
+
+    <div class="kg-account__grid">
+      <section class="kg-account__orders stack">
+        <header class="stack-sm">
+          <h2 class="h3">{{ 'customer.orders.title' | t }}</h2>
+        </header>
+        {%- if customer.orders.size > 0 -%}
+          {%- paginate customer.orders by 20 -%}
+            <div class="kg-account__table-wrap">
+              <table class="kg-account__table">
+                <caption class="visually-hidden">{{ 'customer.orders.title' | t }}</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">{{ 'customer.orders.order_number' | t }}</th>
+                    <th scope="col">{{ 'customer.orders.date' | t }}</th>
+                    <th scope="col">{{ 'customer.orders.payment_status' | t }}</th>
+                    <th scope="col">{{ 'customer.orders.fulfillment_status' | t }}</th>
+                    <th scope="col">{{ 'customer.orders.total' | t }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {%- for order in customer.orders -%}
+                    <tr>
+                      <td><a href="{{ order.customer_url }}">{{ order.name }}</a></td>
+                      <td><time datetime="{{ order.created_at | date: '%Y-%m-%d' }}">{{ order.created_at | date: '%B %-d, %Y' }}</time></td>
+                      <td>{{ order.financial_status_label }}</td>
+                      <td>{{ order.fulfillment_status_label }}</td>
+                      <td>{{ order.total_price | money }}</td>
+                    </tr>
+                  {%- endfor -%}
+                </tbody>
+              </table>
+            </div>
+            {%- if paginate.pages > 1 -%}
+              <nav class="kg-account__pagination" aria-label="{{ 'blog.pagination' | t }}">
+                {{ paginate | default_pagination }}
+              </nav>
+            {%- endif -%}
+          {%- endpaginate -%}
+        {%- else -%}
+          <p class="kg-account__empty">
+            {{ 'customer.orders.none' | t }}
+            <a href="{{ routes.collections_url }}">{{ 'customer.orders.browse' | t }}</a>
+          </p>
+        {%- endif -%}
+      </section>
+
+      <aside class="kg-account__sidebar stack">
+        <section class="kg-account__panel stack-sm">
+          <h2 class="h4">{{ 'customer.addresses.title' | t }}</h2>
+          {%- if customer.default_address -%}
+            <address class="kg-account__address">
+              {{ customer.default_address | format_address }}
+            </address>
+          {%- else -%}
+            <p class="text-muted">{{ 'customer.addresses.none' | t }}</p>
+          {%- endif -%}
+          <a href="{{ routes.account_addresses_url }}" class="button button--secondary button--sm">{{ 'customer.addresses.manage' | t }}</a>
+        </section>
+      </aside>
+    </div>
+  </div>
+</section>

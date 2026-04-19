@@ -1,0 +1,27 @@
+<section class="kg-account section">
+  <div class="container kg-account__shell stack">
+    <header class="stack-sm text-center">
+      <p class="eyebrow">{{ 'customer.account.breadcrumb' | t }}</p>
+      <h1 class="h1">{{ 'customer.activate_account.title' | t }}</h1>
+      <p class="text-muted">{{ 'customer.activate_account.subtext' | t }}</p>
+    </header>
+
+    <div class="kg-account__panel">
+      {%- form 'activate_customer_password', class: 'stack-sm' -%}
+        {%- if form.errors -%}
+          <ul class="kg-wholesale-form__errors" role="alert">
+            {%- for field in form.errors -%}
+              <li>{{ form.errors.messages[field] | escape }}</li>
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}
+        {% render 'form-field', id: 'ActivatePassword', type: 'password', name: 'customer[password]', label: 'customer.activate_account.password' | t, required: true, autocomplete: 'new-password' %}
+        {% render 'form-field', id: 'ActivatePasswordConfirm', type: 'password', name: 'customer[password_confirmation]', label: 'customer.activate_account.confirm' | t, required: true, autocomplete: 'new-password' %}
+        <div class="cluster">
+          <button type="submit" class="button button--primary">{{ 'customer.activate_account.submit' | t }}</button>
+          <button type="submit" name="decline" class="button button--ghost">{{ 'customer.activate_account.decline' | t }}</button>
+        </div>
+      {%- endform -%}
+    </div>
+  </div>
+</section>

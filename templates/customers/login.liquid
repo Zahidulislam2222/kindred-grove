@@ -1,0 +1,66 @@
+{%- comment -%}
+  Classic customer login. Shopify renders errors via form.errors automatically.
+  Recovery form is shown inline when ?recover=true or when the form has been
+  submitted in recovery mode.
+{%- endcomment -%}
+
+<section class="kg-account section">
+  <div class="container kg-account__shell stack">
+    <header class="stack-sm text-center">
+      <p class="eyebrow">{{ 'customer.account.breadcrumb' | t }}</p>
+      <h1 class="h1">{{ 'customer.login.title' | t }}</h1>
+    </header>
+
+    <div id="recover" class="kg-account__panel" hidden>
+      <h2 class="h3">{{ 'customer.recover_password.title' | t }}</h2>
+      <p class="text-muted">{{ 'customer.recover_password.subtext' | t }}</p>
+      {%- form 'recover_customer_password', class: 'stack-sm' -%}
+        {%- if form.posted_successfully? -%}
+          <p class="kg-wholesale-form__success" role="status">{{ 'customer.recover_password.success' | t }}</p>
+        {%- endif -%}
+        {% render 'form-field', id: 'RecoverEmail', type: 'email', name: 'email', label: 'customer.login.email' | t, required: true, autocomplete: 'email' %}
+        <button type="submit" class="button button--primary">{{ 'customer.recover_password.submit' | t }}</button>
+        <a href="#" data-kg-toggle-recover class="kg-account__link">{{ 'customer.recover_password.cancel' | t }}</a>
+      {%- endform -%}
+    </div>
+
+    <div id="login" class="kg-account__panel">
+      {%- form 'customer_login', class: 'stack-sm' -%}
+        {%- if form.errors -%}
+          <ul class="kg-wholesale-form__errors" role="alert">
+            {%- for field in form.errors -%}
+              <li>{{ form.errors.messages[field] | escape }}</li>
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}
+        {% render 'form-field', id: 'CustomerEmail', type: 'email', name: 'customer[email]', label: 'customer.login.email' | t, required: true, autocomplete: 'email' %}
+        {% render 'form-field', id: 'CustomerPassword', type: 'password', name: 'customer[password]', label: 'customer.login.password' | t, required: true, autocomplete: 'current-password' %}
+        <a href="#" data-kg-toggle-recover class="kg-account__link">{{ 'customer.login.forgot_password' | t }}</a>
+        <button type="submit" class="button button--primary">{{ 'customer.login.submit' | t }}</button>
+      {%- endform -%}
+      <p class="kg-account__divider">
+        {{ 'customer.login.no_account_html' | t: url: routes.account_register_url }}
+      </p>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Minimal toggle — avoid pulling a full web component for a 3-line panel swap.
+  (function () {
+    var login = document.getElementById('login');
+    var recover = document.getElementById('recover');
+    if (!login || !recover) return;
+    document.querySelectorAll('[data-kg-toggle-recover]').forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        e.preventDefault();
+        var showRecover = recover.hasAttribute('hidden');
+        if (showRecover) { recover.removeAttribute('hidden'); login.setAttribute('hidden', ''); recover.querySelector('input').focus(); }
+        else { recover.setAttribute('hidden', ''); login.removeAttribute('hidden'); login.querySelector('input').focus(); }
+      });
+    });
+    if (location.hash === '#recover' || location.search.indexOf('recover=true') > -1) {
+      recover.removeAttribute('hidden'); login.setAttribute('hidden', '');
+    }
+  })();
+</script>

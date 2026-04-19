@@ -1,0 +1,103 @@
+{%- comment -%}
+  Single article — reading view for blog posts and recipe articles.
+  Emits Article JSON-LD via schema-article snippet. Renders the article
+  body via the rich `article.content` so all of Shopify's inline media
+  (image galleries, embedded products) work out of the box.
+{%- endcomment -%}
+
+{% render 'schema-article', article: article %}
+
+<article class="kg-article section" itemscope itemtype="https://schema.org/Article" {{ section.shopify_attributes }}>
+  <div class="container stack">
+    <header class="kg-article__header stack-sm">
+      {%- if article.tags.size > 0 -%}
+        <p class="eyebrow">{{ article.tags.first | escape }}</p>
+      {%- endif -%}
+      <h1 class="h1" itemprop="headline">{{ article.title | escape }}</h1>
+      <p class="kg-article__meta text-muted text-sm">
+        <time datetime="{{ article.published_at | date: '%Y-%m-%d' }}" itemprop="datePublished">{{ article.published_at | date: '%B %-d, %Y' }}</time>
+        {%- if article.author != blank -%}
+          <span> · </span>
+          <span itemprop="author" itemscope itemtype="https://schema.org/Person">
+            <span itemprop="name">{{ article.author | escape }}</span>
+          </span>
+        {%- endif -%}
+      </p>
+    </header>
+
+    {%- if article.image -%}
+      <div class="kg-article__media" itemprop="image">
+        {% render 'image',
+           image: article.image,
+           alt: article.title,
+           sizes: '(min-width: 1024px) 960px, 100vw',
+           widths: '600,800,1200,1600',
+           loading: 'eager',
+           fetchpriority: 'high'
+        %}
+      </div>
+    {%- endif -%}
+
+    <div class="kg-article__content rte" itemprop="articleBody">
+      {{ article.content }}
+    </div>
+
+    {%- if article.tags.size > 0 -%}
+      <footer class="kg-article__footer">
+        <p class="eyebrow">{{ 'blog.article.tagged' | t }}</p>
+        <ul class="kg-article__tags list-none cluster">
+          {%- for tag in article.tags -%}
+            <li><a href="{{ blog.url }}/tagged/{{ tag | handle }}" class="badge">{{ tag | escape }}</a></li>
+          {%- endfor -%}
+        </ul>
+      </footer>
+    {%- endif -%}
+
+    {%- if blog.comments_enabled? -%}
+      <section class="kg-article__comments stack">
+        <h2 class="h3">{{ 'blog.article.comments_heading' | t }}</h2>
+        {%- for comment in article.comments -%}
+          <article class="kg-article__comment stack-sm">
+            <p class="text-sm text-muted">{{ comment.author | escape }} · <time datetime="{{ comment.created_at | date: '%Y-%m-%d' }}">{{ comment.created_at | date: '%B %-d, %Y' }}</time></p>
+            <div class="rte">{{ comment.content }}</div>
+          </article>
+        {%- endfor -%}
+
+        {%- form 'new_comment', article, class: 'kg-article__comment-form stack-sm' -%}
+          {%- if form.posted_successfully? -%}
+            <p class="kg-wholesale-form__success" role="status">{{ 'blog.article.comment_pending' | t }}</p>
+          {%- endif -%}
+          {%- if form.errors -%}
+            <ul class="kg-wholesale-form__errors" role="alert">
+              {%- for field in form.errors -%}
+                <li>{{ form.errors.messages[field] | escape }}</li>
+              {%- endfor -%}
+            </ul>
+          {%- endif -%}
+
+          {% render 'form-field', id: 'comment-author', name: 'comment[author]', label: 'blog.article.comment_author' | t, required: true, autocomplete: 'name' %}
+          {% render 'form-field', id: 'comment-email', type: 'email', name: 'comment[email]', label: 'blog.article.comment_email' | t, required: true, autocomplete: 'email' %}
+          {% render 'form-field', id: 'comment-body', type: 'textarea', name: 'comment[body]', label: 'blog.article.comment_body' | t, required: true %}
+          {% render 'form-honeypot', name: 'comment_company' %}
+          <button type="submit" class="button button--primary">{{ 'blog.article.comment_submit' | t }}</button>
+        {%- endform -%}
+      </section>
+    {%- endif -%}
+
+    {% content_for 'blocks' %}
+  </div>
+</article>
+
+{% schema %}
+{
+  "name": "Article main",
+  "settings": [],
+  "blocks": [
+    { "type": "@theme" },
+    { "type": "@app" }
+  ],
+  "presets": [
+    { "name": "Article" }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,62 @@
+<section class="kg-account section">
+  <div class="container stack">
+    <header class="kg-account__header stack-sm">
+      <p class="eyebrow"><a href="{{ routes.account_url }}" class="kg-account__link">{{ 'customer.account.back' | t }}</a></p>
+      <h1 class="h1">{{ 'customer.addresses.heading' | t }}</h1>
+    </header>
+
+    <div class="kg-account__panel stack">
+      <details open class="kg-account__details">
+        <summary class="kg-account__summary">{{ 'customer.addresses.add_new' | t }}</summary>
+        {%- form 'customer_address', customer.new_address, class: 'stack-sm' -%}
+          {% render 'form-field', id: 'AddressFirstName', name: 'address[first_name]', label: 'customer.addresses.first_name' | t, required: true, autocomplete: 'given-name' %}
+          {% render 'form-field', id: 'AddressLastName', name: 'address[last_name]', label: 'customer.addresses.last_name' | t, required: true, autocomplete: 'family-name' %}
+          {% render 'form-field', id: 'AddressCompany', name: 'address[company]', label: 'customer.addresses.company' | t, autocomplete: 'organization' %}
+          {% render 'form-field', id: 'AddressStreet1', name: 'address[address1]', label: 'customer.addresses.address1' | t, required: true, autocomplete: 'address-line1' %}
+          {% render 'form-field', id: 'AddressStreet2', name: 'address[address2]', label: 'customer.addresses.address2' | t, autocomplete: 'address-line2' %}
+          {% render 'form-field', id: 'AddressCity', name: 'address[city]', label: 'customer.addresses.city' | t, required: true, autocomplete: 'address-level2' %}
+          {% render 'form-field', id: 'AddressZip', name: 'address[zip]', label: 'customer.addresses.zip' | t, required: true, autocomplete: 'postal-code' %}
+          {% render 'form-field', id: 'AddressPhone', type: 'tel', name: 'address[phone]', label: 'customer.addresses.phone' | t, autocomplete: 'tel' %}
+
+          <label class="kg-account__checkbox">
+            {{ form.set_as_default_checkbox }}
+            <span>{{ 'customer.addresses.set_default' | t }}</span>
+          </label>
+          <button type="submit" class="button button--primary">{{ 'customer.addresses.submit' | t }}</button>
+        {%- endform -%}
+      </details>
+
+      {%- paginate customer.addresses by 10 -%}
+        {%- for address in customer.addresses -%}
+          <article class="kg-account__address-card stack-sm">
+            {%- if address == customer.default_address -%}
+              <p class="badge badge--primary">{{ 'customer.addresses.default' | t }}</p>
+            {%- endif -%}
+            <address>{{ address | format_address }}</address>
+            <div class="cluster">
+              <a href="#EditAddress-{{ address.id }}" class="button button--secondary button--sm">{{ 'customer.addresses.edit' | t }}</a>
+              {%- form 'customer_address', address, method: 'delete', class: 'inline' -%}
+                <button type="submit" class="button button--ghost button--sm" onclick="return confirm('{{ 'customer.addresses.confirm_delete' | t }}');">{{ 'customer.addresses.delete' | t }}</button>
+              {%- endform -%}
+            </div>
+
+            <details id="EditAddress-{{ address.id }}" class="kg-account__details">
+              <summary class="visually-hidden">{{ 'customer.addresses.edit' | t }}</summary>
+              {%- form 'customer_address', address, class: 'stack-sm' -%}
+                {% render 'form-field', id: ('EditFirst-' | append: address.id), name: 'address[first_name]', label: 'customer.addresses.first_name' | t, value: address.first_name, required: true %}
+                {% render 'form-field', id: ('EditLast-' | append: address.id), name: 'address[last_name]', label: 'customer.addresses.last_name' | t, value: address.last_name, required: true %}
+                {% render 'form-field', id: ('EditStreet1-' | append: address.id), name: 'address[address1]', label: 'customer.addresses.address1' | t, value: address.address1, required: true %}
+                {% render 'form-field', id: ('EditCity-' | append: address.id), name: 'address[city]', label: 'customer.addresses.city' | t, value: address.city, required: true %}
+                {% render 'form-field', id: ('EditZip-' | append: address.id), name: 'address[zip]', label: 'customer.addresses.zip' | t, value: address.zip, required: true %}
+                <button type="submit" class="button button--primary button--sm">{{ 'customer.addresses.update' | t }}</button>
+              {%- endform -%}
+            </details>
+          </article>
+        {%- endfor -%}
+        {%- if paginate.pages > 1 -%}
+          <nav class="kg-account__pagination">{{ paginate | default_pagination }}</nav>
+        {%- endif -%}
+      {%- endpaginate -%}
+    </div>
+  </div>
+</section>

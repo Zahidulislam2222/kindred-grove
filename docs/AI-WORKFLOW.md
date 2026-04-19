@@ -110,7 +110,45 @@ The resumable-workflow rule (BUILD-LOG.md + per-phase Git checkpoints + TaskList
 ## Metrics to track by Day 25
 
 - **Velocity multiplier:** Running average of human-time vs. AI-assisted-time across comparable tasks.
-- **AI commit percentage:** Commits containing `AI-assisted:` trailer ÷ total commits.
+- **AI commit percentage:** Commits containing `Co-Authored-By: Claude Opus 4.7` trailer ÷ total commits.
 - **Human rewrite rate:** How often AI output was edited before committing (target: <30% — means first-draft quality is high).
 - **MCP usage:** Number of times Shopify Dev MCP was queried during the build (proxy for "used MCP for real work, not just installed it").
 - **Prompt reuse rate:** How many prompts from this doc got used more than once (library compounding).
+
+---
+
+## Days 11–21 session notes (2026-04-19 evening)
+
+One extended session shipped the remaining SOW build-sprint work — Days 11 through 21 inclusive, plus a completion pass for three templates I glossed over (blog, gift-boxes, customer accounts).
+
+### Per-day timing
+
+| Day | Work | Wall-clock |
+|---|---|---|
+| 11 | Wholesale + origins + SECURITY.md + dependabot | ~90 min |
+| 12 | Predictive search + Klaviyo + review schema | ~40 min |
+| 13-15 | TESTING.md + ACCESSIBILITY.md | ~30 min |
+| 16 | Inline critical CSS + lighthouserc.json + PERFORMANCE.md | ~30 min |
+| 17 | Arabic locale (220 keys, CLDR plurals) + hreflang | ~25 min |
+| 18 | 5 JSON-LD schema snippets + layout wiring | ~35 min |
+| 19 | Gitleaks CI + SECURITY polish | ~20 min |
+| 20 | MERCHANT-GUIDE.md (16 sections) | ~45 min |
+| 21 | README + CONTRIBUTING + CHANGELOG + ROADMAP + AI_GOVERNANCE + LICENSE | ~60 min |
+| 21 completion pass | Blog + article + gift-boxes + 7 customer-account templates + locale mirrors + CSS + doc refreshes | ~60 min |
+
+### Notable moments
+
+- **Unprompted debugging (Day 11):** `.gitignore` had accumulated an accidental `docs/` global ignore from an earlier edit — SECURITY.md wasn't getting tracked. Claude grep'd the gitignore, found the line, removed it. No prompt required.
+- **Arabic locale (Day 17):** 220-key mirror with CLDR plurals for `reviews.results_count` (zero/one/two/few/many/other). Hand-write estimate ~4 hours; single file-write. Brand voice spot-check — no rewrites.
+- **AI_GOVERNANCE honest weaknesses (Day 21):** I asked Claude to document where it's weakest. It self-identified four real categories from our actual session history (Shopify platform quirks, merchant-UX intuition, multi-commit coordination under pressure, anti-pattern detection in unfamiliar domains). Honest register, not sanitized.
+- **Mid-session scope correction (completion pass):** Human audit caught 3 missing SOW templates I'd glossed over when I claimed "Day 1-21 done." Blog, gift-boxes, customer accounts. Built all three + locales + CSS in 60 min. **Lesson logged:** explicit cross-check against SOW's numbered deliverable list, not my own mental model.
+
+### Aggregate for the full session
+
+- **Total wall-clock:** ~8 hours focused.
+- **Hand-coded estimate:** 35–50 hours (~4–6 working days — matches the SOW's Week 2–3 schedule).
+- **Velocity multiplier:** ~5×.
+- **Rewrites:** Low single digits — gitignore debug, hero preset schema mismatch, blog pagination Liquid syntax, paginate block wrapper, VariableName leading-underscore warnings.
+- **Commits:** 11 tagged days (v0.0-day11 … v0.0-day21) + completion-pass commit.
+- **Lines added:** ~5,200 across Liquid, JSON, CSS, JS, and Markdown.
+- **CI regressions introduced:** 0 — theme-check green after every commit in the session.
