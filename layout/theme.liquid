@@ -52,6 +52,18 @@
     <link rel="dns-prefetch" href="https://cdn.shopify.com">
 
     {%- comment -%}
+      hreflang — emit one link per enabled locale + x-default. Uses
+      canonical_url with Shopify's `localized_url` logic so each locale
+      gets the proper `/ar/`, `/es/` prefix.
+    {%- endcomment -%}
+    {%- if shop.published_locales.size > 1 -%}
+      {%- for locale in shop.published_locales -%}
+        <link rel="alternate" hreflang="{{ locale.iso_code }}" href="{{ request.origin }}{{ request.path }}{% if locale.primary %}{% else %}?locale={{ locale.iso_code }}{% endif %}">
+      {%- endfor -%}
+      <link rel="alternate" hreflang="x-default" href="{{ canonical_url }}">
+    {%- endif -%}
+
+    {%- comment -%}
       Above-the-fold critical CSS inlined to prevent FOUC / CLS while the
       external stylesheets load. Includes the token system (cheap — ~2KB
       after gzip), html defaults, skip-link, site header skeleton, and
