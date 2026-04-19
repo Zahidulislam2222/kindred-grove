@@ -1224,7 +1224,8 @@
   flex-wrap: wrap;
   font-size: var(--fs-base);
   font-weight: var(--fw-semibold);
-  color: var(--color-primary);
+  color: #576839; /* deeper olive — 5.76:1 on cream (WCAG AA) */
+  color: var(--color-primary-hover, #576839);
 }
 
 .product-card__price-range { font-weight: var(--fw-regular); font-size: var(--fs-xs); }
