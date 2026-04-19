@@ -1,0 +1,118 @@
+{%- comment -%}
+  Product page section. Two-column on desktop (gallery left, purchase
+  right); stacked on mobile. Purchase column hosts the @theme blocks
+  region so merchant composes variant picker + price + ATC + trust
+  strip + share + metafield-driven blocks (lands fully Day 8).
+
+  Breadcrumbs at top. JSON-LD schemas emitted once per page.
+{%- endcomment -%}
+
+<section class="kg-product section" itemscope itemtype="https://schema.org/Product">
+  <div class="container">
+    {% render 'breadcrumbs' %}
+    {% render 'schema-product', product: product %}
+
+    <div class="kg-product__grid">
+      <div class="kg-product__gallery">
+        <kg-gallery class="kg-gallery" data-product-id="{{ product.id }}">
+          <div class="kg-gallery__main" data-kg-gallery-main>
+            {%- assign first = product.featured_image -%}
+            {%- if first != blank -%}
+              <img
+                id="KgGalleryMain"
+                src="{{ first | image_url: width: 1400 }}"
+                srcset="
+                  {{ first | image_url: width: 600 }} 600w,
+                  {{ first | image_url: width: 900 }} 900w,
+                  {{ first | image_url: width: 1400 }} 1400w,
+                  {{ first | image_url: width: 2000 }} 2000w"
+                sizes="(min-width: 768px) 50vw, 100vw"
+                alt="{{ first.alt | default: product.title | escape }}"
+                width="{{ first.width }}"
+                height="{{ first.height }}"
+                loading="eager"
+                fetchpriority="high"
+                decoding="async"
+                class="kg-gallery__main-image"
+              >
+            {%- endif -%}
+          </div>
+
+          {%- if product.images.size > 1 -%}
+            <ul class="kg-gallery__thumbs" role="tablist" aria-label="Product images">
+              {%- for img in product.images -%}
+                <li role="presentation">
+                  <button
+                    type="button"
+                    class="kg-gallery__thumb{% if forloop.first %} is-active{% endif %}"
+                    role="tab"
+                    aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                    aria-controls="KgGalleryMain"
+                    data-kg-gallery-thumb
+                    data-src-large="{{ img | image_url: width: 1400 }}"
+                    data-srcset="{{ img | image_url: width: 600 }} 600w, {{ img | image_url: width: 900 }} 900w, {{ img | image_url: width: 1400 }} 1400w, {{ img | image_url: width: 2000 }} 2000w"
+                    data-alt="{{ img.alt | default: product.title | escape }}"
+                    data-width="{{ img.width }}"
+                    data-height="{{ img.height }}"
+                  >
+                    <img
+                      src="{{ img | image_url: width: 200 }}"
+                      alt=""
+                      width="100"
+                      height="{{ 100 | times: img.aspect_ratio | round }}"
+                      loading="lazy"
+                      decoding="async"
+                    >
+                  </button>
+                </li>
+              {%- endfor -%}
+            </ul>
+          {%- endif -%}
+        </kg-gallery>
+      </div>
+
+      <div class="kg-product__purchase">
+        {%- if product.vendor != blank -%}
+          <p class="kg-product__vendor eyebrow">{{ product.vendor | escape }}</p>
+        {%- endif -%}
+        <h1 class="h1 kg-product__title" itemprop="name">{{ product.title | escape }}</h1>
+
+        <kg-product class="kg-product__form" data-product-id="{{ product.id }}" data-product-handle="{{ product.handle }}">
+          <form action="{{ routes.cart_add_url }}" method="post" enctype="multipart/form-data" class="kg-product__atc-form" data-kg-product-form>
+            <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" data-kg-variant-id>
+
+            <div class="kg-product__blocks">
+              {% content_for 'blocks' %}
+            </div>
+          </form>
+        </kg-product>
+
+        {%- if section.settings.show_trust_strip -%}
+          <ul class="kg-product__trust cluster" aria-label="Trust signals">
+            {%- if settings.trust_halal -%}<li class="trust-badge">{% render 'icon', name: 'check', size: 14 %} {{ 'shop.trust.halal' | t }}</li>{%- endif -%}
+            {%- if settings.trust_single_origin -%}<li class="trust-badge">{% render 'icon', name: 'check', size: 14 %} {{ 'shop.trust.single_origin' | t }}</li>{%- endif -%}
+            {%- if settings.trust_fairtrade -%}<li class="trust-badge">{% render 'icon', name: 'check', size: 14 %} {{ 'shop.trust.fairtrade' | t }}</li>{%- endif -%}
+            {%- if settings.trust_cold_pressed -%}<li class="trust-badge">{% render 'icon', name: 'check', size: 14 %} {{ 'shop.trust.cold_pressed' | t }}</li>{%- endif -%}
+          </ul>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="{{ 'product-gallery.js' | asset_url }}" defer></script>
+<script src="{{ 'product-form.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Main product",
+  "class": "section-main-product",
+  "settings": [
+    { "type": "checkbox", "id": "show_trust_strip", "label": "Show trust badges under purchase", "default": true }
+  ],
+  "blocks": [
+    { "type": "@theme" },
+    { "type": "@app" }
+  ]
+}
+{% endschema %}

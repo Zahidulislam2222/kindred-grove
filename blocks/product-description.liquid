@@ -1,0 +1,17 @@
+{%- comment -%}
+  Product description — renders the merchant's rich-text description
+  with the .rte class so base typography flows correctly.
+{%- endcomment -%}
+
+{%- if product.description != blank -%}
+  <div class="kg-product-description rte" itemprop="description" {{ block.shopify_attributes }}>
+    {{ product.description }}
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Description",
+  "settings": []
+}
+{% endschema %}

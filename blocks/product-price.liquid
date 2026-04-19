@@ -1,0 +1,37 @@
+{%- comment -%}
+  Product price display. Renders selected/first available variant's price
+  and, if present, compare-at and unit price. Subscribes to the
+  'variant:changed' CustomEvent to live-update as the picker changes.
+{%- endcomment -%}
+
+{%- liquid
+  assign v = product.selected_or_first_available_variant
+-%}
+
+<kg-price class="kg-price" {{ block.shopify_attributes }} data-kg-price>
+  <span class="kg-price__amount" data-kg-price-amount>
+    {{ v.price | money }}
+  </span>
+  {%- if v.compare_at_price > v.price -%}
+    <s class="kg-price__compare text-muted" data-kg-price-compare>
+      {{ v.compare_at_price | money }}
+    </s>
+  {%- else -%}
+    <s class="kg-price__compare text-muted" data-kg-price-compare hidden></s>
+  {%- endif -%}
+  {%- if v.unit_price_measurement -%}
+    <span class="kg-price__unit text-sm text-muted" data-kg-price-unit>
+      ({{ v.unit_price | money }} / {{ v.unit_price_measurement.reference_unit }})
+    </span>
+  {%- endif -%}
+  {%- unless v.available -%}
+    <span class="kg-price__soldout badge" data-kg-price-status>Sold out</span>
+  {%- endunless -%}
+</kg-price>
+
+{% schema %}
+{
+  "name": "Price",
+  "settings": []
+}
+{% endschema %}

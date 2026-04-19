@@ -1,0 +1,60 @@
+{%- comment -%}
+  Product JSON-LD schema. Emits Product with Offer(s), brand, sku, gtin
+  (when set via metafield), image URLs, availability, price. Aggregate
+  rating hook placeholder — Day 12 Judge.me populates it.
+
+  Accepts:
+    product (Product, required)
+{%- endcomment -%}
+
+{%- liquid
+  assign first_variant = product.selected_or_first_available_variant
+  assign currency_code = cart.currency.iso_code | default: 'USD'
+-%}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": {{ product.title | json }},
+  "description": {{ product.description | strip_html | json }},
+  "url": "{{ shop.url }}{{ product.url }}",
+  "sku": {{ first_variant.sku | json }},
+  {%- if product.metafields.custom.gtin -%}
+  "gtin": {{ product.metafields.custom.gtin | json }},
+  {%- endif -%}
+  "brand": {
+    "@type": "Brand",
+    "name": {{ product.vendor | default: shop.name | json }}
+  },
+  "image": [
+    {%- for img in product.images -%}
+      "https:{{ img | image_url: width: 1200 }}"{%- unless forloop.last -%},{%- endunless -%}
+    {%- endfor -%}
+  ],
+  "offers": {%- if product.variants.size == 1 -%}
+    {
+      "@type": "Offer",
+      "url": "{{ shop.url }}{{ product.url }}",
+      "priceCurrency": "{{ currency_code }}",
+      "price": "{{ first_variant.price | money_without_currency | replace: ',', '' }}",
+      "availability": "{% if first_variant.available %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
+      "itemCondition": "https://schema.org/NewCondition"
+    }
+  {%- else -%}
+    [
+      {%- for v in product.variants -%}
+        {
+          "@type": "Offer",
+          "url": "{{ shop.url }}{{ product.url }}?variant={{ v.id }}",
+          "priceCurrency": "{{ currency_code }}",
+          "price": "{{ v.price | money_without_currency | replace: ',', '' }}",
+          "availability": "{% if v.available %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
+          "itemCondition": "https://schema.org/NewCondition",
+          "sku": {{ v.sku | json }}
+        }{%- unless forloop.last -%},{%- endunless -%}
+      {%- endfor -%}
+    ]
+  {%- endif -%}
+}
+</script>

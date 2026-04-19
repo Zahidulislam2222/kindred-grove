@@ -29,8 +29,22 @@
       {{- page_title_computed | default: shop.name | escape -}}
     </title>
 
-    {%- if page_description -%}
-      <meta name="description" content="{{ page_description | escape }}">
+    {%- comment -%}
+      Meta description: product template fills from product.description when
+      the admin page description field is blank, so every PDP ships with a
+      meaningful description without merchant work.
+    {%- endcomment -%}
+    {%- capture meta_desc -%}
+      {%- if page_description != blank -%}
+        {{ page_description }}
+      {%- elsif template contains 'product' and product.description != blank -%}
+        {{ product.description | strip_html | truncate: 160 }}
+      {%- elsif template contains 'collection' and collection.description != blank -%}
+        {{ collection.description | strip_html | truncate: 160 }}
+      {%- endif -%}
+    {%- endcapture -%}
+    {%- if meta_desc != blank -%}
+      <meta name="description" content="{{ meta_desc | escape }}">
     {%- endif -%}
 
     <link rel="canonical" href="{{ canonical_url }}">
@@ -40,15 +54,28 @@
     <meta property="og:site_name" content="{{ shop.name | escape }}">
     <meta property="og:type" content="{% if template contains 'product' %}product{% elsif template contains 'article' %}article{% else %}website{% endif %}">
     <meta property="og:title" content="{{ page_title_computed | default: shop.name | escape }}">
-    {%- if page_description -%}
-      <meta property="og:description" content="{{ page_description | escape }}">
+    {%- if meta_desc != blank -%}
+      <meta property="og:description" content="{{ meta_desc | escape }}">
     {%- endif -%}
     <meta property="og:url" content="{{ canonical_url }}">
+    {%- if template contains 'product' and product.featured_image != blank -%}
+      <meta property="og:image" content="https:{{ product.featured_image | image_url: width: 1200 }}">
+      <meta property="og:image:width" content="1200">
+      <meta property="og:image:height" content="{{ 1200 | times: product.featured_image.aspect_ratio | round }}">
+      <meta property="product:price:amount" content="{{ product.price | money_without_currency | replace: ',', '' }}">
+      <meta property="product:price:currency" content="{{ cart.currency.iso_code }}">
+      <meta property="product:availability" content="{% if product.available %}in stock{% else %}out of stock{% endif %}">
+    {%- elsif template contains 'collection' and collection.image != blank -%}
+      <meta property="og:image" content="https:{{ collection.image | image_url: width: 1200 }}">
+    {%- endif -%}
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ page_title_computed | default: shop.name | escape }}">
-    {%- if page_description -%}
-      <meta name="twitter:description" content="{{ page_description | escape }}">
+    {%- if meta_desc != blank -%}
+      <meta name="twitter:description" content="{{ meta_desc | escape }}">
+    {%- endif -%}
+    {%- if template contains 'product' and product.featured_image != blank -%}
+      <meta name="twitter:image" content="https:{{ product.featured_image | image_url: width: 1200 }}">
     {%- endif -%}
 
     {{ content_for_header }}

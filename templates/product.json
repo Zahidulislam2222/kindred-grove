@@ -1,0 +1,17 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-product",
+      "blocks": {
+        "variant_picker": { "type": "variant-picker" },
+        "price": { "type": "product-price" },
+        "description": {
+          "type": "product-description"
+        },
+        "atc": { "type": "product-atc" }
+      },
+      "block_order": ["price", "variant_picker", "description", "atc"]
+    }
+  },
+  "order": ["main"]
+}

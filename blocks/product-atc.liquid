@@ -1,0 +1,45 @@
+{%- comment -%}
+  Add-to-cart button. Submits the parent form to /cart/add via
+  product-form.js. Loading state on submit, disabled when variant is
+  sold out (updated by JS on variant:changed).
+{%- endcomment -%}
+
+{%- liquid
+  assign v = product.selected_or_first_available_variant
+  assign is_sold_out = false
+  if v.available == false
+    assign is_sold_out = true
+  endif
+-%}
+
+<div class="kg-atc" {{ block.shopify_attributes }}>
+  <button
+    type="submit"
+    class="button button--primary button--lg button--block kg-atc__button"
+    data-kg-atc-button
+    {% if is_sold_out %}disabled aria-disabled="true"{% endif %}
+  >
+    <span class="kg-atc__label">
+      {%- if is_sold_out -%}
+        Sold out
+      {%- else -%}
+        Add to cart &ndash; <span data-kg-atc-price>{{ v.price | money }}</span>
+      {%- endif -%}
+    </span>
+  </button>
+
+  {%- if block.settings.show_wishlist -%}
+    <button type="button" class="button button--secondary button--lg kg-atc__wishlist" aria-label="Save for later">
+      {% render 'icon', name: 'heart', size: 20 %}
+    </button>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Add to cart",
+  "settings": [
+    { "type": "checkbox", "id": "show_wishlist", "label": "Show wishlist button", "default": false }
+  ]
+}
+{% endschema %}

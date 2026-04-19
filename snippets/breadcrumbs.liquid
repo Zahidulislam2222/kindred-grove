@@ -1,0 +1,73 @@
+{%- comment -%}
+  Breadcrumbs snippet — visual trail + BreadcrumbList JSON-LD for SEO.
+  Auto-derives from template + product/collection context.
+{%- endcomment -%}
+
+{%- liquid
+  assign shop_origin = shop.url
+  assign crumbs_list = ''
+  assign crumbs_list = crumbs_list | append: 'Home|' | append: routes.root_url | append: ';'
+
+  if template contains 'collection' and collection.title != blank
+    assign crumbs_list = crumbs_list | append: collection.title | append: '|' | append: collection.url | append: ';'
+  endif
+
+  if template contains 'product' and product != blank
+    assign from_col = product.collections.first
+    if from_col != blank
+      assign crumbs_list = crumbs_list | append: from_col.title | append: '|' | append: from_col.url | append: ';'
+    endif
+    assign crumbs_list = crumbs_list | append: product.title | append: '|' | append: product.url | append: ';'
+  endif
+
+  if template contains 'page' and page.title != blank
+    assign crumbs_list = crumbs_list | append: page.title | append: '|' | append: page.url | append: ';'
+  endif
+
+  assign crumbs = crumbs_list | split: ';'
+-%}
+
+{%- if crumbs.size > 1 -%}
+  <nav class="kg-breadcrumbs" aria-label="Breadcrumb">
+    <ol class="kg-breadcrumbs__list cluster">
+      {%- for c in crumbs -%}
+        {%- if c == blank -%}{%- continue -%}{%- endif -%}
+        {%- assign parts = c | split: '|' -%}
+        {%- assign title = parts[0] -%}
+        {%- assign url = parts[1] -%}
+        <li class="kg-breadcrumbs__item">
+          {%- if forloop.last -%}
+            <span aria-current="page">{{ title | escape }}</span>
+          {%- else -%}
+            <a href="{{ url }}">{{ title | escape }}</a>
+            <span aria-hidden="true" class="kg-breadcrumbs__sep">{% render 'icon', name: 'chevron-right', size: 12 %}</span>
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ol>
+  </nav>
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {%- assign idx = 0 -%}
+        {%- for c in crumbs -%}
+          {%- if c == blank -%}{%- continue -%}{%- endif -%}
+          {%- assign parts = c | split: '|' -%}
+          {%- assign title = parts[0] -%}
+          {%- assign url = parts[1] -%}
+          {%- assign idx = idx | plus: 1 -%}
+          {%- unless forloop.first -%},{%- endunless -%}
+          {
+            "@type": "ListItem",
+            "position": {{ idx }},
+            "name": "{{ title | escape }}",
+            "item": "{{ shop_origin }}{{ url }}"
+          }
+        {%- endfor -%}
+      ]
+    }
+  </script>
+{%- endif -%}

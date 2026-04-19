@@ -1,0 +1,57 @@
+{%- comment -%}
+  Variant picker — renders each product option as a set of pill radios.
+  Updates hidden input[name=id] via assets/product-form.js when the
+  combination maps to a known variant. Dispatches 'variant:changed' with
+  the full variant object so price + gallery + ATC can respond.
+
+  When product has no variants (single-variant product), this block
+  renders nothing.
+{%- endcomment -%}
+
+{%- if product.has_only_default_variant == false -%}
+  <kg-variant-picker class="kg-variant-picker" {{ block.shopify_attributes }}>
+    {%- for opt in product.options_with_values -%}
+      {%- assign opt_name = opt.name | escape -%}
+      {%- assign opt_pos = opt.position -%}
+      <fieldset class="kg-variant-picker__option">
+        <legend class="h6">
+          {{ opt_name }}:
+          <span class="kg-variant-picker__selected" data-kg-option-selected="{{ opt_pos }}">{{ opt.selected_value | escape }}</span>
+        </legend>
+        <div class="cluster kg-variant-picker__values">
+          {%- for value in opt.values -%}
+            {%- assign input_id = 'opt-' | append: product.id | append: '-' | append: opt_pos | append: '-' | append: forloop.index -%}
+            <label class="kg-variant-picker__pill">
+              <input
+                type="radio"
+                id="{{ input_id }}"
+                name="option-{{ opt_pos }}"
+                value="{{ value | escape }}"
+                data-kg-variant-option
+                data-option-position="{{ opt_pos }}"
+                {% if value == opt.selected_value %}checked{% endif %}
+              >
+              <span>{{ value | escape }}</span>
+            </label>
+          {%- endfor -%}
+        </div>
+      </fieldset>
+    {%- endfor -%}
+
+    {%- comment -%}
+      JSON of all variants for the JS to match against. Kept inside a
+      data-* attribute would be a lot of characters; use a script tag
+      with type=application/json for clean parsing.
+    {%- endcomment -%}
+    <script type="application/json" data-kg-variants>
+      {{ product.variants | json }}
+    </script>
+  </kg-variant-picker>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Variant picker",
+  "settings": []
+}
+{% endschema %}
