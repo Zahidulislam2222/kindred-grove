@@ -22,6 +22,37 @@
       "count": "({{ count }})"
     }
   },
+  "cart": {
+    "title": "Your cart",
+    "close": "Close cart",
+    "subtotal": "Subtotal",
+    "tax_shipping_note": "Taxes and shipping calculated at checkout.",
+    "checkout": "Checkout",
+    "view_full": "View full cart",
+    "qty": "Quantity",
+    "qty_controls": "Quantity controls",
+    "decrease_qty": "Decrease quantity",
+    "increase_qty": "Increase quantity",
+    "remove": "Remove {{ title }} from cart",
+    "sold_out": "Sold out",
+    "empty": {
+      "title": "Your cart is empty. Let's fix that.",
+      "cta": "Browse the pantry"
+    },
+    "freeship": {
+      "unlocked": "Free shipping unlocked ✦",
+      "remaining_html": "Add <strong>{{ amount }}</strong> more for free shipping"
+    },
+    "gift_note": {
+      "label": "Gift note"
+    },
+    "note_saved": "Note saved",
+    "note_saving": "Saving note…",
+    "note_error": "Could not save note. Try again.",
+    "page_heading": "Your cart",
+    "update": "Update",
+    "remove_label": "Remove"
+  },
   "header": {
     "menu": "Menu",
     "open_menu": "Open menu",

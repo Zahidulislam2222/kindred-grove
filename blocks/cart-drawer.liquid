@@ -1,0 +1,82 @@
+{%- comment -%}
+  Cart drawer — slide-in-from-right drawer shell.
+  Sub-blocks (free-ship bar, item list, upsell, gift note) are slotted via
+  {% content_for 'blocks' %}. The drawer JS (assets/cart-drawer.js) opens
+  on cart icon click and on 'cart:updated' (after ATC). Footer (subtotal +
+  checkout button) is baked in, not a block, because it's mandatory.
+{%- endcomment -%}
+
+<kg-cart-drawer class="kg-cart" id="CartDrawer" {{ block.shopify_attributes }}>
+  <aside
+    class="kg-cart__drawer"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="CartDrawerTitle"
+    hidden
+  >
+    <div class="kg-cart__panel">
+      <header class="kg-cart__header">
+        <h2 id="CartDrawerTitle" class="kg-cart__title">
+          {{ 'cart.title' | t }}
+          <span class="kg-cart__count" data-kg-cart-count aria-live="polite">{{ cart.item_count }}</span>
+        </h2>
+        <button
+          type="button"
+          class="kg-cart__close btn btn--ghost btn--sm"
+          aria-label="{{ 'cart.close' | t }}"
+          data-kg-cart-close
+        >
+          {% render 'icon', name: 'close', size: 20 %}
+        </button>
+      </header>
+
+      <div class="kg-cart__body" data-kg-cart-body>
+        {% content_for 'blocks' %}
+      </div>
+
+      <footer class="kg-cart__footer" data-kg-cart-footer>
+        <div class="kg-cart__subtotal">
+          <span>{{ 'cart.subtotal' | t }}</span>
+          <span class="kg-cart__subtotal-amount" data-kg-cart-subtotal>{{ cart.total_price | money }}</span>
+        </div>
+        <p class="kg-cart__tax-note text-xs text-muted">{{ 'cart.tax_shipping_note' | t }}</p>
+        <form action="{{ routes.cart_url }}" method="post" class="kg-cart__checkout-form">
+          <button
+            type="submit"
+            name="checkout"
+            class="button button--primary button--lg button--block"
+            {% if cart.item_count == 0 %}disabled aria-disabled="true"{% endif %}
+          >
+            {{ 'cart.checkout' | t }}
+          </button>
+        </form>
+        <a href="{{ routes.cart_url }}" class="kg-cart__view-link">{{ 'cart.view_full' | t }}</a>
+      </footer>
+    </div>
+    <div class="kg-cart__scrim" data-kg-cart-close aria-hidden="true"></div>
+  </aside>
+</kg-cart-drawer>
+
+{% schema %}
+{
+  "name": "Cart drawer",
+  "blocks": [
+    { "type": "cart-free-ship-bar" },
+    { "type": "cart-item-list" },
+    { "type": "cart-upsell" },
+    { "type": "cart-gift-note" }
+  ],
+  "settings": [],
+  "presets": [
+    {
+      "name": "Cart drawer",
+      "blocks": [
+        { "type": "cart-free-ship-bar" },
+        { "type": "cart-item-list" },
+        { "type": "cart-upsell" },
+        { "type": "cart-gift-note" }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -98,7 +98,12 @@
         </a>
       {%- endif -%}
 
-      <a href="{{ routes.cart_url }}" class="site-header__icon-btn site-header__cart" aria-label="{{ 'header.cart' | t }}">
+      <a
+        href="{{ routes.cart_url }}"
+        class="site-header__icon-btn site-header__cart"
+        aria-label="{{ 'header.cart' | t }}"
+        data-kg-cart-open
+      >
         {% render 'icon', name: 'bag', size: 22 %}
         <span class="site-header__cart-count" data-cart-count{% if cart.item_count == 0 %} hidden{% endif %}>
           {{- cart.item_count -}}

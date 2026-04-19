@@ -1,0 +1,81 @@
+{%- comment -%}
+  Cart upsell — merchant picks a single product to show in the drawer.
+  Only renders when: cart has at least one item AND the upsell product
+  isn't already in the cart. JS hides the block dynamically if these
+  conditions change after the page loads.
+{%- endcomment -%}
+
+{%- liquid
+  assign upsell = all_products[block.settings.product]
+  assign variant = upsell.selected_or_first_available_variant
+-%}
+
+{%- if upsell != blank and variant != nil -%}
+  <div
+    class="kg-cart__upsell"
+    data-kg-cart-upsell
+    data-product-id="{{ upsell.id }}"
+    {{ block.shopify_attributes }}
+  >
+    <p class="kg-cart__upsell-eyebrow">{{ block.settings.heading | default: 'Pair it with' | escape }}</p>
+    <div class="kg-cart__upsell-card">
+      <a href="{{ upsell.url }}" class="kg-cart__upsell-media">
+        {%- if upsell.featured_image -%}
+          <img
+            src="{{ upsell.featured_image | image_url: width: 120 }}"
+            srcset="{{ upsell.featured_image | image_url: width: 60 }} 60w, {{ upsell.featured_image | image_url: width: 120 }} 120w"
+            sizes="60px"
+            width="60"
+            height="60"
+            alt="{{ upsell.title | escape }}"
+            loading="lazy"
+          >
+        {%- endif -%}
+      </a>
+      <div class="kg-cart__upsell-body">
+        <p class="kg-cart__upsell-title">
+          <a href="{{ upsell.url }}">{{ upsell.title | escape }}</a>
+        </p>
+        <p class="kg-cart__upsell-price">{{ variant.price | money }}</p>
+      </div>
+      <button
+        type="button"
+        class="button button--accent button--sm"
+        data-kg-cart-upsell-add
+        data-variant-id="{{ variant.id }}"
+        {% unless variant.available %}disabled aria-disabled="true"{% endunless %}
+      >
+        {%- if variant.available -%}
+          {{ block.settings.cta | default: 'Add' | escape }}
+        {%- else -%}
+          {{ 'cart.sold_out' | t }}
+        {%- endif -%}
+      </button>
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Cart upsell",
+  "settings": [
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Upsell product"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Pair it with"
+    },
+    {
+      "type": "text",
+      "id": "cta",
+      "label": "Button label",
+      "default": "Add"
+    }
+  ]
+}
+{% endschema %}

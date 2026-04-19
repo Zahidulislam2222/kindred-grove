@@ -1,0 +1,54 @@
+{%- comment -%}
+  Free shipping progress bar — shown inside the cart drawer.
+  Threshold set by merchant (in shop currency cents equivalent via shopify money).
+  JS (assets/cart-drawer.js) updates the fill % on every 'cart:updated'.
+{%- endcomment -%}
+
+{%- liquid
+  assign threshold_cents = block.settings.threshold_cents | default: 7500
+  assign current = cart.total_price
+  assign pct = 0
+  if threshold_cents > 0
+    assign pct = current | times: 100 | divided_by: threshold_cents
+  endif
+  if pct > 100
+    assign pct = 100
+  endif
+  assign remaining = threshold_cents | minus: current
+  if remaining < 0
+    assign remaining = 0
+  endif
+-%}
+
+<div
+  class="kg-cart__freeship"
+  data-kg-freeship
+  data-threshold-cents="{{ threshold_cents }}"
+  {{ block.shopify_attributes }}
+>
+  <p class="kg-cart__freeship-msg" data-kg-freeship-msg aria-live="polite">
+    {%- if remaining == 0 -%}
+      {{ 'cart.freeship.unlocked' | t }}
+    {%- else -%}
+      {{ 'cart.freeship.remaining_html' | t: amount: remaining | money }}
+    {%- endif -%}
+  </p>
+  <div class="kg-cart__freeship-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ pct }}">
+    <div class="kg-cart__freeship-fill" data-kg-freeship-fill style="width: {{ pct }}%"></div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Free shipping bar",
+  "settings": [
+    {
+      "type": "number",
+      "id": "threshold_cents",
+      "label": "Free shipping threshold (in cents)",
+      "info": "e.g. 7500 = $75.00. Uses the shop's base currency.",
+      "default": 7500
+    }
+  ]
+}
+{% endschema %}

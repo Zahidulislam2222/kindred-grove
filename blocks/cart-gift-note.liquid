@@ -1,0 +1,54 @@
+{%- comment -%}
+  Gift note — collapsible textarea that persists to cart.note via
+  /cart/update.js. Default collapsed; merchant can set to expanded.
+{%- endcomment -%}
+
+<details
+  class="kg-cart__gift"
+  data-kg-cart-gift
+  {% if block.settings.default_open %}open{% endif %}
+  {{ block.shopify_attributes }}
+>
+  <summary class="kg-cart__gift-summary">
+    {% render 'icon', name: 'mail', size: 16 %}
+    <span>{{ block.settings.heading | default: 'Add a gift note' | escape }}</span>
+  </summary>
+  <div class="kg-cart__gift-body">
+    <label for="CartGiftNote" class="visually-hidden">{{ 'cart.gift_note.label' | t }}</label>
+    <textarea
+      id="CartGiftNote"
+      class="kg-cart__gift-input"
+      rows="3"
+      maxlength="500"
+      placeholder="{{ block.settings.placeholder | default: 'Write a short note to the recipient…' | escape }}"
+      data-kg-cart-note
+    >{{ cart.note | escape }}</textarea>
+    <p class="kg-cart__gift-status text-xs text-muted" data-kg-cart-note-status aria-live="polite"></p>
+  </div>
+</details>
+
+{% schema %}
+{
+  "name": "Gift note",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Add a gift note"
+    },
+    {
+      "type": "text",
+      "id": "placeholder",
+      "label": "Placeholder",
+      "default": "Write a short note to the recipient…"
+    },
+    {
+      "type": "checkbox",
+      "id": "default_open",
+      "label": "Expanded by default",
+      "default": false
+    }
+  ]
+}
+{% endschema %}

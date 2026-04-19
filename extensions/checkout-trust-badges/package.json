@@ -1,0 +1,19 @@
+{
+  "name": "kindred-grove-trust-badges",
+  "private": true,
+  "version": "0.1.0",
+  "license": "UNLICENSED",
+  "scripts": {
+    "build": "shopify app build",
+    "dev": "shopify app dev",
+    "deploy": "shopify app deploy"
+  },
+  "dependencies": {
+    "@shopify/ui-extensions": "2025.10.x",
+    "@shopify/ui-extensions-react": "2025.10.x",
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}

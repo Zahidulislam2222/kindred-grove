@@ -1,0 +1,135 @@
+{%- comment -%}
+  Cart page (full) — fallback for direct nav to /cart and for no-JS.
+  Primary cart UX is the drawer (blocks/cart-drawer.liquid via section 'overlays').
+
+  Server-rendered form with line-item qty/remove controls using native
+  cart.update POST. When JS is available, the same drawer auto-opens on
+  cart actions, but this page stays functional without any JS.
+{%- endcomment -%}
+
+<section class="kg-cart-page section" aria-label="{{ 'cart.title' | t }}">
+  <div class="container stack">
+    <header class="stack-sm">
+      <p class="eyebrow">{{ 'cart.title' | t }}</p>
+      <h1 class="h1">{{ 'cart.page_heading' | t }}</h1>
+    </header>
+
+    {%- if cart.item_count == 0 -%}
+      <div class="kg-cart-page__empty stack">
+        <p class="text-lg text-muted">{{ 'cart.empty.title' | t }}</p>
+        <a href="{{ routes.all_products_collection_url }}" class="button button--primary">
+          {{ 'cart.empty.cta' | t }}
+        </a>
+      </div>
+    {%- else -%}
+      <form action="{{ routes.cart_url }}" method="post" novalidate class="kg-cart-page__form">
+        <div class="kg-cart-page__layout">
+          <div class="kg-cart-page__lines" aria-live="polite">
+            <ul class="stack">
+              {%- for line in cart.items -%}
+                <li class="kg-cart-page__line" data-line-key="{{ line.key }}">
+                  <a href="{{ line.url }}" class="kg-cart-page__line-media">
+                    {%- if line.image -%}
+                      <img
+                        src="{{ line.image | image_url: width: 240 }}"
+                        srcset="{{ line.image | image_url: width: 120 }} 120w, {{ line.image | image_url: width: 240 }} 240w, {{ line.image | image_url: width: 360 }} 360w"
+                        sizes="120px"
+                        width="120"
+                        height="120"
+                        alt="{{ line.product.title | escape }}"
+                        loading="lazy"
+                      >
+                    {%- endif -%}
+                  </a>
+                  <div class="kg-cart-page__line-body stack-sm">
+                    <p class="kg-cart-page__line-title">
+                      <a href="{{ line.url }}">{{ line.product.title | escape }}</a>
+                    </p>
+                    {%- if line.variant.title != 'Default Title' -%}
+                      <p class="text-sm text-muted">{{ line.variant.title | escape }}</p>
+                    {%- endif -%}
+                    {%- if line.selling_plan_allocation -%}
+                      <p class="text-sm text-muted">{{ line.selling_plan_allocation.selling_plan.name | escape }}</p>
+                    {%- endif -%}
+                    <p class="kg-cart-page__line-price">{{ line.final_line_price | money }}</p>
+
+                    <div class="kg-cart-page__line-qty cluster">
+                      <label for="Line{{ forloop.index }}Qty" class="visually-hidden">
+                        {{ 'cart.qty' | t }}
+                      </label>
+                      <input
+                        id="Line{{ forloop.index }}Qty"
+                        type="number"
+                        name="updates[{{ line.key }}]"
+                        value="{{ line.quantity }}"
+                        min="0"
+                        step="1"
+                        class="kg-cart-page__qty-input"
+                      >
+                      <button
+                        type="submit"
+                        name="update"
+                        class="button button--ghost button--sm"
+                      >
+                        {{ 'cart.update' | t }}
+                      </button>
+                      <a
+                        href="{{ routes.cart_change_url }}?id={{ line.key }}&quantity=0"
+                        class="kg-cart-page__line-remove"
+                        aria-label="{{ 'cart.remove' | t: title: line.product.title }}"
+                      >
+                        {{ 'cart.remove_label' | t }}
+                      </a>
+                    </div>
+                  </div>
+                </li>
+              {%- endfor -%}
+            </ul>
+          </div>
+
+          <aside class="kg-cart-page__sidebar stack">
+            <div class="kg-cart-page__note stack-sm">
+              <label for="CartNote" class="kg-cart-page__note-label">
+                {{ 'cart.gift_note.label' | t }}
+              </label>
+              <textarea
+                id="CartNote"
+                name="note"
+                rows="3"
+                maxlength="500"
+                class="kg-cart-page__note-input"
+              >{{ cart.note | escape }}</textarea>
+            </div>
+
+            <div class="kg-cart-page__summary">
+              <div class="kg-cart-page__subtotal">
+                <span>{{ 'cart.subtotal' | t }}</span>
+                <span class="kg-cart-page__subtotal-amount">{{ cart.total_price | money }}</span>
+              </div>
+              <p class="text-xs text-muted">{{ 'cart.tax_shipping_note' | t }}</p>
+              <button type="submit" name="checkout" class="button button--primary button--lg button--block">
+                {{ 'cart.checkout' | t }}
+              </button>
+            </div>
+          </aside>
+        </div>
+      </form>
+
+      <div class="kg-cart-page__recs">
+        {% content_for 'blocks' %}
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Cart",
+  "blocks": [
+    { "type": "recommendations" },
+    { "type": "featured-collections" },
+    { "type": "@theme" }
+  ],
+  "settings": []
+}
+{% endschema %}

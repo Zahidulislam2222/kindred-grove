@@ -1,0 +1,19 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-cart",
+      "blocks": {
+        "recs": {
+          "type": "recommendations",
+          "settings": {
+            "heading": "You may also like",
+            "intent": "related",
+            "limit": 4
+          }
+        }
+      },
+      "block_order": ["recs"]
+    }
+  },
+  "order": ["main"]
+}

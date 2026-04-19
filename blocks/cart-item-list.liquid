@@ -1,0 +1,77 @@
+{%- comment -%}
+  Cart item list — server-rendered initial state for SSR + SEO; the JS
+  (assets/cart-drawer.js) re-renders innerHTML on every 'cart:updated' so
+  the list stays live. Data-attributes mark the insertion point and the
+  empty state so the JS doesn't rebuild markup from strings unless the
+  cart changed.
+{%- endcomment -%}
+
+<div class="kg-cart__items" data-kg-cart-items {{ block.shopify_attributes }}>
+  {%- if cart.item_count == 0 -%}
+    <div class="kg-cart__empty" data-kg-cart-empty>
+      <p>{{ 'cart.empty.title' | t }}</p>
+      <a href="{{ routes.all_products_collection_url }}" class="button button--secondary button--block">
+        {{ 'cart.empty.cta' | t }}
+      </a>
+    </div>
+  {%- else -%}
+    <ul class="kg-cart__lines" data-kg-cart-lines>
+      {%- for line in cart.items -%}
+        <li class="kg-cart__line" data-line-key="{{ line.key }}">
+          <a href="{{ line.url }}" class="kg-cart__line-media">
+            {%- if line.image -%}
+              <img
+                src="{{ line.image | image_url: width: 160 }}"
+                srcset="{{ line.image | image_url: width: 80 }} 80w, {{ line.image | image_url: width: 160 }} 160w, {{ line.image | image_url: width: 240 }} 240w"
+                sizes="80px"
+                width="80"
+                height="80"
+                alt="{{ line.product.title | escape }}"
+                loading="lazy"
+              >
+            {%- endif -%}
+          </a>
+          <div class="kg-cart__line-body">
+            <p class="kg-cart__line-title">
+              <a href="{{ line.url }}">{{ line.product.title | escape }}</a>
+            </p>
+            {%- if line.variant.title != 'Default Title' -%}
+              <p class="kg-cart__line-variant text-xs text-muted">{{ line.variant.title | escape }}</p>
+            {%- endif -%}
+            <p class="kg-cart__line-price">{{ line.final_line_price | money }}</p>
+            <div class="kg-cart__line-qty" role="group" aria-label="{{ 'cart.qty_controls' | t }}">
+              <button type="button" class="kg-cart__qty-btn" data-kg-qty-decrement data-line-key="{{ line.key }}" aria-label="{{ 'cart.decrease_qty' | t }}">−</button>
+              <input
+                type="number"
+                class="kg-cart__qty-input"
+                value="{{ line.quantity }}"
+                min="0"
+                step="1"
+                data-kg-qty-input
+                data-line-key="{{ line.key }}"
+                aria-label="{{ 'cart.qty' | t }}"
+              >
+              <button type="button" class="kg-cart__qty-btn" data-kg-qty-increment data-line-key="{{ line.key }}" aria-label="{{ 'cart.increase_qty' | t }}">+</button>
+            </div>
+          </div>
+          <button
+            type="button"
+            class="kg-cart__line-remove btn btn--ghost btn--sm"
+            data-kg-cart-remove
+            data-line-key="{{ line.key }}"
+            aria-label="{{ 'cart.remove' | t: title: line.product.title }}"
+          >
+            {% render 'icon', name: 'close', size: 16 %}
+          </button>
+        </li>
+      {%- endfor -%}
+    </ul>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Cart items",
+  "settings": []
+}
+{% endschema %}

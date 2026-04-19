@@ -1,0 +1,31 @@
+api_version = "2025-10"
+
+[[extensions]]
+name = "Kindred Grove — Trust Badges"
+handle = "kindred-grove-trust-badges"
+type = "ui_extension"
+
+[[extensions.targeting]]
+target = "purchase.checkout.block.render"
+module = "./src/Checkout.tsx"
+
+[extensions.capabilities]
+network_access = false
+block_progress = false
+api_access = true
+
+[extensions.settings]
+  [[extensions.settings.fields]]
+  key = "show_halal"
+  type = "boolean"
+  name = "Show halal-certified badge"
+
+  [[extensions.settings.fields]]
+  key = "show_shipping"
+  type = "boolean"
+  name = "Show carbon-neutral shipping badge"
+
+  [[extensions.settings.fields]]
+  key = "show_returns"
+  type = "boolean"
+  name = "Show 30-day returns badge"

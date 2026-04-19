@@ -1,0 +1,12 @@
+# Theme Check config for Kindred Grove
+#
+# The extensions/ directory holds a Shopify app checkout UI extension
+# (scaffold-only, see extensions/checkout-trust-badges/README.md) and must
+# not be scanned by theme-check — it's app extension code, not theme code,
+# and its own locales/en.default.json conflicts with the theme's locale
+# resolution when both are in the same tree.
+
+ignore:
+  - 'extensions/**/*'
+  - 'node_modules/**/*'
+  - '.shopify/**/*'
