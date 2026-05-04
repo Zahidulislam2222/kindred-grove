@@ -11,7 +11,7 @@
     "playwright:install": "playwright install --with-deps chromium"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.10.1",
+    "@axe-core/playwright": "^4.11.3",
     "@playwright/test": "^1.49.0",
     "@percy/cli": "^1.30.5",
     "@percy/playwright": "^1.0.7"
