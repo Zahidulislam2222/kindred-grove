@@ -52,6 +52,8 @@ The unbundled theme has no standalone JS/CSS lint, type-check or bundler-build s
 
 ## Release and hosted CI status
 
-Local release workflow files currently fail closed before writes while reusable drift/parity automation is unfinished. There is no verified automatic production deployment. The latest repository inspection found no required `main` status contexts and an inactive Gitleaks workflow; the checked-in branch-protection file is a sample, not evidence of enforcement.
+Local release workflow files currently fail closed before writes while reusable drift/parity automation is unfinished. The old default-branch production workflow still permits automatic live writes until the replacement is reviewed and merged; do not run it. The latest repository inspection found no required `main` status contexts and an inactive Gitleaks workflow; the checked-in branch-protection file is a sample, not evidence of enforcement.
+
+On 2026-09-24, [PR #8](https://github.com/Zahidulislam2222/kindred-grove/pull/8) at source commit `078aae7` passed hosted [Security and config regression](https://github.com/Zahidulislam2222/kindred-grove/actions/runs/35937547220) and [Liquid linting](https://github.com/Zahidulislam2222/kindred-grove/actions/runs/35937547177). Main still requires one approving review; no status contexts are configured as required. Gitleaks remains disabled by inactivity remotely, with source/history/staged scans performed locally. No hosted browser or deployment run was invoked.
 
 Follow [TESTING.md](docs/TESTING.md) and [OPERATIONS.md](docs/OPERATIONS.md). Remote protection, reviewer requirements and workflow execution must be verified before claiming they are active. Optional Percy/Lighthouse integrations remain outside the required offline gate and must not be enabled without checking entitlement and cost.

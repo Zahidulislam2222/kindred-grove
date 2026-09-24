@@ -17,7 +17,7 @@ Phases are complete delivery milestones. Closely coupled configuration, security
 | 5 | Capacity model and scaling design | Local model/harness prepared and tested; not Shopify capacity |
 | 6 | Availability measurement and error-budget tools | 99% target/runbook prepared; measurement implementation pending |
 | 7 | Rehearsed release recovery and power-loss continuity | Checkpoints active; timed recovery rehearsal pending |
-| 8 | Reproducible CI and reviewed-artifact delivery | Local CI changes prepared; hosted enforcement/release gate pending |
+| 8 | Reproducible CI and reviewed-artifact delivery | Two hosted source checks passed on PR8; enforcement and portable release gate pending |
 | 9 | Independent integrated release audit | Pending stable artifact |
 | 10 | Reviewable release and maintained handoff | Pending prior gates; no automatic live publication |
 
@@ -150,7 +150,7 @@ These tasks share layout, settings and browser behavior, so they merge into one 
 
 **Acceptance:** missing configuration fails clearly; untrusted preview output cannot redirect password submission; no automatic live writes; reviewed artifact cannot change after checks; remote drift or hash mismatch blocks release. Hosted workflow execution and branch enforcement are verified separately from local YAML. Check free public-repository eligibility and artifact limits before activation.
 
-**Root gate:** current local action pins and tool versions were verified against official sources, but hosted settings have not been updated. Release workflows remain fail-closed until delivery automation is complete and tested. [GitHub Actions billing boundaries](https://docs.github.com/en/billing/concepts/product-billing/github-actions).
+**Root gate:** current local action pins and tool versions were verified against official sources, and PR8/source078aae7 passed hosted security/configuration and Liquid checks. Main requires one approving review but has no required-status contexts; no protection settings were changed. Release workflows remain fail-closed until delivery automation is complete and tested. [GitHub Actions billing boundaries](https://docs.github.com/en/billing/concepts/product-billing/github-actions).
 
 ## Phase 9 — Independent integrated release audit
 

@@ -40,3 +40,7 @@ A theme rollback restores reviewed theme files; it does not roll back orders, cu
 ## Optional and legacy components
 
 The checkout extension is unsupported reference source with an API mismatch; it is excluded from accepted root build/browser claims and must not be deployed from this workflow. The retired Worker has no active commerce role. Percy, paid AI review, external load tests and additional monitoring services are not required for this free publication.
+
+## Observed source publication
+
+On 2026-09-24, [PR #8](https://github.com/Zahidulislam2222/kindred-grove/pull/8) at source commit `078aae7` passed hosted [Security and config regression](https://github.com/Zahidulislam2222/kindred-grove/actions/runs/35937547220) and [Liquid linting](https://github.com/Zahidulislam2222/kindred-grove/actions/runs/35937547177). Main still requires one approving review; no status contexts are configured as required. Gitleaks remains disabled by inactivity remotely, with source/history/staged scans performed locally. No hosted browser or deployment run was invoked. The candidate is pushed on `feat/grove-journey-preview`; it is not merged or live-published.

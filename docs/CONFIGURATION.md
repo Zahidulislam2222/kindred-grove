@@ -63,7 +63,7 @@ Unused future GA, Sentry, Klaviyo, review-app, headless and Cloudflare variables
 
 - Combined local security/configuration gate: 95/95 tests. Actual development browser gate: 41 passed, 0 failed, 5 documented skips; alternate Quiz/Wholesale flows 2/2 and active axe 2/2.
 - Seed/demo source review accepted the fixed offline path and demo guards; root reran seed 5/5, including default and blocked apply.
-- Toolchain pins and action-tag mappings were checked against official release sources earlier in this task; hosted CI has not run.
+- Toolchain pins and action-tag mappings were checked against official release sources earlier in this task; hosted security/configuration and Liquid checks passed for PR8/source078aae7; see TESTING.md for run links.
 - Independent cart/config, quiz/privacy and model source reviews passed after corrections. Public-source Gitleaks and Semgrep returned zero findings; the combined development theme has exact 150-file local/downloaded parity. Actual Phase 2 storefront acceptance passed within the documented route/platform scope.
 - Standalone JS/CSS lint, type-check and bundler-build scripts are absent. Report those gaps explicitly; native Liquid uses Shopify rendering and Theme Check.
 - Stable protocol syntax, schema.org vocabulary, HTML attributes, HTTP semantics and repository-relative package data locations are retained as named protocol/structure definitions. Changeable provider versions, timeout policy, content and deployment targets do not belong in feature control flow.

@@ -90,14 +90,7 @@ must stop the write.
 `sample_only` and `not_applied_to_remote` intentionally make it unsuitable as a
 direct GitHub API request. It recommends the CI security/config, Theme Check,
 and Gitleaks statuses after they have been enabled and observed.
-These statuses are not yet verified as enabled or required remotely.
-
-The latest native repository inventory available for this task reported that
-`main` had no required status checks and the Gitleaks workflow was disabled by
-inactivity. Workflow source triggers do not prove a remote workflow is enabled,
-required, or passing. No GitHub workflow run was performed and no GitHub settings were changed as
-part of this local update; root review and a fresh native inventory are still
-needed before claiming remote CI readiness.
+On 2026-09-24, [PR #8](https://github.com/Zahidulislam2222/kindred-grove/pull/8) at source commit `078aae7` passed hosted [Security and config regression](https://github.com/Zahidulislam2222/kindred-grove/actions/runs/35937547220) and [Liquid linting](https://github.com/Zahidulislam2222/kindred-grove/actions/runs/35937547177). Main still requires one approving review; no status contexts are configured as required. Gitleaks remains disabled by inactivity remotely, with source/history/staged scans performed locally. No hosted browser or deployment run was invoked.
 
 ## Phase 2 acceptance evidence — 2026-09-24
 
@@ -107,4 +100,4 @@ needed before claiming remote CI readiness.
 - Exact SHA-256 parity across all 150 local, frozen and downloaded development files. No live publication.
 - Real flows: cart 0→1→2→0, native consent choices/withdrawal/reload, explicit GPC/DNT emulation, header/video/copy, keyboard/focus, reduced motion, no-JS navigation at 320/390 px, product reflow at 320/370/371/390/1440 px, and five-question Quiz/result collection/reload without answer persistence.
 
-Skips remain explicit: single-variant catalog, canonical Quiz and Wholesale pages returning 404, no article and Shopify-hosted account redirect. Alternate-template checks do not create merchant resources; Quiz used a feature override after native Accept. No screen-reader, complete browser zoom, legal compliance, platform capacity or continuous uptime claim follows from these results. Hosted CI execution/enforcement remains unverified. Work stopped after Phase 2 at the user's request.
+Skips remain explicit: single-variant catalog, canonical Quiz and Wholesale pages returning 404, no article and Shopify-hosted account redirect. Alternate-template checks do not create merchant resources; Quiz used a feature override after native Accept. No screen-reader, complete browser zoom, legal compliance, platform capacity or continuous uptime claim follows from these results. The two hosted source checks above are verified separately; browser evidence remains the development run. The subsequent source/documentation handoff does not implement later engineering milestones.
