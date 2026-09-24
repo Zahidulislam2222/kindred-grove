@@ -13,9 +13,9 @@
 
 <kg-recommendations
   class="kg-recs section"
-  data-product-id="{{ product.id }}"
-  data-max="{{ max }}"
-  data-intent="{{ intent }}"
+  data-product-id="{{ product.id | escape }}"
+  data-max="{{ max | escape }}"
+  data-intent="{{ intent | escape }}"
   {{ block.shopify_attributes }}
 >
   <div class="container stack">

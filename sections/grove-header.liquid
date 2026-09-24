@@ -1,0 +1,21 @@
+<div class="grove-announcement"><span>{{ section.settings.announcement | escape }}</span><span aria-hidden="true">✦</span><span>{{ section.settings.announcement_end | escape }}</span></div>
+<header class="grove-header-shell" role="banner">
+<grove-header class="grove-header" data-hide-after="{{ section.settings.hide_after_px }}" data-reveal-after="{{ section.settings.reveal_after_px }}">
+  <a class="grove-brand" href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }}">
+    {% render 'grove-mark' %}<span>{{ shop.name | escape }}</span>
+  </a>
+  <nav class="grove-nav" aria-label="{{ 'a11y.primary_nav' | t }}" id="GroveNav">
+    <a href="{{ routes.root_url }}#pantry">{{ 'grove.shop' | t }}</a>
+    <a href="{{ routes.root_url }}#story">{{ 'grove.story' | t }}</a>
+    <a href="{{ routes.root_url }}#rituals">{{ 'grove.rituals' | t }}</a>
+  </nav>
+  <div class="grove-header__actions">
+    <a href="{{ routes.search_url }}" class="grove-icon-button" aria-label="{{ 'header.search' | t }}">{% render 'icon', name: 'search', size: 19 %}</a>
+    <a href="{{ routes.cart_url }}" class="grove-bag" data-kg-cart-open aria-label="{{ 'header.cart' | t }}">{% render 'icon', name: 'bag', size: 19 %}<span class="grove-bag__label">{{ 'grove.bag' | t }}</span><span data-cart-count>{{ cart.item_count }}</span></a>
+    <button type="button" class="grove-menu-toggle grove-icon-button" aria-label="{{ 'header.open_menu' | t }}" aria-controls="GroveNav" aria-expanded="false">{% render 'icon', name: 'menu', size: 22 %}</button>
+  </div>
+</grove-header>
+</header>
+{% schema %}
+{"name":"Grove header","settings":[{"type":"text","id":"announcement","label":"Announcement","default":"A little closer to the source."},{"type":"text","id":"announcement_end","label":"Second phrase","default":"A little more around the table."},{"type":"range","id":"hide_after_px","label":"Scroll down distance before header hides","min":30,"max":180,"step":10,"unit":"px","default":80,"info":"Cumulative downward scroll distance before the header hides."},{"type":"range","id":"reveal_after_px","label":"Scroll up distance before header returns","min":10,"max":100,"step":5,"unit":"px","default":30,"info":"Cumulative upward scroll distance before the header returns."}]}
+{% endschema %}

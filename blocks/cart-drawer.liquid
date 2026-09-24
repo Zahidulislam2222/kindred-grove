@@ -31,7 +31,11 @@
       </header>
 
       <div class="kg-cart__body" data-kg-cart-body>
-        {% content_for 'blocks' %}
+        {% if block.blocks.size > 0 %}
+          {% content_for 'blocks' %}
+        {% else %}
+          <div data-kg-cart-items></div>
+        {% endif %}
       </div>
 
       <footer class="kg-cart__footer" data-kg-cart-footer>
@@ -39,17 +43,18 @@
           <span>{{ 'cart.subtotal' | t }}</span>
           <span class="kg-cart__subtotal-amount" data-kg-cart-subtotal>{{ cart.total_price | money }}</span>
         </div>
+        {% render 'demo-price-label' %}
         <p class="kg-cart__tax-note text-xs text-muted">{{ 'cart.tax_shipping_note' | t }}</p>
-        <form action="{{ routes.cart_url }}" method="post" class="kg-cart__checkout-form">
-          <button
-            type="submit"
-            name="checkout"
-            class="button button--primary button--lg button--block"
-            {% if cart.item_count == 0 %}disabled aria-disabled="true"{% endif %}
-          >
-            {{ 'cart.checkout' | t }}
-          </button>
-        </form>
+        {% if settings.demo_mode %}
+          <button type="button" class="button button--primary button--lg button--block" data-demo-checkout disabled aria-disabled="true">{{ 'cart.checkout' | t }}</button>
+          {% render 'demo-disabled-message', message_key: 'demo.checkout_disabled' %}
+        {% else %}
+          <form action="{{ routes.cart_url }}" method="post" class="kg-cart__checkout-form">
+            <button type="submit" name="checkout" class="button button--primary button--lg button--block" {% if cart.item_count == 0 %}disabled aria-disabled="true"{% endif %}>
+              {{ 'cart.checkout' | t }}
+            </button>
+          </form>
+        {% endif %}
         <a href="{{ routes.cart_url }}" class="kg-cart__view-link">{{ 'cart.view_full' | t }}</a>
       </footer>
     </div>

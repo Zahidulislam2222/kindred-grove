@@ -38,14 +38,7 @@
       </fieldset>
     {%- endfor -%}
 
-    {%- comment -%}
-      JSON of all variants for the JS to match against. Kept inside a
-      data-* attribute would be a lot of characters; use a script tag
-      with type=application/json for clean parsing.
-    {%- endcomment -%}
-    <script type="application/json" data-kg-variants>
-      {{ product.variants | json }}
-    </script>
+    <template data-kg-variants data-config="{{ product.variants | json | escape }}"></template>
   </kg-variant-picker>
 {%- endif -%}
 

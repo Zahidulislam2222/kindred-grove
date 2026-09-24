@@ -15,6 +15,7 @@
       </a>
     </div>
   {%- else -%}
+    {% render 'demo-price-label' %}
     <ul class="kg-cart__lines" data-kg-cart-lines>
       {%- for line in cart.items -%}
         <li class="kg-cart__line" data-line-key="{{ line.key }}">

@@ -23,6 +23,7 @@
   endif
 -%}
 
+{%- unless settings.demo_mode -%}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -78,3 +79,4 @@
   {%- endif -%}
 }
 </script>
+{%- endunless -%}

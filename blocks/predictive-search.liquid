@@ -24,7 +24,7 @@
 
 <kg-predictive-search
   class="kg-search"
-  data-endpoint="{{ routes.predictive_search_url }}"
+  data-endpoint="{{ routes.predictive_search_url | escape }}"
   data-types="{{ types | escape }}"
   data-limit="{{ limit }}"
   {{ block.shopify_attributes }}

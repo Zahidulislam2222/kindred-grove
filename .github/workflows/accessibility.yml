@@ -1,13 +1,6 @@
 name: Accessibility
 
 on:
-  pull_request:
-    branches: [main, staging]
-    paths-ignore:
-      - 'docs/**'
-      - '**.md'
-      - '.gitignore'
-      - '.editorconfig'
   workflow_dispatch:
 
 permissions:
@@ -19,115 +12,78 @@ concurrency:
 
 jobs:
   axe:
-    name: axe-core via Playwright
+    name: axe-core via Playwright (manual)
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-
+    timeout-minutes: 25
     steps:
-      - name: Preflight — check secrets
-        id: preflight
-        env:
-          TOKEN: ${{ secrets.SHOPIFY_CLI_THEME_TOKEN }}
-          STORE: ${{ secrets.SHOPIFY_STORE }}
-        run: |
-          if [ -z "$TOKEN" ] || [ -z "$STORE" ]; then
-            {
-              echo "### Accessibility check skipped — secrets not provisioned"
-              echo ""
-              echo "SHOPIFY_CLI_THEME_TOKEN or SHOPIFY_STORE is empty. See \`docs/CI-SECRETS.md\`."
-            } >> "$GITHUB_STEP_SUMMARY"
-            echo "::warning::Accessibility workflow skipped — required secrets missing."
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "skip=false" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Checkout
-        if: steps.preflight.outputs.skip != 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Preflight required Shopify configuration
+        env:
+          SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_CLI_THEME_TOKEN }}
+          SHOPIFY_STORE: ${{ secrets.SHOPIFY_STORE }}
+        run: node scripts/ci/require-env.cjs SHOPIFY_CLI_THEME_TOKEN SHOPIFY_STORE
+
+      - name: Read pinned toolchain
+        id: toolchain
+        run: node scripts/ci/toolchain.cjs >> "$GITHUB_OUTPUT"
 
       - name: Setup Node.js
-        if: steps.preflight.outputs.skip != 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: ${{ steps.toolchain.outputs.node }}
+          cache: npm
 
-      - name: Install npm dependencies
-        if: steps.preflight.outputs.skip != 'true'
-        run: npm install --no-audit --no-fund
+      - name: Install locked test harness dependencies
+        run: npm ci --no-audit --no-fund
 
-      - name: Cache Playwright browsers
-        if: steps.preflight.outputs.skip != 'true'
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-playwright-
-
-      - name: Install Playwright browser (chromium)
-        if: steps.preflight.outputs.skip != 'true'
+      - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Install Shopify CLI
-        if: steps.preflight.outputs.skip != 'true'
-        run: npm install -g @shopify/cli@latest
+      - name: Install pinned Shopify CLI
+        env:
+          SHOPIFY_CLI_VERSION: ${{ steps.toolchain.outputs.shopify_cli }}
+        run: npm install --global "@shopify/cli@${SHOPIFY_CLI_VERSION}" --no-audit --no-fund
 
-      - name: Push preview theme
-        if: steps.preflight.outputs.skip != 'true'
+      - name: Push isolated preview theme
         id: push
         env:
           SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_CLI_THEME_TOKEN }}
           SHOPIFY_FLAG_STORE: ${{ secrets.SHOPIFY_STORE }}
-          SHOPIFY_FLAG_FORCE: '1'
         run: |
-          set -e
+          set -euo pipefail
           shopify theme push \
             --unpublished \
-            --theme "kg-ci-axe-${{ github.run_id }}" \
-            --json \
-            --store "$SHOPIFY_FLAG_STORE" \
-            --password "$SHOPIFY_CLI_THEME_TOKEN" \
-            > push-output.json
-          PREVIEW_URL=$(node -e "const d=require('./push-output.json'); console.log(d.theme?.preview_url || d.preview_url || '')")
-          THEME_ID=$(node -e "const d=require('./push-output.json'); console.log(d.theme?.id || d.theme_id || '')")
-          if [ -z "$PREVIEW_URL" ]; then
-            echo "::error::Could not extract preview URL from shopify theme push output"
-            cat push-output.json
-            exit 1
-          fi
-          BASE_URL=$(echo "$PREVIEW_URL" | sed 's|?.*||')
-          echo "base_url=$BASE_URL" >> "$GITHUB_OUTPUT"
-          echo "preview_url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
-          echo "theme_id=$THEME_ID" >> "$GITHUB_OUTPUT"
+            --theme "kg-ci-axe-${GITHUB_RUN_ID}" \
+            --json > "$RUNNER_TEMP/theme-push.json"
+          SHOPIFY_STORE="$SHOPIFY_FLAG_STORE" node scripts/ci/read-theme-preview.cjs "$RUNNER_TEMP/theme-push.json" >> "$GITHUB_OUTPUT"
 
-      - name: Run axe via Playwright
-        if: steps.preflight.outputs.skip != 'true'
+      - name: Run accessibility tests
         env:
           BASE_URL: ${{ steps.push.outputs.base_url }}
           PREVIEW_URL: ${{ steps.push.outputs.preview_url }}
-          STORE_PASSWORD: ${{ secrets.SHOPIFY_STORE_PASSWORD }}
+          SHOPIFY_STORE: ${{ secrets.SHOPIFY_STORE }}
+          SHOPIFY_STORE_PASSWORD: ${{ secrets.SHOPIFY_STORE_PASSWORD }}
           CI: 'true'
         run: npm run test:a11y
 
-      - name: Upload Playwright a11y report
-        if: always() && steps.preflight.outputs.skip != 'true'
-        uses: actions/upload-artifact@v4
+      - name: Upload accessibility report
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: axe-report
           path: playwright-report
           retention-days: 14
+          if-no-files-found: warn
 
       - name: Clean up preview theme
-        if: always() && steps.preflight.outputs.skip != 'true' && steps.push.outputs.theme_id != ''
+        if: always() && steps.push.outputs.theme_id != ''
         env:
           SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_CLI_THEME_TOKEN }}
           SHOPIFY_FLAG_STORE: ${{ secrets.SHOPIFY_STORE }}
-          SHOPIFY_FLAG_FORCE: '1'
+          THEME_ID: ${{ steps.push.outputs.theme_id }}
         continue-on-error: true
-        run: |
-          shopify theme delete \
-            --theme "${{ steps.push.outputs.theme_id }}" \
-            --store "$SHOPIFY_FLAG_STORE" \
-            --password "$SHOPIFY_CLI_THEME_TOKEN"
+        run: shopify theme delete --theme "$THEME_ID" --force

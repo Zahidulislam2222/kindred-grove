@@ -15,7 +15,7 @@
  *   - Qty +/- buttons → /cart/change.js
  *   - Remove button → /cart/change.js qty=0
  *   - Upsell Add → /cart/add.js
- *   - Gift note typing → /cart/update.js (debounced 400ms)
+ *   - Gift note typing → /cart/update.js (configured debounce)
  *
  * After any mutation, dispatches 'cart:updated' so other listeners (header
  * count bubble in quick-view.js) also refresh. Does a single /cart.js fetch
@@ -44,6 +44,7 @@ class KindredGroveCartDrawer extends HTMLElement {
   }
 
   connectedCallback() {
+    if (!window.KGClient?.configValid) return;
     this.drawer = this.querySelector('.kg-cart__drawer');
     this.panel = this.querySelector('.kg-cart__panel');
     this.body = this.querySelector('[data-kg-cart-body]');
@@ -64,6 +65,10 @@ class KindredGroveCartDrawer extends HTMLElement {
     document.removeEventListener('cart:open', this._onCartOpen);
     document.removeEventListener('keydown', this._onKeydown);
     document.body.style.removeProperty('overflow');
+    clearTimeout(this.noteTimer);
+    this.drawer?.removeEventListener('click', this._onDrawerClick);
+    this.drawer?.removeEventListener('input', this._onDrawerInput);
+    this.drawer?.removeEventListener('change', this._onDrawerChange);
   }
 
   /* ----- open/close ----- */
@@ -176,81 +181,71 @@ class KindredGroveCartDrawer extends HTMLElement {
   /* ----- cart mutations ----- */
 
   _changeQty(key, delta) {
-    const input = this.querySelector(`[data-kg-qty-input][data-line-key="${CSS.escape(key)}"]`);
+    if (typeof key !== 'string' || !key || ![-1, 1].includes(delta)) return;
+    const input = [...this.querySelectorAll('[data-kg-qty-input]')]
+      .find((candidate) => candidate.getAttribute('data-line-key') === key);
     const current = input ? parseInt(input.value, 10) : 1;
     const next = Math.max(0, current + delta);
     this._setQty(key, next);
   }
 
   async _setQty(key, qty) {
-    if (this.pendingChanges.has(key)) return;
+    if (typeof key !== 'string' || !key || !Number.isSafeInteger(qty) || qty < 0 || this.pendingChanges.has(key)) return;
     this.pendingChanges.add(key);
     try {
-      const res = await fetch('/cart/change.js', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ id: key, quantity: qty })
-      });
-      if (!res.ok) throw new Error(`change ${res.status}`);
-      await res.json();
-      document.dispatchEvent(new CustomEvent('cart:updated'));
-    } catch (err) {
-      if (window.Sentry) window.Sentry.captureException(err);
+      const outcome = await this._mutate('change', { id: key, quantity: qty });
+      if (outcome.ok) document.dispatchEvent(new CustomEvent('cart:updated'));
+      else {
+        if (outcome.reconciled) this._applyCart(outcome.cart);
+        this._showCartStatus(this._t('statusUnknown'));
+        if (!outcome.reconciled) this._disableCartWrites();
+      }
     } finally {
       this.pendingChanges.delete(key);
     }
   }
 
   async _upsellAdd(variantId, button) {
-    const original = button.textContent;
+    if (!/^\d+$/.test(String(variantId))) return;
     button.disabled = true;
     button.setAttribute('aria-busy', 'true');
     try {
-      const res = await fetch('/cart/add.js', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ id: variantId, quantity: 1 })
-      });
-      if (!res.ok) {
-        const errBody = await res.json().catch(() => ({}));
-        throw new Error(errBody.description || `add ${res.status}`);
+      const outcome = await this._mutate('add', { id: Number(variantId), quantity: 1 });
+      if (outcome.ok) {
+        button.textContent = this._t('added');
+        document.dispatchEvent(new CustomEvent('cart:updated'));
+      } else {
+        if (outcome.reconciled) this._applyCart(outcome.cart);
+        button.textContent = this._t('statusUnknown');
+        this._showCartStatus(this._t('statusUnknown'));
+        if (!outcome.reconciled) this._disableCartWrites();
       }
-      await res.json();
-      button.textContent = 'Added';
-      document.dispatchEvent(new CustomEvent('cart:updated'));
-      setTimeout(() => {
-        button.textContent = original;
-        button.disabled = false;
-        button.removeAttribute('aria-busy');
-      }, 900);
-    } catch (err) {
-      if (window.Sentry) window.Sentry.captureException(err);
-      button.textContent = original;
-      button.disabled = false;
+    } finally {
       button.removeAttribute('aria-busy');
+      if (!window.KGClient.cartWritesBlocked()) button.disabled = false;
     }
   }
 
   _queueNoteSave(value) {
     const status = this.querySelector('[data-kg-cart-note-status]');
-    if (status) status.textContent = this._t('note_saving', 'Saving note…');
+    if (status) status.textContent = this._t('noteSaving');
     clearTimeout(this.noteTimer);
-    this.noteTimer = setTimeout(() => this._saveNote(value), 400);
+    this.noteTimer = setTimeout(() => this._saveNote(value), window.KGClient.limits.cartNoteDebounceMs);
   }
 
   async _saveNote(note) {
     const status = this.querySelector('[data-kg-cart-note-status]');
     try {
-      const res = await fetch('/cart/update.js', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ note })
-      });
-      if (!res.ok) throw new Error(`note ${res.status}`);
-      if (status) status.textContent = this._t('note_saved', 'Note saved');
-    } catch (err) {
-      if (window.Sentry) window.Sentry.captureException(err);
-      if (status) status.textContent = this._t('note_error', 'Could not save note. Try again.');
+      const outcome = await this._mutate('update', { note: String(note).slice(0, 500) });
+      if (outcome.ok) {
+        if (status) status.textContent = this._t('noteSaved');
+      } else {
+        if (outcome.reconciled) this._applyCart(outcome.cart);
+        if (status) status.textContent = this._t('statusUnknown');
+        if (!outcome.reconciled) this._disableCartWrites();
+      }
+    } catch (_error) {
+      if (status) status.textContent = this._t('statusError');
     }
   }
 
@@ -258,18 +253,40 @@ class KindredGroveCartDrawer extends HTMLElement {
 
   async refresh() {
     try {
-      const res = await fetch('/cart.js', { headers: { Accept: 'application/json' } });
-      if (!res.ok) return;
-      const cart = await res.json();
-      this._renderLines(cart);
-      this._renderSubtotal(cart);
-      this._renderFreeShip(cart);
-      this._renderCount(cart);
-      this._renderUpsellVisibility(cart);
-      this._renderCheckoutEnabled(cart);
-    } catch (err) {
-      if (window.Sentry) window.Sentry.captureException(err);
+      const route = window.KGClient.cartRoute('cart');
+      if (!route) return;
+      const cart = await window.KGClient.readCart(() => window.KGClient.requestJSON(route, { headers: { Accept: 'application/json' } }));
+      this._applyCart(cart);
+      this._enableCartWrites();
+    } catch (_error) {
+      this._showCartStatus(this._t('statusError'));
     }
+  }
+
+  async _mutate(routeName, body) {
+    const route = window.KGClient.cartRoute(routeName);
+    const cartRoute = window.KGClient.cartRoute('cart');
+    if (!route || !cartRoute) return { ok: false, reconciled: false, blocked: true };
+    return window.KGClient.mutateCart(
+      () => window.KGClient.requestJSON(route, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(body),
+      }),
+      () => window.KGClient.requestJSON(cartRoute, { headers: { Accept: 'application/json' } }),
+      routeName === 'add' ? window.KGClient.isAddedItems : window.KGClient.isCartSnapshot,
+    );
+  }
+
+  _applyCart(cart) {
+    if (!cart || !Array.isArray(cart.items) || !Number.isSafeInteger(Number(cart.item_count))
+      || Number(cart.item_count) < 0 || !Number.isSafeInteger(Number(cart.total_price)) || Number(cart.total_price) < 0) return;
+    this._renderLines(cart);
+    this._renderSubtotal(cart);
+    this._renderFreeShip(cart);
+    this._renderCount(cart);
+    this._renderUpsellVisibility(cart);
+    this._renderCheckoutEnabled(cart);
   }
 
   _renderLines(cart) {
@@ -278,29 +295,43 @@ class KindredGroveCartDrawer extends HTMLElement {
     if (cart.item_count === 0) {
       mount.innerHTML = `
         <div class="kg-cart__empty" data-kg-cart-empty>
-          <p>${this._t('empty.title', "Your cart is empty. Let's fix that.")}</p>
-          <a href="/collections/all" class="button button--secondary button--block">${this._t('empty.cta', 'Browse the pantry')}</a>
+          <p>${this._escape(this._t('emptyTitle'))}</p>
+          <a href="${this._attr(window.KGClient.cartRoute('pantry') || '')}" class="button button--secondary button--block">${this._escape(this._t('emptyCta'))}</a>
         </div>`;
       return;
     }
-    const money = (c) => this._money(c, cart.currency);
-    const items = cart.items.map((line) => `
-      <li class="kg-cart__line" data-line-key="${this._attr(line.key)}">
-        <a href="${this._attr(line.url)}" class="kg-cart__line-media">
-          ${line.image ? `<img src="${this._attr(this._imgUrl(line.image, 160))}" width="80" height="80" alt="${this._attr(line.product_title)}" loading="lazy">` : ''}
+    const lines = cart.items.filter((line) => line && typeof line.key === 'string' && line.key.length > 0
+      && /^\d+$/.test(String(line.product_id)) && Number.isSafeInteger(Number(line.quantity)) && Number(line.quantity) >= 0
+      && Number.isSafeInteger(Number(line.final_line_price)) && Number(line.final_line_price) >= 0
+      && typeof line.product_title === 'string');
+    const items = lines.map((line) => {
+      const lineUrl = window.KGClient.safeUrl(line.url)?.href;
+      const mediaFallback = line.handle && Object.hasOwn(window.KGClient.config.groveProductMedia || {}, line.handle)
+        ? window.KGClient.config.groveProductMedia[line.handle] : '';
+      const imageUrl = this._imgUrl(line.image || mediaFallback, 160);
+      const title = this._escape(line.product_title);
+      const quantity = Number(line.quantity);
+      const key = this._attr(line.key);
+      const variant = typeof line.variant_title === 'string' && line.variant_title !== 'Default Title'
+        ? `<p class="kg-cart__line-variant text-xs text-muted">${this._escape(line.variant_title)}</p>` : '';
+      return `
+      <li class="kg-cart__line" data-line-key="${key}">
+        <a href="${this._attr(lineUrl || '')}" class="kg-cart__line-media">
+          ${imageUrl ? `<img src="${this._attr(imageUrl)}" width="80" height="80" alt="${this._attr(line.product_title)}" loading="lazy">` : ''}
         </a>
         <div class="kg-cart__line-body">
-          <p class="kg-cart__line-title"><a href="${this._attr(line.url)}">${this._escape(line.product_title)}</a></p>
-          ${line.variant_title && line.variant_title !== 'Default Title' ? `<p class="kg-cart__line-variant text-xs text-muted">${this._escape(line.variant_title)}</p>` : ''}
-          <p class="kg-cart__line-price">${money(line.final_line_price)}</p>
-          <div class="kg-cart__line-qty" role="group" aria-label="Quantity controls">
-            <button type="button" class="kg-cart__qty-btn" data-kg-qty-decrement data-line-key="${this._attr(line.key)}" aria-label="Decrease quantity">−</button>
-            <input type="number" class="kg-cart__qty-input" value="${line.quantity}" min="0" step="1" data-kg-qty-input data-line-key="${this._attr(line.key)}" aria-label="Quantity">
-            <button type="button" class="kg-cart__qty-btn" data-kg-qty-increment data-line-key="${this._attr(line.key)}" aria-label="Increase quantity">+</button>
+          <p class="kg-cart__line-title"><a href="${this._attr(lineUrl || '')}">${title}</a></p>
+          ${variant}
+          <p class="kg-cart__line-price">${this._money(Number(line.final_line_price), cart.currency)}</p>
+          <div class="kg-cart__line-qty" role="group" aria-label="${this._attr(this._t('quantityControls'))}">
+            <button type="button" class="kg-cart__qty-btn" data-kg-qty-decrement data-line-key="${key}" aria-label="${this._attr(this._t('decrease'))}">−</button>
+            <input type="number" class="kg-cart__qty-input" value="${quantity}" min="0" step="1" data-kg-qty-input data-line-key="${key}" aria-label="${this._attr(this._t('quantity'))}">
+            <button type="button" class="kg-cart__qty-btn" data-kg-qty-increment data-line-key="${key}" aria-label="${this._attr(this._t('increase'))}">+</button>
           </div>
         </div>
-        <button type="button" class="kg-cart__line-remove btn btn--ghost btn--sm" data-kg-cart-remove data-line-key="${this._attr(line.key)}" aria-label="Remove ${this._attr(line.product_title)} from cart">✕</button>
-      </li>`).join('');
+        <button type="button" class="kg-cart__line-remove btn btn--ghost btn--sm" data-kg-cart-remove data-line-key="${key}" aria-label="${this._attr(this._t('remove').replace('{title}', line.product_title))}">✕</button>
+      </li>`;
+    }).join('');
     mount.innerHTML = `<ul class="kg-cart__lines" data-kg-cart-lines>${items}</ul>`;
   }
 
@@ -312,8 +343,15 @@ class KindredGroveCartDrawer extends HTMLElement {
   _renderFreeShip(cart) {
     const bar = this.querySelector('[data-kg-freeship]');
     if (!bar) return;
-    const threshold = parseInt(bar.getAttribute('data-threshold-cents'), 10) || 0;
-    if (threshold <= 0) return;
+    const rawThreshold = bar.getAttribute('data-threshold-cents') || '';
+    const threshold = /^[1-9]\d*$/.test(rawThreshold) ? Number(rawThreshold) : 0;
+    const thresholdCurrency = bar.getAttribute('data-threshold-currency') || '';
+    if (!Number.isSafeInteger(threshold) || threshold <= 0
+      || !/^[A-Z]{3}$/.test(thresholdCurrency) || cart.currency !== thresholdCurrency) {
+      bar.hidden = true;
+      return;
+    }
+    bar.hidden = false;
     const pct = Math.min(100, Math.round((cart.total_price / threshold) * 100));
     const fill = bar.querySelector('[data-kg-freeship-fill]');
     const msg = bar.querySelector('[data-kg-freeship-msg]');
@@ -321,17 +359,20 @@ class KindredGroveCartDrawer extends HTMLElement {
     if (fill) fill.style.width = pct + '%';
     if (track) track.setAttribute('aria-valuenow', String(pct));
     if (msg) {
-      if (cart.total_price >= threshold) {
-        msg.textContent = 'Free shipping unlocked ✦';
+      if (Number(cart.total_price) >= threshold) {
+        msg.textContent = this._t('freeShippingUnlocked');
       } else {
-        const remaining = this._money(threshold - cart.total_price, cart.currency);
-        msg.innerHTML = `Add <strong>${this._escape(remaining)}</strong> more for free shipping`;
+        const remaining = this._money(threshold - Number(cart.total_price), cart.currency);
+        const parts = this._t('freeShippingRemaining').split('{amount}');
+        const emphasis = document.createElement('strong');
+        emphasis.textContent = remaining;
+        msg.replaceChildren(document.createTextNode(parts[0] || ''), emphasis, document.createTextNode(parts.slice(1).join('{amount}')));
       }
     }
   }
 
   _renderCount(cart) {
-    this.querySelectorAll('[data-kg-cart-count]').forEach((el) => {
+    document.querySelectorAll('[data-kg-cart-count], [data-cart-count]').forEach((el) => {
       el.textContent = String(cart.item_count);
     });
   }
@@ -339,7 +380,8 @@ class KindredGroveCartDrawer extends HTMLElement {
   _renderUpsellVisibility(cart) {
     const up = this.querySelector('[data-kg-cart-upsell]');
     if (!up) return;
-    const upsellProductId = parseInt(up.getAttribute('data-product-id'), 10);
+    const upsellProductId = Number(up.getAttribute('data-product-id'));
+    if (!Number.isSafeInteger(upsellProductId) || upsellProductId < 1) return;
     const alreadyIn = cart.items.some((i) => i.product_id === upsellProductId);
     up.style.display = (cart.item_count > 0 && !alreadyIn) ? '' : 'none';
   }
@@ -355,21 +397,23 @@ class KindredGroveCartDrawer extends HTMLElement {
   /* ----- utils ----- */
 
   _money(cents, currency) {
+    if (!Number.isSafeInteger(cents) || cents < 0) return '';
     try {
       return (cents / 100).toLocaleString(undefined, {
         style: 'currency',
-        currency: currency || window.Shopify?.currency?.active || 'USD'
+        currency: /^[A-Z]{3}$/.test(currency || '') ? currency : window.KGClient.config.currency
       });
     } catch {
-      return `$${(cents / 100).toFixed(2)}`;
+      return '';
     }
   }
 
   _imgUrl(src, width) {
-    // Shopify image URL params — trust that line.image is already a CDN URL.
     if (!src) return '';
-    const sep = src.includes('?') ? '&' : '?';
-    return `${src}${sep}width=${width}`;
+    const url = window.KGClient.safeUrl(src, { image: true });
+    if (!url || !Number.isSafeInteger(width) || width < 1) return '';
+    url.searchParams.set('width', String(width));
+    return url.href;
   }
 
   _escape(str) {
@@ -383,13 +427,30 @@ class KindredGroveCartDrawer extends HTMLElement {
 
   _attr(str) { return this._escape(str); }
 
-  _t(key, fallback) {
-    const dict = window.KG_I18N?.cart;
-    if (!dict) return fallback;
-    const parts = key.split('.');
-    let node = dict;
-    for (const p of parts) { node = node && node[p]; if (node == null) return fallback; }
-    return node;
+  _t(key) {
+    return window.KGClient?.config?.messages?.cart?.[key] || '';
+  }
+
+  _showCartStatus(message) {
+    let status = this.querySelector('[data-kg-cart-status]');
+    if (!status) {
+      status = document.createElement('p');
+      status.setAttribute('data-kg-cart-status', '');
+      status.setAttribute('role', 'status');
+      status.setAttribute('aria-live', 'polite');
+      this.querySelector('[data-kg-cart-body]')?.prepend(status);
+    }
+    status.textContent = message;
+  }
+
+  _disableCartWrites() {
+    this.querySelectorAll('[data-kg-qty-decrement], [data-kg-qty-increment], [data-kg-cart-remove], [data-kg-cart-upsell-add], [data-kg-cart-note]').forEach((control) => { control.disabled = true; });
+  }
+
+  _enableCartWrites() {
+    this.querySelectorAll('[data-kg-qty-decrement], [data-kg-qty-increment], [data-kg-cart-remove], [data-kg-cart-upsell-add], [data-kg-cart-note]').forEach((control) => {
+      if (!control.hasAttribute('aria-disabled')) control.disabled = false;
+    });
   }
 }
 

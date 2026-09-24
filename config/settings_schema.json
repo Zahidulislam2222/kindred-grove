@@ -146,6 +146,18 @@
     ]
   },
   {
+    "name": "Store behavior",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "demo_mode",
+        "label": "Demo mode",
+        "default": true,
+        "info": "Shows sample catalog pricing, disables the theme checkout button and contact/newsletter submissions, and hides unverified trust badges. Turn off only after live products, policies, and Shopify checkout are verified."
+      }
+    ]
+  },
+  {
     "name": "Social & Trust",
     "settings": [
       {
@@ -198,69 +210,6 @@
     ]
   },
   {
-    "name": "Observability",
-    "settings": [
-      {
-        "type": "header",
-        "content": "Error tracking (Sentry)"
-      },
-      {
-        "type": "paragraph",
-        "content": "Sentry loads only when a DSN is set. See docs/adr/005-sentry-over-grafana-faro.md for PII-scrubbing and CSP rationale."
-      },
-      {
-        "type": "text",
-        "id": "sentry_dsn",
-        "label": "Sentry DSN",
-        "info": "Paste the full DSN from Sentry → Project → Client Keys. Leave empty to disable."
-      },
-      {
-        "type": "select",
-        "id": "sentry_env",
-        "label": "Sentry environment tag",
-        "options": [
-          { "value": "development", "label": "Development" },
-          { "value": "staging", "label": "Staging" },
-          { "value": "production", "label": "Production" }
-        ],
-        "default": "development"
-      },
-      {
-        "type": "header",
-        "content": "Real User Monitoring (Web Vitals → GA4)"
-      },
-      {
-        "type": "paragraph",
-        "content": "Core Web Vitals (LCP, INP, CLS, FCP, TTFB) ship as GA4 custom events when a GA4 measurement ID is active on the shop. No extra setting needed here; the theme auto-detects gtag."
-      },
-      {
-        "type": "range",
-        "id": "rum_sample_rate",
-        "label": "RUM sampling rate",
-        "min": 0,
-        "max": 100,
-        "step": 5,
-        "unit": "%",
-        "default": 100,
-        "info": "Percent of sessions that report Web Vitals. 100 on dev/staging, lower on production if traffic grows."
-      },
-      {
-        "type": "header",
-        "content": "Email marketing (Klaviyo)"
-      },
-      {
-        "type": "paragraph",
-        "content": "When the public API key is set AND a block-level list ID is configured on the newsletter block, the form posts directly to Klaviyo. Otherwise it falls back to Shopify's /contact endpoint."
-      },
-      {
-        "type": "text",
-        "id": "klaviyo_public_api_key",
-        "label": "Klaviyo public API key (company_id)",
-        "info": "Find in Klaviyo → Account → Settings → API Keys. Public keys are safe to expose in storefront JS."
-      }
-    ]
-  },
-  {
     "name": "Feature flags",
     "settings": [
       {
@@ -277,6 +226,25 @@
         "label": "Flag definitions (JSON)",
         "info": "Array of {name, default, rollout, variants}. Example below.",
         "default": "[\n  {\n    \"name\": \"pantry_quiz\",\n    \"default\": false,\n    \"rollout\": 100,\n    \"variants\": [\"off\", \"on\"]\n  },\n  {\n    \"name\": \"hero_copy\",\n    \"default\": \"a\",\n    \"rollout\": 50,\n    \"variants\": [\"a\", \"b\"]\n  }\n]"
+      }
+    ]
+  },
+  {
+    "name": "Grove product artwork",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Preview artwork is rendered locally. Real product photography takes precedence when supplied."
+      },
+      {
+        "type": "product",
+        "id": "grove_oil_product",
+        "label": "Olive oil product"
+      },
+      {
+        "type": "product",
+        "id": "grove_dates_product",
+        "label": "Dates product"
       }
     ]
   }

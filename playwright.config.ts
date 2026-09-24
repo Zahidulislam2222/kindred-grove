@@ -1,25 +1,28 @@
 import { defineConfig, devices } from '@playwright/test';
+const { readTestConfig } = require('./scripts/config/test-config.cjs');
 
-const baseURL = process.env.BASE_URL;
+const testConfig = readTestConfig(process.env);
 
 export default defineConfig({
   testDir: './tests',
-  timeout: 60_000,
-  expect: { timeout: 10_000 },
+  timeout: testConfig.testTimeoutMs,
+  expect: { timeout: testConfig.expectTimeoutMs },
   fullyParallel: true,
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 2 : undefined,
-  reporter: process.env.CI
+  forbidOnly: testConfig.isCI,
+  retries: testConfig.retries,
+  workers: testConfig.workers,
+  reporter: testConfig.isCI
     ? [['github'], ['html', { open: 'never', outputFolder: 'playwright-report' }]]
     : [['list'], ['html', { open: 'on-failure', outputFolder: 'playwright-report' }]],
   use: {
-    baseURL,
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
-    actionTimeout: 15_000,
-    navigationTimeout: 30_000,
+    baseURL: testConfig.baseUrl,
+    // Password-gated storefront runs must never persist authentication steps
+    // or entered credentials in traces, screenshots, or recordings.
+    trace: 'off',
+    screenshot: 'off',
+    video: 'off',
+    actionTimeout: testConfig.actionTimeoutMs,
+    navigationTimeout: testConfig.navigationTimeoutMs,
   },
   projects: [
     {

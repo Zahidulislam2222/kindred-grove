@@ -1,165 +1,62 @@
 # Security — Kindred Grove
 
-Last updated: 2026-04-19 (Day 11)
+Reviewed 2026-09-24. This is an evidence register for a Shopify theme, not a security certification. [BUILD-PLAN.md](../BUILD-PLAN.md) records the release gates; [COMPLIANCE-RESEARCH.md](COMPLIANCE-RESEARCH.md) records applicability questions.
 
-This document records the security posture of the Kindred Grove theme: what's threat-modelled, what's mitigated, what's deferred, and where each control lives in the codebase.
+## Boundaries and current controls
 
----
-
-## 1. Threat model (Phase 1 scope)
-
-| Threat | Severity | Mitigation | Status |
-|---|---|---|---|
-| XSS via user-controlled input surfacing in Liquid | High | All user-origin strings pass through `\| escape` or `\| metafield_tag`; audit below | Mitigated |
-| CSRF on cart / contact forms | Medium | Shopify-native form helpers emit `authenticity_token`; no custom POST endpoints bypass this | Mitigated |
-| Bot spam on wholesale + newsletter forms | Medium | Honeypot snippet + client-side rate limit + Cloudflare Worker 16 KB payload cap | Mitigated |
-| Supply-chain vulnerabilities (deps) | Medium | Dependabot on the repo; only 4 runtime-adjacent devDeps (Playwright, Percy, axe) | Mitigated |
-| Admin-API token leakage via theme JS | High | No Admin API token in theme-side JS ever — Worker proxy holds the token in encrypted env | Mitigated |
-| Mixed-content on the storefront | Low | CSP restricts to HTTPS; `img-src` allows `data:` + `blob:` only for model-viewer reveal poster | Mitigated |
-| Third-party script injection | Medium | CSP `script-src` allow-lists only: self, Shopify CDN, Sentry CDN, ajax.googleapis.com, unpkg (model-viewer) | Mitigated |
-| Sensitive data in commit history | High | `.gitignore` blocks 4 confidential docs + `.env`; history scrubbed on Day 10 via `git filter-repo` | Mitigated |
-| Shopify store credential leakage (GH secrets) | High | All secrets stored in GitHub Actions Secrets (AES-encrypted at rest); no values in tracked files | Mitigated |
-| Cross-site data theft via referrer | Low | `referrerpolicy="strict-origin-when-cross-origin"` on outbound links in trust-strip + footer | Mitigated |
-| Wholesale form DOS | Low | CF Worker payload cap + CF rate-limit rules at the edge (default CF protection) | Mitigated |
-| Authenticated admin-panel access | Out of scope | Merchant is responsible for Shopify admin 2FA; not a theme concern | N/A |
-| Payment data | Out of scope | Checkout runs on Shopify's PCI-compliant infrastructure | N/A |
-
----
-
-## 2. Content Security Policy
-
-The CSP is declared via `<meta http-equiv="Content-Security-Policy">` in `layout/theme.liquid`. The exact directives evolve as vendor scripts are added; the current set is:
-
-- `default-src 'self' https://*.shopify.com https://cdn.shopify.com`
-- `script-src 'self' 'unsafe-inline' https://cdn.shopify.com https://*.shopifypreview.com https://browser.sentry-cdn.com https://*.ingest.sentry.io https://ajax.googleapis.com https://unpkg.com`
-- `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.shopify.com`
-- `font-src 'self' https://fonts.gstatic.com https://cdn.shopify.com`
-- `img-src 'self' data: blob: https://cdn.shopify.com https://*.shopify.com`
-- `connect-src 'self' https://*.ingest.sentry.io https://*.shopify.com https://ajax.googleapis.com`
-- `frame-src 'self' https://*.youtube-nocookie.com https://player.vimeo.com`
-- `object-src 'none'`
-- `base-uri 'self'`
-- `form-action 'self' https://*.shopify.com`
-
-**`'unsafe-inline'` for scripts is required** by Shopify's storefront wrapper (GA4 loader, checkout analytics, storefront password POST). Unavoidable within a Shopify theme until the platform ships nonce-based CSP.
-
----
-
-## 3. Liquid output audit — escape checklist
-
-Every user-editable string that renders as HTML passes through `escape` or equivalent. Grep-verifiable:
-
-- **Product fields:** `{{ product.title | escape }}` — all render paths verified in `snippets/product-card.liquid`, `sections/main-product.liquid`.
-- **Customer-submitted form values:** `{{ form.errors.messages[field] | escape }}`, `{{ form.email | escape }}`.
-- **Merchant settings:** `{{ settings.footer_social_instagram | escape }}`, `{{ block.settings.headline | escape }}` — pattern used in every block.
-- **Metaobject rich text:** `{{ farm.story | metafield_tag }}` — Shopify's Liquid applies tag-allowlist sanitization automatically for rich-text metafields. Plain strings use `| escape`.
-
-Quick audit command (run from repo root):
-
-```bash
-# Any Liquid output that might leak raw user input
-grep -rnE "\\{\\{ [a-z_.]+\\.(title|name|content|description|headline|body|email)" \
-  blocks/ sections/ snippets/ layout/ --include="*.liquid" \
-  | grep -v "escape\\|metafield_tag\\|strip_html\\|{% comment %}"
-```
-
-Expected output: zero lines. If any line surfaces, add `| escape` before merging.
-
----
-
-## 4. Form hardening — wholesale + newsletter
-
-### `blocks/wholesale-form.liquid`
-
-Defense in depth (four layers):
-
-1. **Honeypot** (`snippets/form-honeypot.liquid`) — hidden `wholesale_website` field. If submitted non-empty, both `assets/wholesale-form.js` (client-side) and `scripts/wholesale-draft-order-worker.js` (server-side) silently drop the submission.
-2. **Client rate limit** — `data-min-submit-interval="8000"` attribute. Submissions faster than 8s after the previous one show a visible cooldown message. Survives tab reload via `sessionStorage`.
-3. **Worker payload cap** — Cloudflare Worker rejects payloads larger than 16 KB (defense against zip bombs / oversized message abuse).
-4. **Field sanitization (Worker side)** — `sanitize()` strips control characters and caps each field at 2000 chars before calling the Admin API.
-
-Server-side, the form POSTs to Shopify's native `/contact` endpoint which applies its own spam filters + captcha escalation. The draft-order proxy (Worker) is a **separate, optional path** — the form captures the inquiry even if the Worker is down or mis-configured.
-
-### Newsletter forms
-
-Same honeypot snippet, no Worker proxy (submission goes to Klaviyo or the merchant's email escrow directly).
-
----
-
-## 5. Admin API credentials — handling
-
-**Where `ADMIN_API_TOKEN` lives:**
-
-| Location | Scope | Risk |
+| Boundary / threat | Control or decision | Evidence / remaining gate |
 |---|---|---|
-| `.env` (local) | developer-machine only, gitignored | None — never committed |
-| GitHub Actions secret | encrypted one-way at rest; decrypted only inside CI runners | None — GitHub's security model |
-| Cloudflare Worker env | encrypted one-way via `wrangler secret put` | None — Worker env is encrypted |
-| Theme JS / Liquid | **Forbidden** — would ship to every visitor | Mitigated: no reference anywhere |
+| Public wholesale input causing Admin API writes | Retire the proxy; retain native Shopify contact | Local Worker returns 410 without reading request/env or calling network. Three regression tests passed. Remote removal is not claimed. [ADR 009](adr/009-retire-wholesale-admin-proxy.md) |
+| Accidental source secret disclosure | Default Gitleaks detectors; narrow root credential-file exclusions | Source snapshot and full Git-history scan returned zero findings on 2026-09-24; effective-coverage synthetic regression passed |
+| Private recovery files entering Git | Ignored credential, environment, dossier and memory paths | Ignore/tracking/history checks passed for these paths; local copies remain sensitive |
+| Test target/password misconfiguration | Validated Node test boundary; independently bound preview target; reject URL credentials and conflicting password aliases | Combined suite: 95/95 local tests, including page/form/submitter origin and POST checks and the corrected quiz transport. Actual cart cycle and native consent controls passed; final integrated browser gate passed 41 cases with zero failures and five documented skips. Password-entry artifacts are disabled |
+| Inline merchant JSON breaking HTML/script context | Replace raw script interpolation with context-safe data transport | Escaped template configuration and hostile-delimiter tests passed source review; actual Quiz rendering, five-question flow, result navigation and reload passed on the alternate template |
+| Optional tracking/storage before consent | Native privacy API and fail-closed theme processing; retire automatic telemetry loading | Native banner all 299 region entries configured and persisted; actual choices/withdrawal/reload passed, plus two explicit GPC/DNT emulation checks. Platform/app processing is separate |
+| API-derived URLs and HTML attributes | Scheme/origin validation, context escaping or safe DOM APIs | Bounded URL/response tests and independent source review passed; no blanket XSS mitigation claim |
+| Supply-chain / CI trust | Locked installs, pinned tools/actions, explicit missing-prerequisite failures | Pinned workflow/tool configuration; hosted security/configuration and Liquid checks passed on PR8/source078aae7; required-status enforcement remains unconfigured |
+| Theme overwrite or stale deployment | Remote snapshot, local reconciliation, unpublished verification, pull-back hash parity | Exact 150/150 local/frozen/downloaded development hashes; baseline snapshots retained; no live redesign publication |
+| Credential/access abuse | Least privilege, protected credentials, review of active integrations | Existing credential scope and platform-role audit remains incomplete; MFA is a merchant/account responsibility |
 
-**Scope minimization:** the custom app created at `admin/settings/apps/development → Lighthouse CI` has exactly the three scopes it needs:
-- `read_themes` + `write_themes` — for the Shopify Lighthouse CI action to create/delete the ephemeral audit theme
-- `read_products` — for Lighthouse's auto-detection of a product handle to audit
-- (Optionally `write_customers` if the Worker is extended to tag inquirers as wholesale leads — not enabled by default)
+The earlier historical document described broad risks as “mitigated” without current evidence. Those claims are withdrawn. In particular, a browser honeypot/timer is not server-side rate limiting, encryption does not eliminate credential risk, and a successful HTTP response does not establish a successful business operation.
 
-No `write_orders`, no `write_customers` on the default install. Adding a new Admin-API consumer means auditing the scope diff before granting.
+## Native form boundary
 
----
+Wholesale remains a Shopify Liquid contact form with its native validation and platform-owned protections. The optional browser cooldown is disabled by default, in memory only, and a UX aid. Errors render as text; the theme does not fabricate a queued/success response or forward an inquiry to a second service. No real inquiry email was sent during local verification.
 
-## 6. Dependency hygiene
+Shopify documents [contact forms](https://shopify.dev/docs/storefronts/themes/customer-engagement/add-contact-form) and [storefront CAPTCHA](https://shopify.dev/docs/storefronts/themes/trust-security/captcha). The presence of a Liquid form is not proof that every platform anti-abuse setting was exercised. Do not bypass challenges in tests. Any future backend needs reviewed authentication/authorization, bounded parsing, admission control, idempotency and cost/capacity limits before exposure.
 
-- **Dependabot** config at `.github/dependabot.yml` (created Day 11) scans: `npm` (root `package.json`), `github-actions` (all workflow versions), weekly.
-- **Lockfile integrity** — `package-lock.json` is committed; `npm ci` used in CI (not `npm install`) so transitive-dep changes require an intentional lockfile update.
-- **Runtime deps (theme side):** zero. The theme ships unbundled. `npm install` only pulls devDeps for the test suite.
+## Output and browser security
 
----
+Escaping must match the destination: HTML text, attribute, URL, script data and rich content are different contexts. `json` serialization alone is not proof that an HTML script closing delimiter is safe. `strip_html` is not a universal sanitizer. Merchant-authored content can still cross a security boundary when apps, imports or compromised accounts supply it.
 
-## 7. Secrets-in-repo guard
+Review dynamic URL sinks, not just visible titles. Product/media URLs need accepted schemes and appropriate origins before insertion; escape attribute delimiters where string-built HTML remains. Request cancellation and response validation also protect against stale or malformed results. The reviewed Phase 2 source passed its scoped transport/output regressions and independent review; a later integrated release audit must include any subsequent changes.
 
-- `.gitignore` blocks: `.env`, `docs/SOW.md`, `docs/BRAND-BRIEF.md`, `docs/BUILD-LOG.md`, `docs/CI-SECRETS.md`, `PROJECT_PLAN.md`, `shopify_dev_requirements_checklist.html`, `node_modules/`, `test-results/`, `playwright-report/`, `.shopify/`.
-- `.env.example` is the public template — all values blank.
-- Historical scrub: on Day 10, the 4 confidential docs plus the Cloudflare Account ID were purged from the entire git history via `git filter-repo`. All 10 day-tags were re-pushed to point at rewritten commits.
-- **Gitleaks CI check** (`.github/workflows/gitleaks.yml`) — runs on every PR, every push to `main`, plus a weekly scheduled deep-scan every Monday 06:00 UTC. Config at `.gitleaks.toml` inherits the default rule set (AWS keys, Shopify tokens, GitHub PATs, Sentry DSNs, Slack webhooks, and ~140 more) and adds a tight allowlist for known placeholder strings (`shpat_xxx`, `web_…`, `G-XXXXXXXXXX`, etc.) so the handful of legitimate example values in `docs/`, `scripts/`, and `.env.example` don't trip the scanner.
-- **Manual audit:** no `shpat_`/`shpss_`/`shptka_` strings anywhere in tracked files except the documented placeholders.
+The layout has a meta CSP. Its source is authoritative; do not copy a stale directive list into this document. It currently permits inline scripts and broad Shopify hosts for platform compatibility. It is defense in depth, not a complete XSS defense. A theme cannot use a meta tag to configure every response-header control; for example, frame-ancestor protection needs the serving platform. Verify compatibility against the actual custom domain, checkout, media and consent flows before narrowing directives. [MDN CSP guidance](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP).
 
----
+## Secrets and scan coverage
 
-## 8. CI workflow trust boundaries
+Never put Admin API credentials into Liquid, assets, tests, fixtures, logs, command arguments or public documentation. CLI consumers use environment variables; public `.env.example` values are placeholders only. Privileged tokens do not belong in browser configuration. A public integration identifier is not a private API key, but still needs accurate purpose and vendor documentation.
 
-| Workflow | Has access to | Can affect |
-|---|---|---|
-| `theme-check.yml` | source-only | Local repo (no secrets used) |
-| `lighthouse-ci.yml` | `SHOPIFY_CLIENT_ID/SECRET`, `SHOPIFY_STORE_PASSWORD`, `LHCI_GITHUB_APP_TOKEN` | Creates + deletes ephemeral development themes on the dev store |
-| `accessibility.yml` + `e2e.yml` + `visual-regression.yml` | `SHOPIFY_CLI_THEME_TOKEN`, `SHOPIFY_STORE_PASSWORD`, `PERCY_TOKEN` | Creates + deletes unpublished themes via `shopify theme push` |
-| `deploy-dev.yml` / `deploy-staging.yml` | `SHOPIFY_CLI_THEME_TOKEN`, `SHOPIFY_THEME_ID_DEV` / `_STAGING` | Overwrites dev or staging theme file contents |
-| `deploy-production.yml` | same as staging, plus gated by `production` environment required-reviewer | Overwrites the live theme — **only with human approval** |
+`.gitleaks.toml` inherits default rules and excludes only exact root credential paths. The regression fixture proves shipping scripts, docs, tests and `.env.example` remain scanned, including nested files that resemble private root names. Upstream Gitleaks 8.30.1 still excludes dependency lockfiles and binary files; inherited exclusions are a documented limitation, not a scanned-clean claim for those files. The installed edit hook and independent scans complement code review; neither establishes absence of all vulnerabilities.
 
-The `production` environment has a required-reviewer rule (Zahidul Islam); no merge to main auto-deploys without an explicit approval click.
+Private credential/recovery paths were ignored, untracked and absent from the inspected Git history. A local recovery file remains sensitive to device compromise and backups. Do not paste it into issues, test reports or support requests. If a real credential leak is found, rotate the credential first, then assess history/artifact cleanup and affected access; deleting a file alone does not revoke a token.
 
----
+## CI and release trust
 
-## 9. Observability — what we capture, what we never capture
+The repository is public. Native inventory found the Gitleaks workflow disabled by inactivity and `main` with an empty required-status list. Checked-in workflows and a branch-protection sample do not prove hosted enforcement. Record any later native change separately.
 
-**Sentry frontend errors** (`layout/theme.liquid` → `beforeSend` hook):
-- Stripped: all `extra` properties, all `tags` that match `email`, `phone`, `customer`, `address`.
-- Kept: stack trace, exception type, URL path, user-agent, release tag.
-- PII posture: zero-PII by default. Merchant opts in to user-scoped context only after a documented DPA review.
+Never use green skipped jobs as release evidence. Missing credentials are a blocked/failed prerequisite. Do not expose secrets to untrusted pull-request code or use `pull_request_target` to execute it. Pin action references to verified commits and install the locked test harness. Percy or paid AI review is not part of the required free gate.
 
-**GA4 enhanced-ecommerce**:
-- Kept: product SKU, price, currency, step in cart funnel.
-- Never sent: email, phone, shipping address, payment-method details.
+A release needs the tested revision, intended actual theme role, remote drift check and post-upload parity. The existence of a GitHub Environment name does not prove required reviewers are configured. Never claim a production deployment is approval-protected without querying the actual configuration.
 
----
+## Privacy, data and observability
 
-## 10. Disclosure path
+Shopify remains a processor/platform dependency. Native privacy policy and opt-out configuration were observed, and the cookie banner was configured worldwide. Shopify Network Intelligence remains enabled; its disable flow would uninstall Shop, so it was cancelled. This theme cannot claim platform-wide absence of analytics or sharing.
 
-Found a vulnerability? Email `security@<project-domain>` (set by the merchant). This repo is public, but the merchant's private `docs/SECURITY-RUNBOOK.md` (not in repo) has the escalation contacts and SLAs.
+Theme-owned optional tracking must fail closed without the relevant permission. Diagnostic payloads must not include shopper fields, arbitrary exceptions containing form data, URLs with identifiers, cart tokens or raw upstream responses. Browser tests must not persist password entry or live customer data in artifacts. Merchant identity, retention, rights requests, processors and actual regional obligations still require documented business facts.
 
----
+## Reporting and response
 
-## Deferred items (Phase 2 / Week 4 pre-ship)
+Use the repository's private vulnerability reporting channel only if the repository owner has enabled it; otherwise obtain a verified private contact from the maintainer. No security mailbox or response SLA has been verified, so this document does not invent one. Do not post an exploit, customer data or credentials in a public issue.
 
-- Subresource Integrity on external script tags (planned Phase 2 with Hydrogen migration)
-- Nonce-based CSP — replaces `'unsafe-inline'` for scripts once Shopify Liquid exposes a nonce primitive
-- Penetration test of the wholesale Worker before production deployment
-- Pre-commit `gitleaks` hook (CI scan is active; local pre-commit is nice-to-have)
+Record escaped defects in `DEFECT-LOG.md`, preserve a redacted reproduction and add the missing gate. Incident detail and recovery access belong in private project records. See [OPERATIONS.md](OPERATIONS.md).

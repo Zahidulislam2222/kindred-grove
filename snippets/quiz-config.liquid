@@ -1,0 +1,17 @@
+{%- capture kg_quiz_config -%}
+{
+  "questionCount": 5,
+  "personaCount": 4,
+  "questionJsonMaxChars": 12000,
+  "personaJsonMaxChars": 12000,
+  "scoringJsonMaxChars": 512,
+  "questionLabelMaxLength": 160,
+  "optionLabelMaxLength": 160,
+  "optionCountMin": 2,
+  "optionCountMax": 9,
+  "personaNameMaxLength": 100,
+  "personaDescriptionMaxLength": 500,
+  "personaImageUrlMaxLength": 2048
+}
+{%- endcapture -%}
+<template data-kg-quiz-config data-config="{{ kg_quiz_config | strip | escape }}"></template>

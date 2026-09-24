@@ -1,51 +1,25 @@
-# Checkout UI Extension — Trust Badges
+# Legacy checkout-extension example
 
-Renders a compact row of trust badges (halal-certified, carbon-neutral shipping, 30-day returns) on the Shopify Checkout page.
+**Status: unsupported reference scaffold; not built, tested or deployed as part of the accepted storefront.** Do not treat this folder as a ready-to-install Shopify app. It is preserved to explain an earlier design direction and the work a future checkout integration would require.
 
-## Structure
+## What is present
 
-```
-extensions/checkout-trust-badges/
-├── shopify.extension.toml     # Extension manifest (targets, settings, capabilities)
-├── src/Checkout.tsx           # React component using @shopify/ui-extensions-react
-├── locales/en.default.json    # Translatable strings
-├── package.json               # Dependencies (pinned to 2025.10.x API version)
-├── tsconfig.json              # TypeScript strict mode
-└── README.md
-```
+The folder contains a React/TypeScript component, a Shopify extension manifest, English strings and a separate package manifest. It targets `purchase.checkout.block.render` and illustrates settings-controlled badges. It is isolated from the native theme and its root test dependency lockfile.
 
-## Why this lives in the theme repo
+The original example includes halal-certification, carbon-neutral shipping and 30-day returns text, enabled by default in the component. Those are **unsubstantiated example claims**. They must not be displayed to customers without evidence and an approved policy. The accepted demo theme suppresses unsupported claims; this separate scaffold is not covered by that theme guard.
 
-Kindred Grove is a theme-only project. Checkout UI extensions normally live in a **Shopify app** project (created via `shopify app init`), not a theme. We scaffold the extension here as a **portfolio artifact** to demonstrate:
+## Compatibility gap
 
-1. Correct manifest shape (`api_version`, `targeting`, `capabilities`, `settings`).
-2. React + TypeScript component using the current `@shopify/ui-extensions-react/checkout` surface.
-3. Translatable UI via `useTranslate()` + `locales/en.default.json`.
+The manifest declares API version `2025-10`, while the source imports React-based checkout components. Shopify documents `2025-07` as the last API version supporting that React component surface; current extension examples use Preact/web components. The package ranges and source here have not been installed or validated as a working combination. [Shopify legacy React reference](https://shopify.dev/docs/api/checkout-ui-extensions/2025-07), [current checkout extension guide](https://shopify.dev/docs/api/checkout-ui-extensions/latest).
 
-To actually deploy this, the directory would be moved into a Shopify app project and run through `shopify app deploy`. This is documented in the case study rather than performed here — deploying checkout extensions requires Shopify Plus on production and a Partners app. The dev store preview works via `shopify app dev` from the app project root.
+`api_access` is an API capability, not evidence of authentication/authorization or a requirement established merely by reading settings. All capabilities must be re-evaluated for the selected target and current API version.
 
-## Target
+## Future implementation gate
 
-`purchase.checkout.block.render` — generic block target that the merchant positions in the checkout editor. Alternatives we considered: `purchase.checkout.delivery-address.render-before` (pinned to address step), `purchase.checkout.payment-method.render-after` (below payment). The generic block target keeps placement flexible.
+1. Establish an actual checkout need and verify target/store/app entitlements from current Shopify documentation. Do not purchase an upgrade as part of this demo.
+2. Create or identify the authorized Shopify app project and use the current supported extension template. This theme repository is not that app project.
+3. Replace the legacy API/source/dependencies together, lock verified registry versions, minimize capabilities and keep all commercial claims disabled until substantiated.
+4. Keep approved wording in settings/locales with evidence owners; test missing settings, localization, accessibility and unsupported targets.
+5. Run the app's type/build/security checks and native development checkout flow before independent review and a separate authorized deployment.
 
-## Capabilities
-
-- `network_access: false` — no external calls; static strings only.
-- `block_progress: false` — never prevents checkout progression.
-- `api_access: true` — reads `useSettings()` so the merchant can toggle each badge from the checkout editor.
-
-## Settings
-
-| Key              | Type    | Default | Purpose                               |
-|------------------|---------|---------|---------------------------------------|
-| `show_halal`     | boolean | true    | Show halal-certified badge            |
-| `show_shipping`  | boolean | true    | Show carbon-neutral shipping badge    |
-| `show_returns`   | boolean | true    | Show 30-day returns badge             |
-
-## Deploy flow (out of scope for this repo)
-
-```bash
-# From the sibling Shopify app project:
-cd ../kindred-grove-app
-shopify app deploy   # NOT run from here; intentionally scaffold-only
-```
+The existing `build`, `dev` and `deploy` package commands assume an app context that is absent here. They are not part of the root quickstart, CI, GitHub publication or current live release. See [architecture](../../docs/ARCHITECTURE.md), [demo boundaries](../../docs/DEMO-SAFETY.md) and [roadmap](../../docs/ROADMAP.md).

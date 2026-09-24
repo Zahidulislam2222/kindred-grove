@@ -4,47 +4,77 @@
   of 4 personas (merchant-editable name/description/collection/image).
 
   Gated by `KG_FF.isEnabled('pantry_quiz')` when the flag is defined —
-  falls back to "always on" when the flag is missing (so the block works
-  out of the box without touching Feature flags settings).
+  falls back to "always on" when the flag is missing. Answers remain in
+  component memory for this page view and are never sent as telemetry.
 
-  The shell renders the first question server-side so the page is useful
-  if JS fails. The JS Web Component progressively takes over for multi-
-  step navigation, progress bar, and result rendering.
+  JavaScript progressively enables the quiz. The native browse link remains
+  available without JavaScript or when configuration validation fails.
 {%- endcomment -%}
 
 {%- liquid
-  assign default_questions = '[{"label":"How do you cook most often?","options":["Everyday family meals","Entertaining guests","Quick solo meals","I barely cook — I assemble"]},{"label":"Heat preference?","options":["Mild and gentle","Balanced warmth","Bold and spicy"]},{"label":"Sweet or savory pantry?","options":["Mostly sweet","Balanced both","Mostly savory"]},{"label":"Any dietary needs?","options":["Halal (default)","Halal + vegan","Halal + gluten-free","Halal + keto"]},{"label":"Household size?","options":["Just me","2","3–4","5+"]}]' | split: '__never_splits__' | first
-  assign default_personas = '[{"name":"The everyday table","slug":"everyday","description":"Olive oil, dates, and honey on heavy rotation. Stocked for the week.","collection":"","image":""},{"name":"The entertainer","slug":"entertainer","description":"Weekend-ready. Saffron, premium oils, and recipe-grade staples.","collection":"","image":""},{"name":"The explorer","slug":"explorer","description":"Bold flavors and single-origin specials. You cook by curiosity.","collection":"","image":""},{"name":"The minimalist","slug":"minimalist","description":"Quality over quantity. Two or three pantry heroes, used often.","collection":"","image":""}]' | split: '__never_splits__' | first
-
   assign questions_raw = block.settings.questions_json
+  assign questions_json_attribute = questions_raw | escape
   if questions_raw == blank
-    assign questions_raw = default_questions
+    assign questions_raw = 'quiz.default_questions_json' | t
+    assign questions_json_attribute = questions_raw | escape_once
   endif
 
   assign personas_raw = block.settings.personas_json
+  assign personas_json_attribute = personas_raw | escape
   if personas_raw == blank
-    assign personas_raw = default_personas
+    assign personas_raw = 'quiz.default_personas_json' | t
+    assign personas_json_attribute = personas_raw | escape_once
+  endif
+
+  assign heading = block.settings.heading
+  if heading == blank
+    assign heading = 'quiz.heading' | t
+  endif
+  assign intro = block.settings.intro
+  if intro == blank
+    assign intro = 'quiz.intro' | t
+  endif
+  assign back_label = block.settings.back_label
+  if back_label == blank
+    assign back_label = 'quiz.back' | t
+  endif
+  assign next_label = block.settings.next_label
+  if next_label == blank
+    assign next_label = 'quiz.next' | t
+  endif
+  assign submit_label = block.settings.submit_label
+  if submit_label == blank
+    assign submit_label = 'quiz.submit' | t
   endif
 -%}
 
 <kg-pantry-quiz
   class="kg-quiz"
-  data-persist-key="kg-pantry-quiz"
   data-flag-name="pantry_quiz"
+  data-next-label="{{ next_label | escape }}"
+  data-submit-label="{{ submit_label | escape }}"
+  data-result-label="{{ 'quiz.eyebrow_result' | t | escape }}"
+  data-shop-label="{{ 'quiz.shop_cta' | t | escape }}"
+  data-restart-label="{{ 'quiz.restart' | t | escape }}"
+  data-invalid-message="{{ 'quiz.invalid_config' | t | escape }}"
+  data-browse-label="{{ 'quiz.browse_all' | t | escape }}"
+  data-fallback-url="{{ routes.all_products_collection_url | escape }}"
   {{ block.shopify_attributes }}
 >
-  <script type="application/json" data-kg-quiz-questions>{{ questions_raw }}</script>
-  <script type="application/json" data-kg-quiz-personas>{{ personas_raw }}</script>
+  {%- render 'quiz-config' -%}
+  <template data-kg-quiz-questions data-json="{{ questions_json_attribute }}"></template>
+  <template data-kg-quiz-personas data-json="{{ personas_json_attribute }}"></template>
+  <template data-kg-quiz-scoring data-json="{{ block.settings.scoring_json | escape }}"></template>
 
   <div class="kg-quiz__shell" data-kg-quiz-shell hidden>
     <header class="kg-quiz__header stack-sm">
-      {%- if block.settings.heading != blank -%}
-        <h2 class="h2 kg-quiz__heading">{{ block.settings.heading | escape }}</h2>
+      {%- if heading != blank -%}
+        <h2 class="h2 kg-quiz__heading">{{ heading | escape }}</h2>
       {%- endif -%}
-      {%- if block.settings.intro != blank -%}
-        <p class="text-lg text-muted">{{ block.settings.intro | escape }}</p>
+      {%- if intro != blank -%}
+        <p class="text-lg text-muted">{{ intro | escape }}</p>
       {%- endif -%}
-      <div class="kg-quiz__progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <div class="kg-quiz__progress" role="progressbar" aria-label="{{ heading | escape }}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
         <div class="kg-quiz__progress-fill" data-kg-quiz-progress></div>
       </div>
     </header>
@@ -53,20 +83,18 @@
 
     <footer class="kg-quiz__nav cluster" data-kg-quiz-nav>
       <button type="button" class="button button--ghost" data-kg-quiz-prev disabled>
-        {{ block.settings.back_label | default: 'Back' | escape }}
+        {{ back_label | escape }}
       </button>
       <button type="button" class="button button--primary" data-kg-quiz-next disabled>
-        {{ block.settings.next_label | default: 'Next' | escape }}
+        {{ next_label | escape }}
       </button>
     </footer>
   </div>
 
   <noscript>
     <div class="kg-quiz__noscript stack">
-      <h2 class="h2">{{ block.settings.heading | default: 'Build your pantry' | escape }}</h2>
-      <p class="text-lg text-muted">
-        {{ 'quiz.noscript' | t }}
-      </p>
+      <h2 class="h2">{{ heading | escape }}</h2>
+      <p class="text-lg text-muted">{{ 'quiz.noscript' | t }}</p>
       <a href="{{ routes.all_products_collection_url }}" class="button button--primary">
         {{ 'quiz.browse_all' | t }}
       </a>
@@ -81,14 +109,12 @@
     {
       "type": "text",
       "id": "heading",
-      "label": "Heading",
-      "default": "Build your pantry"
+      "label": "Heading"
     },
     {
       "type": "textarea",
       "id": "intro",
-      "label": "Intro text",
-      "default": "Answer five questions. We'll recommend a pantry starter matched to how you actually cook."
+      "label": "Intro text"
     },
     {
       "type": "textarea",
@@ -100,19 +126,29 @@
       "type": "textarea",
       "id": "personas_json",
       "label": "Personas (JSON)",
-      "info": "Array of {name, slug, description, collection (handle), image (URL)}. 4 entries expected. Leave empty for the defaults."
+      "info": "Array of four {name, slug, description, collection (handle), image (URL)} records. Leave empty for localized defaults. Images must use the storefront or configured Shopify CDN host."
+    },
+    {
+      "type": "textarea",
+      "id": "scoring_json",
+      "label": "Scoring thresholds (JSON)",
+      "default": "{\"thresholds\":[0.25,0.5,0.75]}",
+      "info": "Three ascending normalized score thresholds used to map five question answers to four personas."
     },
     {
       "type": "text",
       "id": "back_label",
-      "label": "Back button label",
-      "default": "Back"
+      "label": "Back button label"
     },
     {
       "type": "text",
       "id": "next_label",
-      "label": "Next button label",
-      "default": "Next"
+      "label": "Next button label"
+    },
+    {
+      "type": "text",
+      "id": "submit_label",
+      "label": "Quiz result button label"
     }
   ]
 }

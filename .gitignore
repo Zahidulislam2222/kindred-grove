@@ -5,9 +5,7 @@ yarn-debug.log*
 yarn-error.log*
 
 # Secrets
-.env
-.env.local
-.env.*.local
+.env*
 !.env.example
 
 # Shopify
@@ -27,6 +25,9 @@ desktop.ini
 .idea/
 *.swp
 *.swo
+
+# Codex local connection/settings files
+.codex/
 
 # Claude Code local settings (per-user permissions/approvals)
 .claude/
@@ -63,3 +64,12 @@ test-results/
 # CI artifacts
 lighthouse-reports/
 axe-reports/
+
+# Private project recovery and research records
+CREDENTIALS.md
+PROJECT-DOSSIER.md
+memory/
+.playwright-mcp/
+
+# Client-facing document exports are maintained separately from public source.
+my-project-view/

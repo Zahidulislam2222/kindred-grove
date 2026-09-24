@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin language editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "a11y": {
     "primary_nav": "Primary navigation",
@@ -20,6 +29,39 @@
     "cart": {
       "title": "Cart",
       "count": "({{ count }})"
+    }
+  },
+  "demo": {
+    "notice_label": "Store demonstration notice",
+    "notice_title": "Store preview",
+    "notice_body": "This demonstration uses sample catalog items and prices. Do not enter personal or payment details. Theme checkout, contact, newsletter, customer-account, comment, and cart-note flows are disabled.",
+    "sample_price": "Sample price for demonstration",
+    "checkout_disabled": "The theme checkout button is disabled in this store preview.",
+    "newsletter_disabled": "Newsletter sign-up is disabled in this store preview.",
+    "contact_disabled": "Contact submissions are disabled in this store preview.",
+    "personal_flows_disabled": "Account, comments, and cart gift notes are disabled in this store preview. Do not enter personal information.",
+    "privacy_preferences_unavailable": "Shopify privacy preferences are unavailable right now.",
+    "country_label": "Country or region"
+  },
+  "client": {
+    "search": {
+      "products": "Products",
+      "pages": "Pages",
+      "articles": "Articles",
+      "collections": "Collections",
+      "no_results": "No results for {{ query }}."
+    },
+    "quick_view": {
+      "loading": "Loading product details…",
+      "load_error": "Product details could not be loaded. Please open the product page.",
+      "add_to_cart": "Add to cart",
+      "added": "Added to cart",
+      "cart_status_unknown": "We could not confirm whether the item was added. Check your cart before trying again.",
+      "sold_out": "Sold out",
+      "view_details": "View product details"
+    },
+    "recommendations": {
+      "quick_view": "Quick view"
     }
   },
   "cart": {
@@ -55,7 +97,11 @@
   },
   "quiz": {
     "heading": "Build your pantry",
+    "intro": "Answer a few quick questions to find the foods that fit your table.",
     "noscript": "Interactive quiz requires JavaScript. Enable JS or browse all products directly.",
+    "invalid_config": "Pantry guidance is unavailable right now.",
+    "default_questions_json": "[{\"label\":\"What do you reach for most often?\",\"options\":[\"Everyday cooking\",\"Family meals\",\"Hosting\",\"Quick meals\",\"Simple assembly\"]},{\"label\":\"How much heat do you enjoy?\",\"options\":[\"Mild\",\"Balanced\",\"Bold\"]},{\"label\":\"Which flavors do you prefer?\",\"options\":[\"Mostly sweet\",\"A mix of sweet and savory\",\"Mostly savory\"]},{\"label\":\"Which eating style should we consider?\",\"options\":[\"Halal\",\"Vegan\",\"Gluten-free\",\"Keto-friendly\",\"No preference\"]},{\"label\":\"How many people are usually at your table?\",\"options\":[\"1\",\"2\",\"3–4\",\"5 or more\"]}]",
+    "default_personas_json": "[{\"name\":\"Everyday table\",\"slug\":\"everyday-table\",\"description\":\"Reliable staples for daily meals and easy sharing.\",\"collection\":\"\",\"image\":\"\"},{\"name\":\"The entertainer\",\"slug\":\"the-entertainer\",\"description\":\"Thoughtful flavors for guests, gatherings, and generous tables.\",\"collection\":\"\",\"image\":\"\"},{\"name\":\"The explorer\",\"slug\":\"the-explorer\",\"description\":\"Distinctive ingredients for trying new combinations.\",\"collection\":\"\",\"image\":\"\"},{\"name\":\"The minimalist\",\"slug\":\"the-minimalist\",\"description\":\"A small set of versatile favorites for simpler meals.\",\"collection\":\"\",\"image\":\"\"}]",
     "browse_all": "Browse all products",
     "back": "Back",
     "next": "Next",
@@ -284,5 +330,38 @@
       "shipping_address": "Shipping address",
       "billing_address": "Billing address"
     }
+  },
+  "grove": {
+    "explore": "Take a closer look",
+    "add": "Add to bag",
+    "sold_out": "Sold out",
+    "shop": "Shop the pantry",
+    "story": "Our philosophy",
+    "rituals": "Everyday rituals",
+    "bag": "Bag",
+    "footer_nav": "Footer navigation",
+    "scroll": "Scroll to discover",
+    "journey": "From grove to table",
+    "chapter_grove": "The grove",
+    "chapter_craft": "The craft",
+    "chapter_table": "Your table",
+    "pause": "Pause motion",
+    "resume": "Resume motion",
+    "build": "Build your pantry",
+    "discover": "Discover the pantry",
+    "total": "Your pantry total",
+    "add_selection": "Add your selection",
+    "select_hint": "Choose your favorites to begin.",
+    "bring_home": "Bring it to your table",
+    "error": "Something went wrong. Please try again.",
+    "adding": "Adding to your bag…",
+    "added": "Added to your bag.",
+    "selected": "[count] pantry favorites selected.",
+    "sort": "Sort by",
+    "featured": "Featured",
+    "price_low": "Price: low to high",
+    "price_high": "Price: high to low",
+    "alphabetical": "Alphabetical",
+    "apply": "Apply"
   }
 }

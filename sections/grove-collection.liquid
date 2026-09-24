@@ -1,0 +1,31 @@
+{%- liquid
+  assign products = collection.products
+  if collection.handle == 'all' and section.settings.products != blank
+    assign products = section.settings.products
+  endif
+  assign sort_by = collection.sort_by | default: collection.default_sort_by
+  if sort_by == 'price-ascending'
+    assign products = products | sort: 'price'
+  elsif sort_by == 'price-descending'
+    assign products = products | sort: 'price' | reverse
+  elsif sort_by == 'title-ascending'
+    assign products = products | sort: 'title'
+  endif
+-%}
+<section class="grove-section grove-collection" aria-labelledby="CollectionHeading">
+  <div class="grove-section-heading"><div><p class="grove-eyebrow">{{ section.settings.eyebrow | escape }}</p><h1 id="CollectionHeading">{% if collection.handle == 'all' %}{{ section.settings.heading | escape }}{% else %}{{ collection.title | escape }}{% endif %}</h1></div><p>{{ section.settings.body | escape }}</p></div>
+  <form action="{{ collection.url }}" method="get" class="grove-collection__sort" data-grove-sort>
+    <label for="GroveSort">{{ 'grove.sort' | t }}</label>
+    <select id="GroveSort" name="sort_by">
+      <option value="manual" {% if sort_by == 'manual' %}selected{% endif %}>{{ 'grove.featured' | t }}</option>
+      <option value="price-ascending" {% if sort_by == 'price-ascending' %}selected{% endif %}>{{ 'grove.price_low' | t }}</option>
+      <option value="price-descending" {% if sort_by == 'price-descending' %}selected{% endif %}>{{ 'grove.price_high' | t }}</option>
+      <option value="title-ascending" {% if sort_by == 'title-ascending' %}selected{% endif %}>{{ 'grove.alphabetical' | t }}</option>
+    </select>
+    <noscript><button type="submit">{{ 'grove.apply' | t }}</button></noscript>
+  </form>
+  <grove-shop class="grove-products grove-products--collection">{% for product in products %}{% render 'grove-card', product: product, index: forloop.index %}{% endfor %}</grove-shop>
+</section>
+{% schema %}
+{"name":"Grove collection","settings":[{"type":"product_list","id":"products","label":"Curated all-products selection","limit":24},{"type":"text","id":"eyebrow","label":"Eyebrow","default":"A FEW VERY GOOD THINGS"},{"type":"text","id":"heading","label":"All-products heading","default":"The pantry."},{"type":"text","id":"body","label":"Description","default":"Simple staples, generous moments. Find a little something good for your everyday."}],"presets":[{"name":"Grove collection"}]}
+{% endschema %}
