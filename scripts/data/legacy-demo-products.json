@@ -1,0 +1,46 @@
+{
+  "status": "legacy-unverified-not-for-active-seeding",
+  "notice": "Preserved source payloads from the retired Admin REST seed script. Product, origin, family, certification, ingredient, price, and inventory claims are unverified and must not be treated as current catalog data.",
+  "products": [
+    {
+      "handle": "organic-single-origin-olive-oil",
+      "title": "Organic Single-Origin Olive Oil",
+      "body_html": "<p>Cold-pressed within 24 hours of harvest from a single grove in the hills outside Nablus. Peppery finish, grassy nose, pale gold in the bottle.</p><p>500 ml.</p>",
+      "vendor": "Kindred Grove",
+      "product_type": "Pantry staple",
+      "tags": ["olive-oil", "palestine", "single-origin", "halal"],
+      "status": "active",
+      "variants": [
+        {
+          "price": "28.00",
+          "sku": "KG-OO-500",
+          "inventory_management": null,
+          "inventory_policy": "continue",
+          "requires_shipping": true,
+          "taxable": true
+        }
+      ],
+      "options": [{ "name": "Title", "values": ["Default Title"] }]
+    },
+    {
+      "handle": "medjool-dates",
+      "title": "Medjool Dates — Jericho Oasis",
+      "body_html": "<p>Plump, honey-soft dates harvested by the Qasem family in the Jordan Valley. Packed unwashed to preserve the natural bloom.</p><p>400 g.</p>",
+      "vendor": "Kindred Grove",
+      "product_type": "Pantry staple",
+      "tags": ["dates", "palestine", "fruit", "halal"],
+      "status": "active",
+      "variants": [
+        {
+          "price": "18.00",
+          "sku": "KG-DT-400",
+          "inventory_management": null,
+          "inventory_policy": "continue",
+          "requires_shipping": true,
+          "taxable": true
+        }
+      ],
+      "options": [{ "name": "Title", "values": ["Default Title"] }]
+    }
+  ]
+}

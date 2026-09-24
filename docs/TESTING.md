@@ -1,211 +1,110 @@
-# Testing — Kindred Grove
+# Testing and CI boundaries — Kindred Grove
 
-Last updated: 2026-04-19 (Day 13–14)
+Last updated: 2026-09-24
 
-This theme ships with five PR-gating test workflows. Every pull request to `main` pushes a fresh preview theme to the Kindred Grove dev store, runs the full suite against that preview, tears the theme down, and posts results. No merge lands on `main` without all five green.
+## Required local regression checks
 
----
+The theme itself is unbundled. The Node package files provide a test harness;
+install its exact dependency tree with the committed lockfile:
 
-## 1. Test surfaces
-
-| Surface | Tool | Location | Gates |
-|---|---|---|---|
-| Liquid lint | `shopify theme check` | root | Syntax, schema validity, deprecated filters |
-| End-to-end | Playwright + Chromium | `tests/e2e/` | Golden-path user flows (PDP, cart, quiz, search, nav) |
-| Accessibility | `@axe-core/playwright` | `tests/a11y/` | WCAG 2.1 AA violations on 4 routes |
-| Visual regression | Percy | `tests/visual/` | 6 snapshots × 4 viewport widths |
-| Performance | Shopify Lighthouse CI action | `.github/workflows/lighthouse-ci.yml` | Perf ≥ 0.9, a11y ≥ 0.95 |
-
-The theme ships unbundled — `npm install` is only needed to run these tests, not to render the storefront.
-
----
-
-## 2. Running tests locally
-
-### Prerequisites
-
-```bash
-# One-time
-npm install
-npx playwright install --with-deps chromium
+```sh
+npm ci --no-audit --no-fund
+node --test tests/security/*.test.cjs
+shopify theme check --fail-level=error
 ```
 
-Fill the local `.env`:
+The security suite uses Node's built-in test runner. The Gitleaks configuration
+regression test also requires Gitleaks 8.30.1 on `PATH` or `GITLEAKS_BIN` set to
+that executable. CI downloads the official Linux x64 archive, verifies its
+published SHA-256 recorded in `scripts/config/toolchain.json`, and scans it
+before running tests. CI also runs the pinned Semgrep Community Edition
+`p/security-audit` rules over `assets/` and `scripts/` with metrics disabled.
+This local CE scan is a useful static check but is not the paid Semgrep platform
+or a substitute for review. Bandit is not applicable: no Python shipping source
+is included in this scan scope, so it is not reported as a passing gate. The
+toolchain manifest owns the Node.js, Shopify CLI, Semgrep, and Gitleaks versions.
 
-```bash
-SHOPIFY_STORE_URL=kindred-grove.myshopify.com
-SHOPIFY_THEME_ID_DEV=<id>         # for `shopify theme push` targeting
-SHOPIFY_STORE_PASSWORD=<password>  # only if the dev store is locked
-PERCY_TOKEN=<web_…>                # only for local Percy runs
-```
+The CI workflow runs only local regression tests with read-only repository
+access on GitHub-hosted runners. It makes no Shopify, Percy, Lighthouse, or other
+storefront/API request. Theme Check also runs on PRs and pushes to `main` and
+`staging` using the pinned Shopify CLI.
 
-### Commands
+## Storefront test harness
 
-```bash
-# Playwright end-to-end, chromium only
+E2E and axe accessibility workflows are manual-only because they create a
+temporary Shopify preview theme and require Shopify access credentials. They
+fail during preflight when required credentials are absent; they do not report
+a successful skip. When run with valid configuration, they push an unpublished
+theme, test it, and attempt cleanup. Cleanup is best-effort, so a failed run can
+leave a temporary unpublished theme to inspect and remove through Shopify.
+
+The local harness expects `BASE_URL` to be HTTPS (or localhost HTTP), with an
+optional same-origin `PREVIEW_URL`. A storefront password, if needed, is passed
+as `SHOPIFY_STORE_PASSWORD`. Example target values below are placeholders and
+must be replaced with the intended test storefront and preview URL:
+
+```sh
+BASE_URL="https://shop.example.test" \
+PREVIEW_URL="https://shop.example.test/?preview_theme_id=123" \
 npm run test:e2e
 
-# Accessibility (axe via Playwright)
-npm run test:a11y
-
-# Percy visual regression (needs PERCY_TOKEN)
-npm run test:visual
-
-# Interactive Playwright UI
-npm run test:e2e:ui
-
-# Theme-check (Liquid lint)
-shopify theme check
+# For both suites, configure .env explicitly and load it for each invocation:
+node --env-file=.env node_modules/@playwright/test/cli.js test tests/a11y --project=chromium
 ```
 
-Tests expect the preview theme to already be live on the dev store. Push it first:
+The browser tests do not place orders or submit the wholesale inquiry form.
+A cart mutation that does not persist must fail with observed HTTP/UI evidence;
+do not turn it into a skip by guessing that bot protection caused it. The final Phase 2 development run passed 41 cases, with zero failures, five
+documented skips and no flaky results.
+Missing credentials also fail workflow preflight.
 
-```bash
-shopify theme push \
-  --theme $SHOPIFY_THEME_ID_DEV \
-  --store $SHOPIFY_STORE_URL
-```
+## Optional external integrations
 
-Then run the suites with `BASE_URL` pointing at the storefront host and `PREVIEW_URL` carrying the `?preview_theme_id=<id>` query:
+Visual regression through Percy and the Shopify Lighthouse audit are manual
+workflows. They are absent from the required offline PR checks. Percy requires
+an account token and applicable plan entitlement; do not assume it is free.
+Lighthouse requires Shopify Dev Dashboard credentials and contacts Shopify's
+service. Verify the relevant account terms before manually invoking either
+workflow. Missing required credentials fail before the external service call.
 
-```bash
-BASE_URL="https://$SHOPIFY_STORE_URL" \
-PREVIEW_URL="https://$SHOPIFY_STORE_URL?preview_theme_id=$SHOPIFY_THEME_ID_DEV" \
-STORE_PASSWORD="$SHOPIFY_STORE_PASSWORD" \
-npm run test:e2e
-```
+## Deploy workflow status
 
----
+The dev, staging, and production workflow files are manual verification gates,
+not functioning deploy pipelines. Each runs local regression/theme checks where
+configured and then fails closed because no automated remote-drift comparison
+and post-deploy parity proof has been implemented. Production has no `push` or
+`publish` command: production writes are disabled. It accepts only an explicit
+`production-live` target input.
+Do not interpret a manual trigger as deployment authorization or a successful
+release.
 
-## 3. End-to-end test surface
+Before any write workflow is enabled, implement and independently review a
+release routine that verifies the exact remote target and baseline, blocks when
+remote code is ahead or drift is unexplained, applies reviewed local artifacts,
+and proves local/remote parity afterward. A missing baseline or verification
+must stop the write.
 
-Five golden paths in `tests/e2e/`:
+## GitHub configuration state
 
-| Spec | Covers |
-|---|---|
-| `home.spec.ts` | Homepage renders hero + sections, nav works, skip-link target receives focus |
-| `collection.spec.ts` | `/collections/all` renders a product grid, filter interaction updates results |
-| `pdp.spec.ts` | Gallery visible, ATC button visible, variant switch rewrites the `?variant=` query, add-to-cart increments cart count |
-| `cart.spec.ts` | Drawer opens on ATC click, line item renders in drawer, cart page hydrates with previously added item, gift-note writes to `/cart.js` attributes |
-| `quiz.spec.ts` | `/pages/quiz` renders, step-through keyboard nav works, completing the quiz shows a persona result and shop CTA |
+`.github/branch-protection.json` is a sample only; its wrapper fields
+`sample_only` and `not_applied_to_remote` intentionally make it unsuitable as a
+direct GitHub API request. It recommends the CI security/config, Theme Check,
+and Gitleaks statuses after they have been enabled and observed.
+These statuses are not yet verified as enabled or required remotely.
 
-Two shared fixtures:
+The latest native repository inventory available for this task reported that
+`main` had no required status checks and the Gitleaks workflow was disabled by
+inactivity. Workflow source triggers do not prove a remote workflow is enabled,
+required, or passing. No GitHub workflow run was performed and no GitHub settings were changed as
+part of this local update; root review and a fresh native inventory are still
+needed before claiming remote CI readiness.
 
-- `tests/e2e/_fixtures/auth.ts` → `unlockStorefront(page)` — visits the full `PREVIEW_URL` first (so the preview cookie is set) and then handles the storefront password gate if it appears.
-- `tests/e2e/_fixtures/storefront.ts` → `firstProductUrl(page)`, `getCartCount(page)`. The former filters out the auto-generated Shopify gift-card product (non-standard ATC flow).
+## Phase 2 acceptance evidence — 2026-09-24
 
-**Known skip:** cart-mutation specs (`cart.spec.ts`, the ATC-increment case in `pdp.spec.ts`) poll `/cart.js` after the Add-to-cart click and `test.skip(reason)` with a clear message when the item count stays 0. This happens on Shopify development stores where forced password protection + bot-protection (Private Access Token challenge, Cloudflare-backed) denies `/cart/add.js` on headless browsers. It is **not** a theme bug — the same code works in a real browser on a public storefront. Tracked in `project_shopify_dev_store_quirks.md`; upgrade the store to a public plan to re-enable.
+- Criteria 6/6 met for the reviewed development artifact; independent scoped review accepted.
+- Security/configuration: 95/95. Browser E2E plus four base axe routes: 41 passed, 0 failed, 5 skipped, 0 flaky. Separate alternate Quiz/Wholesale functional checks 2/2 and active axe checks 2/2, zero violations.
+- Theme Check: 0 errors, 2 existing orphan-snippet warnings. JavaScript syntax, Gitleaks, Semgrep and installed edit-hook checks passed in their recorded scopes. Standalone type-check, JS/CSS lint and bundler-build scripts are absent; Bandit is inapplicable to shipping JS/CSS/Liquid.
+- Exact SHA-256 parity across all 150 local, frozen and downloaded development files. No live publication.
+- Real flows: cart 0→1→2→0, native consent choices/withdrawal/reload, explicit GPC/DNT emulation, header/video/copy, keyboard/focus, reduced motion, no-JS navigation at 320/390 px, product reflow at 320/370/371/390/1440 px, and five-question Quiz/result collection/reload without answer persistence.
 
----
-
-## 4. Accessibility test
-
-`tests/a11y/axe.spec.ts` runs `@axe-core/playwright` against four routes:
-
-- `/` (homepage)
-- `/cart`
-- `/collections/all`
-- `/search?q=olive`
-
-Tags: `wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`. Any violation fails the test.
-
-**Third-party exclusions** are explicit and documented inline:
-
-```ts
-const thirdPartyExcludes = [
-  '[id^="PBar"]',               // Shopify preview bar iframe (dev-only)
-  '[class^="_GrabberButton"]',  // Cookie/consent Polaris web component
-  '#shopify-section-shopify',   // Shopify-injected app section wrapper
-];
-```
-
-We exclude these because we don't own the markup. Our theme surfaces are scanned unfiltered. No `.axe-core-violations-exceptions.json` file — if we find one, we fix it, not suppress it.
-
----
-
-## 5. Percy visual regression
-
-`tests/visual/snapshots.spec.ts` captures 6 snapshots across 4 widths (`375, 768, 1280, 1600`):
-
-- `home`
-- `collection-all`
-- `pdp-first-product`
-- `cart-empty`
-- `quiz-stage-1`
-- `styleguide`
-
-Percy auto-baseline on first run; subsequent PRs diff against the main branch's baseline. Reviewers approve/reject changes in the Percy dashboard — CI goes red on unreviewed diffs.
-
-Add a new snapshot when a new surface ships (e.g. wholesale page, origin page on Day 11). Keep Percy runs focused on *intentional* visual changes — content that churns daily (e.g. reviews carousel copy) should be masked via Percy's `data-percy-mask` attribute on the container.
-
----
-
-## 6. Lighthouse CI
-
-`.github/workflows/lighthouse-ci.yml` uses `shopify/lighthouse-ci-action@v1`. Thresholds:
-
-- Performance ≥ 0.90
-- Accessibility ≥ 0.95
-
-Runs against an ephemeral development theme the action creates in the dev store. Requires the Lighthouse CI custom app to have `read_themes`, `write_themes`, and `read_products` scopes — see `docs/CI-SECRETS.md` for provisioning steps.
-
-Optional: install the [Lighthouse CI GitHub App](https://github.com/apps/lighthouse-ci) and set `LHCI_GITHUB_APP_TOKEN` to get an in-PR comment with the full report.
-
----
-
-## 7. CI matrix
-
-| Workflow | Trigger | Preview teardown | Duration (p50) |
-|---|---|---|---|
-| `theme-check.yml` | push + PR to `main`/`staging` | N/A | ~20s |
-| `lighthouse-ci.yml` | PR | managed by the action | ~3-4 min |
-| `e2e.yml` | PR + manual dispatch | explicit `shopify theme delete` in teardown | ~3 min |
-| `accessibility.yml` | PR + manual | same | ~1-1.5 min |
-| `visual-regression.yml` | PR + manual | same | ~1.5-2 min |
-
-Every workflow has a preflight that skips cleanly (with a GITHUB_STEP_SUMMARY warning) when required secrets are absent — this avoids inbox spam from deploy workflows during early-phase setup.
-
----
-
-## 8. Writing a new test
-
-**E2E (new customer-journey feature):**
-1. Create `tests/e2e/<feature>.spec.ts`.
-2. Start with `test.beforeEach(async ({ page }) => { await unlockStorefront(page); });`.
-3. Use semantic selectors: `page.getByRole(...)`, `page.getByLabel(...)`. Fall back to `data-testid` only when nothing semantic exists.
-4. For cart-mutation tests, use the `addToCartAndVerify` helper in `cart.spec.ts` instead of a raw click — it polls `/cart.js` and skips gracefully on the 401.
-
-**Accessibility (new route):**
-1. Append the route to the `routes` array in `tests/a11y/axe.spec.ts`. It'll scan automatically.
-2. If a third-party app injects an element with an unfixable violation, add its selector to `thirdPartyExcludes` with a code comment explaining the provenance. Never hide our own bugs.
-
-**Visual regression (new surface):**
-1. Add a test in `tests/visual/snapshots.spec.ts` following the existing pattern. Call `percySnapshot(page, '<name>', { widths })`.
-
----
-
-## 9. Debugging failures
-
-**Playwright timeouts on ATC click** → bot protection. Check the test output for "Private Access Token challenge returned 401". Skip is honest; merge-blocker is the store-infrastructure fix (go public, or rewrite the test against Storefront API GraphQL).
-
-**Lighthouse 403 on product fetch** → custom app scope missing. Confirm `read_products` is checked at `admin/settings/apps/development` → Lighthouse CI → Configuration.
-
-**Percy snapshot diff on un-changed content** → font loading race. Add `await page.waitForLoadState('networkidle')` before `percySnapshot`.
-
-**Axe violation on markup you didn't touch** → a Shopify feature update has added new content. Open the axe node report, identify whether the element is ours or third-party. If ours, fix. If third-party, add to `thirdPartyExcludes` with a comment.
-
-**Preview theme not found / 404** → a prior CI run didn't clean up. The ephemeral name format is `kg-ci-<purpose>-<run_id>`; delete manually via `shopify theme delete --theme <id>` or via admin UI.
-
----
-
-## 10. Local dev store hygiene
-
-`scripts/seed-dev-store.mjs` is an idempotent Admin-API product seeder. Re-run it any time you've wiped dev-store data:
-
-```bash
-SHOPIFY_STORE="kindred-grove.myshopify.com" \
-ADMIN_API_TOKEN="shpat_…" \
-node scripts/seed-dev-store.mjs
-```
-
-Creates two test products (Olive Oil, Dates) with `inventory_management: null` + `inventory_policy: continue` so they're always purchasable in test runs. Safe to re-run — upserts by handle.
+Skips remain explicit: single-variant catalog, canonical Quiz and Wholesale pages returning 404, no article and Shopify-hosted account redirect. Alternate-template checks do not create merchant resources; Quiz used a feature override after native Accept. No screen-reader, complete browser zoom, legal compliance, platform capacity or continuous uptime claim follows from these results. Hosted CI execution/enforcement remains unverified. Work stopped after Phase 2 at the user's request.

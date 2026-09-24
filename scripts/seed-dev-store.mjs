@@ -1,143 +1,165 @@
 #!/usr/bin/env node
 /**
- * Seed the Kindred Grove dev store with a minimum set of products so that
- * CI smoke tests (Playwright cart/pdp, Percy product-detail, Shopify
- * Lighthouse's auto-fetched product handle) have real content to exercise.
- *
- * Idempotent: if a product with the target handle already exists, this
- * script skips creation and reports existing state.
- *
- * Required env:
- *   SHOPIFY_STORE        — e.g. "kindred-grove.myshopify.com"
- *   ADMIN_API_TOKEN      — Admin API access token, scopes: write_products
- *
- * Usage:
- *   SHOPIFY_STORE=kindred-grove.myshopify.com \
- *   ADMIN_API_TOKEN=shpat_xxx \
- *   node scripts/seed-dev-store.mjs
+ * Offline-only validator/planner for preserved legacy demo catalog payloads.
+ * --apply is deliberately blocked pending a separately reviewed native
+ * Shopify Admin/GraphQL migration workflow.
  */
 
-const API_VERSION = '2025-07';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const { SHOPIFY_STORE, ADMIN_API_TOKEN } = process.env;
-if (!SHOPIFY_STORE || !ADMIN_API_TOKEN) {
-  console.error('Missing SHOPIFY_STORE or ADMIN_API_TOKEN env var.');
-  process.exit(1);
+const LEGACY_STATUS = 'legacy-unverified-not-for-active-seeding';
+export const MAX_CATALOG_BYTES = 65_536;
+const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
+const DEFAULT_DATA = path.join(
+  SCRIPT_DIR,
+  'data',
+  'legacy-demo-products.json',
+);
+
+function usage() {
+  return 'Usage: node scripts/seed-dev-store.mjs [--apply]';
 }
 
-const base = `https://${SHOPIFY_STORE}/admin/api/${API_VERSION}`;
-const headers = {
-  'X-Shopify-Access-Token': ADMIN_API_TOKEN,
-  'Content-Type': 'application/json',
-  Accept: 'application/json',
-};
+function parseArgs(args) {
+  const parsed = { apply: false, help: false };
 
-const products = [
-  {
-    handle: 'organic-single-origin-olive-oil',
-    title: 'Organic Single-Origin Olive Oil',
-    body_html:
-      '<p>Cold-pressed within 24 hours of harvest from a single grove in the hills outside Nablus. Peppery finish, grassy nose, pale gold in the bottle.</p><p>500 ml.</p>',
-    vendor: 'Kindred Grove',
-    product_type: 'Pantry staple',
-    tags: ['olive-oil', 'palestine', 'single-origin', 'halal'],
-    status: 'active',
-    variants: [
-      {
-        price: '28.00',
-        sku: 'KG-OO-500',
-        inventory_management: null,
-        inventory_policy: 'continue',
-        requires_shipping: true,
-        taxable: true,
-      },
-    ],
-    options: [{ name: 'Title', values: ['Default Title'] }],
-  },
-  {
-    handle: 'medjool-dates',
-    title: 'Medjool Dates — Jericho Oasis',
-    body_html:
-      '<p>Plump, honey-soft dates harvested by the Qasem family in the Jordan Valley. Packed unwashed to preserve the natural bloom.</p><p>400 g.</p>',
-    vendor: 'Kindred Grove',
-    product_type: 'Pantry staple',
-    tags: ['dates', 'palestine', 'fruit', 'halal'],
-    status: 'active',
-    variants: [
-      {
-        price: '18.00',
-        sku: 'KG-DT-400',
-        inventory_management: null,
-        inventory_policy: 'continue',
-        requires_shipping: true,
-        taxable: true,
-      },
-    ],
-    options: [{ name: 'Title', values: ['Default Title'] }],
-  },
-];
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+    if (arg === '--help' || arg === '-h') {
+      parsed.help = true;
+    } else if (arg === '--apply') {
+      if (parsed.apply) throw new Error('--apply may only be supplied once.');
+      parsed.apply = true;
+    } else {
+      throw new Error('Unknown argument. ' + usage());
+    }
+  }
 
-async function api(path, init = {}) {
-  const res = await fetch(`${base}${path}`, { ...init, headers });
-  const text = await res.text();
-  let body;
+  return parsed;
+}
+
+export function validateCatalog(catalog) {
+  if (!catalog || typeof catalog !== 'object' || Array.isArray(catalog)) {
+    throw new Error('Catalog input must be a JSON object.');
+  }
+  if (catalog.status !== LEGACY_STATUS) {
+    throw new Error('Catalog status must be "' + LEGACY_STATUS + '".');
+  }
+  if (typeof catalog.notice !== 'string' || catalog.notice.trim().length < 20) {
+    throw new Error('Catalog input must include a clear legacy/unverified notice.');
+  }
+  if (!Array.isArray(catalog.products) || catalog.products.length === 0) {
+    throw new Error('Catalog input must include at least one preserved reference entry.');
+  }
+
+  const handles = new Set();
+  for (const [index, product] of catalog.products.entries()) {
+    const label = 'Reference entry ' + (index + 1);
+    if (!product || typeof product !== 'object' || Array.isArray(product)) {
+      throw new Error(label + ' must be a JSON object.');
+    }
+    if (typeof product.handle !== 'string' || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(product.handle)) {
+      throw new Error(label + ' has an invalid handle.');
+    }
+    if (handles.has(product.handle)) throw new Error(label + ' duplicates a handle.');
+    handles.add(product.handle);
+    if (typeof product.title !== 'string' || product.title.trim() === '') {
+      throw new Error(label + ' is missing a title.');
+    }
+    if (typeof product.body_html !== 'string' || product.body_html.trim() === '') {
+      throw new Error(label + ' is missing preserved source description text.');
+    }
+    if (!Array.isArray(product.variants) || product.variants.length === 0) {
+      throw new Error(label + ' must retain at least one variant record.');
+    }
+    for (const variant of product.variants) {
+      if (!variant || typeof variant.price !== 'string' || !/^\d+\.\d{2}$/.test(variant.price)) {
+        throw new Error(label + ' has an invalid preserved price field.');
+      }
+    }
+  }
+}
+
+function assertFixedCatalogFile() {
+  const dataDirectory = path.dirname(DEFAULT_DATA);
+  let scriptStats;
+  let directoryStats;
+  let fileStats;
   try {
-    body = text ? JSON.parse(text) : null;
+    scriptStats = fs.lstatSync(SCRIPT_DIR);
+    directoryStats = fs.lstatSync(dataDirectory);
+    fileStats = fs.lstatSync(DEFAULT_DATA);
   } catch {
-    body = text;
+    throw new Error('The fixed local legacy catalog is unavailable.');
   }
-  if (!res.ok) {
-    throw new Error(
-      `Shopify API ${res.status} ${res.statusText} on ${init.method || 'GET'} ${path}: ${JSON.stringify(body)}`
+  validateCatalogMetadata(scriptStats, directoryStats, fileStats);
+}
+
+export function validateCatalogMetadata(scriptStats, directoryStats, fileStats) {
+  if (scriptStats.isSymbolicLink() || directoryStats.isSymbolicLink() || fileStats.isSymbolicLink()) {
+    throw new Error('The fixed local legacy catalog path must not contain symlinks.');
+  }
+  if (!scriptStats.isDirectory() || !directoryStats.isDirectory() || !fileStats.isFile() || fileStats.nlink !== 1) {
+    throw new Error('The fixed local legacy catalog path must resolve to a regular repository file.');
+  }
+  if (fileStats.size > MAX_CATALOG_BYTES) {
+    throw new Error('The fixed local legacy catalog exceeds its size limit.');
+  }
+}
+
+function loadCatalog() {
+  assertFixedCatalogFile();
+  let text;
+  try {
+    text = fs.readFileSync(DEFAULT_DATA, 'utf8');
+  } catch {
+    throw new Error('Could not read the local catalog JSON file.');
+  }
+  let catalog;
+  try {
+    catalog = JSON.parse(text);
+  } catch {
+    throw new Error('Catalog input is not valid JSON.');
+  }
+  validateCatalog(catalog);
+  return catalog;
+}
+
+function main(args = process.argv.slice(2)) {
+  let options;
+  try {
+    options = parseArgs(args);
+  } catch (error) {
+    console.error(error.message + '\n' + usage());
+    return 2;
+  }
+
+  if (options.help) {
+    console.log(usage());
+    return 0;
+  }
+  if (options.apply) {
+    console.error(
+      'Blocked: --apply is disabled. Product changes require a separately reviewed native Shopify Admin/GraphQL migration workflow.',
     );
+    return 2;
   }
-  return body;
-}
 
-async function findProductByHandle(handle) {
-  const { products } = await api(
-    `/products.json?handle=${encodeURIComponent(handle)}&fields=id,handle,title,status`
-  );
-  return products?.[0] || null;
-}
-
-async function ensureProduct(spec) {
-  const existing = await findProductByHandle(spec.handle);
-  if (existing) {
+  try {
+    const catalog = loadCatalog();
     console.log(
-      `↻ already present — id=${existing.id} handle=${existing.handle} status=${existing.status}`
+      'Offline plan only: validated ' + catalog.products.length +
+      ' legacy reference entries. No Shopify changes are planned.',
     );
-    if (existing.status !== 'active') {
-      await api(`/products/${existing.id}.json`, {
-        method: 'PUT',
-        body: JSON.stringify({ product: { id: existing.id, status: 'active' } }),
-      });
-      console.log(`  ↳ promoted to active`);
-    }
-    return existing;
+    return 0;
+  } catch (error) {
+    console.error('Offline plan rejected: ' + error.message);
+    return 1;
   }
-  const { product } = await api('/products.json', {
-    method: 'POST',
-    body: JSON.stringify({ product: spec }),
-  });
-  console.log(`✓ created — id=${product.id} handle=${product.handle}`);
-  return product;
 }
 
-async function main() {
-  console.log(`Seeding ${SHOPIFY_STORE} …`);
-  for (const spec of products) {
-    try {
-      await ensureProduct(spec);
-    } catch (err) {
-      console.error(`✗ failed for ${spec.handle}: ${err.message}`);
-      process.exitCode = 1;
-    }
-  }
-  console.log('Done.');
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  process.exitCode = main();
 }
-
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});

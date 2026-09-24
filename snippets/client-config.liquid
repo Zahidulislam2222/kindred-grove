@@ -1,0 +1,94 @@
+{%- capture kg_query_placeholder -%}{query}{%- endcapture -%}
+{%- capture kg_title_placeholder -%}{title}{%- endcapture -%}
+{%- capture kg_amount_placeholder -%}{amount}{%- endcapture -%}
+{%- capture kg_client_config -%}
+{
+  "root": {{ routes.root_url | json }},
+  "predictiveSearchEndpoint": {{ routes.predictive_search_url | json }},
+  "cartRoutes": {
+    "add": {{ routes.cart_add_url | append: '.js' | json }},
+    "cart": {{ routes.cart_url | append: '.js' | json }},
+    "change": {{ routes.cart_change_url | append: '.js' | json }},
+    "update": {{ routes.cart_update_url | append: '.js' | json }},
+    "pantry": {{ routes.all_products_collection_url | default: routes.root_url | json }}
+  },
+  "requestTimeoutMs": 7000,
+  "productAddedResetMs": 1400,
+  "quickViewCloseMs": 650,
+  "cartNoteDebounceMs": 400,
+  "collectionFilterDebounceMs": 350,
+  "maxResponseBytes": 524288,
+  "searchDebounceMs": 250,
+  "searchMinimumLength": 2,
+  "maxSearchQueryLength": 120,
+  "maxSearchResultsPerType": 10,
+  "maxSearchTypes": 4,
+  "maxRecommendationResults": 8,
+  "maxRecentlyViewedRequests": 6,
+  "maxRecentlyViewedStorageChars": 8192,
+  "maxProductVariants": 100,
+  "maxPendingCartWrites": 8,
+  "maxCartAddItems": 100,
+  "currency": {{ cart.currency.iso_code | default: shop.currency | json }},
+  "demoMode": {{ settings.demo_mode | json }},
+  "groveProductMedia": {
+    {%- if settings.grove_oil_product.handle != blank -%}
+      {{ settings.grove_oil_product.handle | json }}: {{ 'grove-oil.webp' | asset_url | json }}
+    {%- endif -%}
+    {%- if settings.grove_dates_product.handle != blank -%}
+      {%- if settings.grove_oil_product.handle != blank -%},{%- endif -%}
+      {{ settings.grove_dates_product.handle | json }}: {{ 'grove-dates.webp' | asset_url | json }}
+    {%- endif -%}
+  },
+  "cdnHosts": ["cdn.shopify.com", {{ shop.permanent_domain | json }}],
+  "messages": {
+    "search": {
+      "products": {{ 'client.search.products' | t | json }},
+      "pages": {{ 'client.search.pages' | t | json }},
+      "articles": {{ 'client.search.articles' | t | json }},
+      "collections": {{ 'client.search.collections' | t | json }},
+      "noResults": {{ 'client.search.no_results' | t: query: kg_query_placeholder | strip_html | json }}
+    },
+    "quickView": {
+      "loading": {{ 'client.quick_view.loading' | t | json }},
+      "loadError": {{ 'client.quick_view.load_error' | t | json }},
+      "addToCart": {{ 'client.quick_view.add_to_cart' | t | json }},
+      "added": {{ 'client.quick_view.added' | t | json }},
+      "soldOut": {{ 'client.quick_view.sold_out' | t | json }},
+      "viewDetails": {{ 'client.quick_view.view_details' | t | json }},
+      "cartStatusUnknown": {{ 'client.quick_view.cart_status_unknown' | t | json }}
+    },
+    "product": {
+      "addToCart": {{ 'client.quick_view.add_to_cart' | t | json }},
+      "added": {{ 'client.quick_view.added' | t | json }},
+      "soldOut": {{ 'client.quick_view.sold_out' | t | json }},
+      "cartStatusUnknown": {{ 'client.quick_view.cart_status_unknown' | t | json }}
+    },
+    "cart": {
+      "statusUnknown": {{ 'client.quick_view.cart_status_unknown' | t | json }},
+      "statusError": {{ 'cart.note_error' | t | json }},
+      "adding": {{ 'grove.adding' | t | json }},
+      "added": {{ 'grove.added' | t | json }},
+      "emptyTitle": {{ 'cart.empty.title' | t | json }},
+      "emptyCta": {{ 'cart.empty.cta' | t | json }},
+      "quantity": {{ 'cart.qty' | t | json }},
+      "quantityControls": {{ 'cart.qty_controls' | t | json }},
+      "decrease": {{ 'cart.decrease_qty' | t | json }},
+      "increase": {{ 'cart.increase_qty' | t | json }},
+      "remove": {{ 'cart.remove' | t: title: kg_title_placeholder | json }},
+      "freeShippingUnlocked": {{ 'cart.freeship.unlocked' | t | json }},
+      "freeShippingRemaining": {{ 'cart.freeship.remaining_html' | t: amount: kg_amount_placeholder | strip_html | json }},
+      "noteSaving": {{ 'cart.note_saving' | t | json }},
+      "noteSaved": {{ 'cart.note_saved' | t | json }},
+      "noteError": {{ 'cart.note_error' | t | json }}
+    },
+    "recommendations": {
+      "quickView": {{ 'client.recommendations.quick_view' | t | json }}
+    },
+    "demo": {
+      "samplePrice": {{ 'demo.sample_price' | t | strip_html | json }}
+    }
+  }
+}
+{%- endcapture -%}
+<template id="kg-client-config" data-config="{{ kg_client_config | strip | escape }}"></template>

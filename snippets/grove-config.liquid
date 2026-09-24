@@ -1,0 +1,15 @@
+{%- comment -%}
+  Header hide/reveal thresholds are section-scoped settings and are emitted
+  directly as data attributes by sections/grove-header.liquid. Keep them out
+  of this layout-level payload to avoid duplicated defaults.
+{%- endcomment -%}
+{%- capture kg_grove_config -%}
+{
+  "motion": {"initialTime":0.01,"endMargin":0.05,"seekThreshold":0.035,"revealThreshold":0.08},
+  "messages": {
+    "selected": {{ 'grove.selected' | t | json }},
+    "selectHint": {{ 'grove.select_hint' | t | json }}
+  }
+}
+{%- endcapture -%}
+<template id="GroveConfig" data-config="{{ kg_grove_config | strip | escape }}"></template>

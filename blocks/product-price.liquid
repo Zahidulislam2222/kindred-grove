@@ -27,6 +27,7 @@
   {%- unless v.available -%}
     <span class="kg-price__soldout badge" data-kg-price-status>Sold out</span>
   {%- endunless -%}
+  {% render 'demo-price-label' %}
 </kg-price>
 
 {% schema %}

@@ -3,6 +3,9 @@
   /cart/update.js. Default collapsed; merchant can set to expanded.
 {%- endcomment -%}
 
+{% if settings.demo_mode %}
+  {% render 'demo-disabled-message', message_key: 'demo.personal_flows_disabled' %}
+{% else %}
 <details
   class="kg-cart__gift"
   data-kg-cart-gift
@@ -26,6 +29,7 @@
     <p class="kg-cart__gift-status text-xs text-muted" data-kg-cart-note-status aria-live="polite"></p>
   </div>
 </details>
+{% endif %}
 
 {% schema %}
 {

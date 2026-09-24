@@ -1,78 +1,74 @@
-name: Deploy — Dev theme
+name: Dev theme release gate
 
 on:
-  push:
-    branches: ['dev/**']
-    paths-ignore:
-      - 'docs/**'
-      - '**.md'
-      - '.gitignore'
-      - '.editorconfig'
   workflow_dispatch:
+    inputs:
+      target:
+        description: Explicit target for a future reviewed deployment
+        required: true
+        type: choice
+        options: [development-theme]
 
 permissions:
   contents: read
 
 concurrency:
-  group: deploy-dev-${{ github.ref }}
-  cancel-in-progress: true
+  group: dev-release-gate
+  cancel-in-progress: false
 
 jobs:
-  deploy:
-    name: Push to dev theme
+  verify:
+    name: Dev theme verification (writes disabled)
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     environment: dev
-
     steps:
-      - name: Preflight — check deploy secrets
-        id: preflight
-        env:
-          TOKEN: ${{ secrets.SHOPIFY_CLI_THEME_TOKEN }}
-          STORE: ${{ secrets.SHOPIFY_STORE }}
-          THEME: ${{ secrets.SHOPIFY_THEME_ID_DEV }}
-        run: |
-          if [ -z "$TOKEN" ] || [ -z "$STORE" ] || [ -z "$THEME" ]; then
-            {
-              echo "### Deploy skipped — secrets not provisioned"
-              echo ""
-              echo "One or more of SHOPIFY_CLI_THEME_TOKEN / SHOPIFY_STORE / SHOPIFY_THEME_ID_DEV is empty."
-              echo ""
-              echo "See \`docs/CI-SECRETS.md\` for mint steps."
-            } >> "$GITHUB_STEP_SUMMARY"
-            echo "::warning::Dev deploy skipped — required secrets missing."
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "skip=false" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Checkout
-        if: steps.preflight.outputs.skip != 'true'
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        if: steps.preflight.outputs.skip != 'true'
-        uses: actions/setup-node@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          node-version: '22'
+          persist-credentials: false
 
-      - name: Install Shopify CLI
-        if: steps.preflight.outputs.skip != 'true'
-        run: npm install -g @shopify/cli@latest
-
-      - name: Theme check (fail fast)
-        if: steps.preflight.outputs.skip != 'true'
-        run: shopify theme check --fail-level=error
-
-      - name: Push to dev theme
-        if: steps.preflight.outputs.skip != 'true'
+      - name: Preflight required deployment configuration
         env:
           SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_CLI_THEME_TOKEN }}
-          SHOPIFY_FLAG_STORE: ${{ secrets.SHOPIFY_STORE }}
-          SHOPIFY_FLAG_FORCE: '1'
+          SHOPIFY_STORE: ${{ secrets.SHOPIFY_STORE }}
+          SHOPIFY_THEME_ID_DEV: ${{ secrets.SHOPIFY_THEME_ID_DEV }}
+        run: node scripts/ci/require-env.cjs SHOPIFY_CLI_THEME_TOKEN SHOPIFY_STORE SHOPIFY_THEME_ID_DEV
+
+      - name: Read pinned toolchain
+        id: toolchain
+        run: node scripts/ci/toolchain.cjs >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ steps.toolchain.outputs.node }}
+
+      - name: Download and verify Gitleaks
+        env:
+          GITLEAKS_VERSION: ${{ steps.toolchain.outputs.gitleaks_version }}
+          GITLEAKS_SHA256: ${{ steps.toolchain.outputs.gitleaks_sha256 }}
         run: |
-          shopify theme push \
-            --json \
-            --theme ${{ secrets.SHOPIFY_THEME_ID_DEV }} \
-            --store "$SHOPIFY_FLAG_STORE" \
-            --password "$SHOPIFY_CLI_THEME_TOKEN"
+          set -euo pipefail
+          archive="$RUNNER_TEMP/gitleaks.tar.gz"
+          curl --fail --silent --show-error --location \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            --output "$archive"
+          printf '%s  %s\n' "$GITLEAKS_SHA256" "$archive" | sha256sum --check --status
+          tar -xzf "$archive" -C "$RUNNER_TEMP" gitleaks
+
+      - name: Run offline regression tests
+        env:
+          GITLEAKS_BIN: ${{ runner.temp }}/gitleaks
+        run: node --test tests/security/*.test.cjs
+
+      - name: Install pinned Shopify CLI
+        env:
+          SHOPIFY_CLI_VERSION: ${{ steps.toolchain.outputs.shopify_cli }}
+        run: npm install --global "@shopify/cli@${SHOPIFY_CLI_VERSION}" --no-audit --no-fund
+
+      - name: Run theme-check
+        run: shopify theme check --fail-level=error
+
+      - name: Block deployment pending remote drift and parity gate
+        run: node scripts/ci/block-theme-deploy.cjs

@@ -1,25 +1,41 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "intro": {
-      "type": "styleguide-intro"
+      "type": "styleguide-intro",
+      "settings": {}
     },
     "colors": {
-      "type": "styleguide-colors"
+      "type": "styleguide-colors",
+      "settings": {}
     },
     "typography": {
-      "type": "styleguide-typography"
+      "type": "styleguide-typography",
+      "settings": {}
     },
     "buttons": {
-      "type": "styleguide-buttons"
+      "type": "styleguide-buttons",
+      "settings": {}
     },
     "form_fields": {
-      "type": "styleguide-form-fields"
+      "type": "styleguide-form-fields",
+      "settings": {}
     },
     "icons": {
-      "type": "styleguide-icons"
+      "type": "styleguide-icons",
+      "settings": {}
     },
     "blocks": {
-      "type": "styleguide-blocks"
+      "type": "styleguide-blocks",
+      "settings": {}
     }
   },
   "order": [

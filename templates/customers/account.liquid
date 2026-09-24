@@ -1,3 +1,6 @@
+{% if settings.demo_mode %}
+  <section class="kg-account section"><div class="container"><div class="kg-account__panel">{% render 'demo-disabled-message', message_key: 'demo.personal_flows_disabled' %}</div></div></section>
+{% else %}
 <section class="kg-account section">
   <div class="container stack">
     <header class="kg-account__header stack-sm">
@@ -71,3 +74,4 @@
     </div>
   </div>
 </section>
+{% endif %}

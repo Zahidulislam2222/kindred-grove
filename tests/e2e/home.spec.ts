@@ -1,13 +1,13 @@
 import { test, expect } from '@playwright/test';
-import { unlockStorefront } from './_fixtures/auth';
+import { prepareStorefront, navigateStorefront } from './_fixtures/storefront';
 
 test.describe('Homepage golden path', () => {
   test.beforeEach(async ({ page }) => {
-    await unlockStorefront(page);
+    await prepareStorefront(page);
   });
 
   test('renders main landmarks and hero', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await navigateStorefront(page, '/');
 
     await expect(page).toHaveTitle(/.+/);
     await expect(page.locator('header').first()).toBeVisible();
@@ -15,15 +15,22 @@ test.describe('Homepage golden path', () => {
     await expect(page.locator('footer').first()).toBeVisible();
   });
 
-  test('header cart icon is reachable and exposes cart count node', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('[data-cart-count]').first()).toBeAttached();
+  test('header cart link opens the drawer and Escape restores focus', async ({ page }) => {
+    await navigateStorefront(page, '/');
+    const cartLink = page.locator('a[data-kg-cart-open], a[href$="/cart"]').first();
+    await expect(cartLink).toBeVisible();
+    await cartLink.click();
+    const drawer = page.locator('.kg-cart__drawer');
+    await expect(drawer).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(drawer).toBeHidden();
+    await expect(cartLink).toBeFocused();
   });
 
   test('clicking a featured product link routes to PDP', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await navigateStorefront(page, '/');
     const productLink = page.locator('a[href*="/products/"]').first();
-    if ((await productLink.count()) === 0) test.skip(true, 'Homepage has no product links wired to live products yet.');
+    await expect(productLink, 'homepage must link to an available product').toBeVisible();
     await productLink.click();
     await page.waitForURL(/\/products\//);
     await expect(page).toHaveURL(/\/products\//);

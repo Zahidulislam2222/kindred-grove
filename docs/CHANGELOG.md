@@ -2,6 +2,18 @@
 
 All notable changes to this theme are documented here. Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the project uses day-tagged versions during the Phase 1 build sprint (`v0.0-day1` … `v0.0-day21`). Semantic versioning kicks in at Phase 1 handover (`v1.0.0`).
 
+## Development delivery and public handoff — 2026-09-24
+
+- Added the Grove cinematic homepage, scroll-synchronized copy and direction-aware header with keyboard/reduced-motion behavior.
+- Added bounded request/configuration handling, serialized cart mutations with reconciliation, consent-gated optional storage and memory-only quiz behavior.
+- Added default demo notices/sample labels and guarded theme checkout, personal-data forms and unsupported claims; retired the public wholesale Admin API proxy and remote catalog writer.
+- Corrected native Shopify JSON MIME compatibility, escaped quiz configuration, narrow product reflow, no-JavaScript mobile navigation, contrast and progressbar naming.
+- Development acceptance: 95/95 security/configuration tests; 41 browser passes, zero failures, five documented skips; alternate Quiz/Wholesale flows 2/2 and active axe 2/2; 150/150 exact theme-file parity. Theme Check 0 errors / 2 existing warnings.
+- Added public US/EU applicability, security/privacy, future 1M+ capacity, 99% availability, recovery and staged-roadmap documentation; refreshed root/extension READMEs and merchant instructions.
+- Replaced automatic live-write workflow source with manual fail-closed verification. GitHub publication is separate from Shopify theme publication; the redesigned theme remains unpublished.
+
+The entries below preserve historical release notes. Historical analytics, vendor, API, deployment and completion statements describe earlier revisions and are superseded by the current README and engineering documents.
+
 ---
 
 ## [v0.0-day21] — 2026-04-19 — Documentation sprint

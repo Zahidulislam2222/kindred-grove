@@ -6,18 +6,18 @@
     <meta name="theme-color" content="{{ settings.color_primary }}">
 
     {%- comment -%}
-      Content Security Policy — baseline + observability hosts.
-      Refined further in docs/SECURITY.md on Day 11/19 when Klaviyo, Judge.me lands.
-      Sentry hosts whitelisted per ADR-005. web-vitals fetched from unpkg.
+      Content Security Policy — baseline Shopify and theme hosts.
+      Theme-owned sources are restricted to Shopify and local assets.
     {%- endcomment -%}
     <meta http-equiv="Content-Security-Policy" content="
       default-src 'self' *.shopify.com *.shopifycdn.com *.myshopify.com;
-      script-src 'self' 'unsafe-inline' *.shopify.com *.shopifycdn.com js.sentry-cdn.com browser.sentry-cdn.com unpkg.com ajax.googleapis.com;
+      script-src 'self' https://{{ shop.permanent_domain }} 'unsafe-inline' *.shopify.com *.shopifycdn.com;
       style-src 'self' 'unsafe-inline' *.shopify.com *.shopifycdn.com;
-      img-src 'self' data: blob: *.shopify.com *.shopifycdn.com;
+      img-src 'self' data: blob: https://{{ shop.permanent_domain }} *.shopify.com *.shopifycdn.com;
       font-src 'self' data: *.shopifycdn.com;
-      connect-src 'self' *.shopify.com *.shopifycdn.com *.sentry.io *.ingest.sentry.io ajax.googleapis.com a.klaviyo.com;
-      frame-ancestors 'none';
+      media-src 'self' blob: *.shopify.com *.shopifycdn.com;
+      frame-src 'self' https://shop.app *.shopify.com *.shopifycdn.com;
+      connect-src 'self' https://{{ shop.permanent_domain }} https://otlp-http-production.shopifysvc.com *.shopify.com *.shopifycdn.com;
     ">
 
     <title>
@@ -112,9 +112,11 @@
       <meta property="og:image" content="https:{{ product.featured_image | image_url: width: 1200 }}">
       <meta property="og:image:width" content="1200">
       <meta property="og:image:height" content="{{ 1200 | times: product.featured_image.aspect_ratio | round }}">
-      <meta property="product:price:amount" content="{{ product.price | money_without_currency | replace: ',', '' }}">
-      <meta property="product:price:currency" content="{{ cart.currency.iso_code }}">
-      <meta property="product:availability" content="{% if product.available %}in stock{% else %}out of stock{% endif %}">
+      {%- unless settings.demo_mode -%}
+        <meta property="product:price:amount" content="{{ product.price | money_without_currency | replace: ',', '' }}">
+        <meta property="product:price:currency" content="{{ cart.currency.iso_code }}">
+        <meta property="product:availability" content="{% if product.available %}in stock{% else %}out of stock{% endif %}">
+      {%- endunless -%}
     {%- elsif template contains 'collection' and collection.image != blank -%}
       <meta property="og:image" content="https:{{ collection.image | image_url: width: 1200 }}">
     {%- endif -%}
@@ -133,23 +135,29 @@
       templates where a trail makes sense. Product + Article + FAQ +
       Recipe schemas live inside their respective templates/snippets.
     {%- endcomment -%}
-    {% render 'schema-organization' %}
-    {%- if template contains 'product' or template contains 'collection' or template contains 'page' or template contains 'article' -%}
-      {% render 'schema-breadcrumb' %}
-    {%- endif -%}
+    {%- unless settings.demo_mode -%}
+      {% render 'schema-organization' %}
+      {%- if template contains 'product' or template contains 'collection' or template contains 'page' or template contains 'article' -%}
+        {% render 'schema-breadcrumb' %}
+      {%- endif -%}
+    {%- endunless -%}
 
     {{ content_for_header }}
 
     {%- assign heading_font = settings.font_heading -%}
     {%- assign body_font    = settings.font_body -%}
 
-    {%- if heading_font -%}{{ heading_font | font_face: font_display: 'swap' }}{%- endif -%}
-    {%- if body_font -%}{{ body_font | font_face: font_display: 'swap' }}{%- endif -%}
+    <style>
+      {%- if heading_font -%}{{ heading_font | font_face: font_display: 'swap' }}{%- endif -%}
+      {%- if body_font -%}{{ body_font | font_face: font_display: 'swap' }}{%- endif -%}
+    </style>
 
     {{ 'theme.css'      | asset_url | stylesheet_tag }}
     {{ 'base.css'       | asset_url | stylesheet_tag }}
     {{ 'utilities.css'  | asset_url | stylesheet_tag }}
     {{ 'components.css' | asset_url | stylesheet_tag }}
+    {{ 'grove.css' | asset_url | stylesheet_tag }}
+    {{ 'demo-safety.css' | asset_url | stylesheet_tag }}
 
     <style>
       :root {
@@ -168,81 +176,24 @@
       }
     </style>
 
-    {%- comment -%}
-      Observability bootstrap — picks up merchant settings from the Observability group
-      and hands them to assets/theme.js. Script is inline and tiny so it runs before
-      the deferred theme bundle parses. `window.sentryOnLoad` is the Loader-Script hook
-      (see ADR-005 + docs/CI-SECRETS.md).
-    {%- endcomment -%}
-    <script>
-      window.__KG_OBS__ = {
-        sentryDsn:   {{ settings.sentry_dsn | default: '' | json }},
-        sentryEnv:   {{ settings.sentry_env | default: 'development' | json }},
-        rumSample:   {{ settings.rum_sample_rate | default: 100 | json }},
-        themeId:     {{ theme.id | json }},
-        themeName:   {{ theme.name | json }},
-        shopDomain:  {{ shop.permanent_domain | json }}
-      };
-      window.sentryOnLoad = function () {
-        if (!window.Sentry || !window.__KG_OBS__.sentryDsn) return;
-        window.Sentry.init({
-          dsn: window.__KG_OBS__.sentryDsn,
-          environment: window.__KG_OBS__.sentryEnv,
-          release: 'kindred-grove@' + window.__KG_OBS__.themeId,
-          sendDefaultPii: false,
-          tracesSampleRate: 0,
-          ignoreErrors: [
-            'Non-Error promise rejection captured',
-            'ResizeObserver loop limit exceeded',
-            'ResizeObserver loop completed with undelivered notifications.'
-          ],
-          beforeSend: function (event) {
-            if (event.user) {
-              delete event.user.email;
-              delete event.user.ip_address;
-              delete event.user.username;
-            }
-            if (event.request && event.request.url) {
-              event.request.url = event.request.url.split('?')[0];
-            }
-            return event;
-          }
-        });
-      };
-    </script>
-    {%- if settings.sentry_dsn != blank -%}
-      {%- assign sentry_key = settings.sentry_dsn | split: '@' | first | split: '//' | last -%}
-      {%- if sentry_key != blank -%}
-        {%- # theme-check-disable RemoteAsset -%}
-        <script src="https://js.sentry-cdn.com/{{ sentry_key }}.min.js" crossorigin="anonymous" async></script>
-        {%- # theme-check-enable RemoteAsset -%}
-      {%- endif -%}
-    {%- endif -%}
-
-    {%- comment -%}
-      Feature flags — loaded synchronously so blocks can read KG_FF during initial render.
-      Definitions come from the Feature flags theme setting (JSON textarea); see ADR-008.
-    {%- endcomment -%}
-    <script>
-      try {
-        window.__KG_FF_DEFS__ = {{ settings.feature_flags_json | default: '[]' | json }};
-      } catch (e) {
-        window.__KG_FF_DEFS__ = [];
-      }
-    </script>
+    {% render 'privacy-config' %}
+    {% render 'client-config' %}
+    <template id="kg-feature-flags-config" data-json="{{ settings.feature_flags_json | default: '[]' | escape }}"></template>
+    <script src="{{ 'privacy.js' | asset_url }}" defer></script>
+    <script src="{{ 'client-runtime.js' | asset_url }}" defer></script>
     <script src="{{ 'feature-flags.js' | asset_url }}" defer></script>
   </head>
-  <body class="template-{{ template | replace: '.', '-' | handle }}">
+  <body class="template-{{ template | replace: '.', '-' | handle }}{% if settings.demo_mode %} kg-demo-mode{% endif %}" data-demo-mode="{{ settings.demo_mode }}" data-demo-sample-price="{{ 'demo.sample_price' | t | escape }}" data-demo-checkout-disabled="{{ 'demo.checkout_disabled' | t | escape }}">
     <a class="skip-link" href="#main">Skip to main content</a>
+    {% render 'demo-notice' %}
 
-    {% section 'announcement' %}
-    {% section 'header' %}
+    {% section 'grove-header' %}
 
     <main id="main" role="main" tabindex="-1">
       {{ content_for_layout }}
     </main>
 
-    {% section 'footer' %}
+    {% section 'grove-footer' %}
     {% section 'overlays' %}
 
     <script src="{{ 'announcement-bar.js' | asset_url }}" defer></script>
@@ -251,7 +202,9 @@
     <script src="{{ 'pantry-quiz.js' | asset_url }}" defer></script>
     <script src="{{ 'wholesale-form.js' | asset_url }}" defer></script>
     <script src="{{ 'predictive-search.js' | asset_url }}" defer></script>
-    <script src="{{ 'newsletter.js' | asset_url }}" defer></script>
     <script src="{{ 'theme.js' | asset_url }}" defer></script>
+    <script src="{{ 'privacy-preferences.js' | asset_url }}" defer></script>
+    {% render 'grove-config' %}
+    <script src="{{ 'grove.js' | asset_url }}" defer></script>
   </body>
 </html>

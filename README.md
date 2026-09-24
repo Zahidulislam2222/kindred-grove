@@ -1,153 +1,91 @@
-# Kindred Grove — Shopify theme
+# Kindred Grove
 
-A custom, agency-tier Shopify Online Store 2.0 theme for [Kindred Grove](https://kindred-grove.myshopify.com) — single-origin pantry staples (olive oil, dates, honey, saffron, black seed) sourced direct from family farms across the Mediterranean and Levant.
+A Shopify pantry storefront with a cinematic, scroll-synchronized homepage, warm cream/terracotta styling, merchant-editable content and a deliberately controlled shopping demo. Built with Liquid, CSS and vanilla JavaScript Web Components; Shopify provides catalog, cart, hosted rendering and checkout services.
 
-Built with the [Theme Blocks](docs/adr/001-theme-blocks-over-legacy-sections.md) architecture, vanilla JavaScript with Web Components, and metaobjects-first content. AI-native delivery workflow (Shopify Dev MCP + Claude Code + Claude Design) documented in [`docs/AI-WORKFLOW.md`](docs/AI-WORKFLOW.md).
+**Current delivery:** Phase 2 accepted on the development theme. The redesigned theme is not published live. The connected storefront domain is [kindred-grove.zahidul-islam.com](https://kindred-grove.zahidul-islam.com), which currently serves the existing live theme and may require the development-store password. The GitHub source and the live storefront are separate releases.
 
-[![CI — theme-check](https://github.com/Zahidulislam2222/kindred-grove/actions/workflows/theme-check.yml/badge.svg?branch=main)](https://github.com/Zahidulislam2222/kindred-grove/actions/workflows/theme-check.yml)
-[![CI — gitleaks](https://github.com/Zahidulislam2222/kindred-grove/actions/workflows/gitleaks.yml/badge.svg?branch=main)](https://github.com/Zahidulislam2222/kindred-grove/actions/workflows/gitleaks.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-olive.svg)](LICENSE)
+## Experience and verified behavior
 
----
+- Cinematic hero with left-side copy changing with the film's chapters in both scroll directions; pause and reduced-motion behavior.
+- Header hides during downward scrolling and returns when scrolling up, focusing navigation, or opening a menu/dialog.
+- Product and collection browsing, pantry interactions, quick view and a native Shopify cart drawer with quantity and removal controls.
+- Demo notices and sample-price labels; theme checkout and personal-information forms are disabled in demo mode.
+- Native consent controls, purpose-gated optional storage and a memory-only pantry quiz. Theme telemetry loaders are removed.
+- Responsive layouts, keyboard/focus behavior, mobile navigation without JavaScript and English/Arabic locale source.
 
-## What's in the box
+Phase 2 evidence: **95/95 security/configuration tests**, **41 browser passes, 0 failures, 5 documented skips**, separate Quiz/Wholesale functional **2/2** and active axe **2/2**, and **150/150 exact local/artifact/development file hashes**. Theme Check reported **0 errors and 2 existing warnings**. See [testing](docs/TESTING.md) for scope, skips and manual checks still needed.
 
-- **14 storefront templates** — homepage, PLP, PDP (with 3D model-viewer), cart drawer + page, predictive search, origin/farm detail, pantry quiz, recipes-blog-ready, wholesale B2B form, gift cards, customer account, checkout extension, styleguide, 404 + policies.
-- **8 CI workflows** — theme-check, Lighthouse CI, axe-core accessibility, Playwright E2E, Percy visual regression, deploy-dev/staging/production, gitleaks. All gate `main`.
-- **8 ADRs** documenting every major architectural decision under `docs/adr/`.
-- **12 public docs** — architecture, performance, accessibility, security, testing, merchant guide, AI workflow, AI governance, ADRs, metaobject schemas, roadmap, changelog.
-- **Zero runtime dependencies.** The theme ships unbundled. `npm install` is only needed to run the test suite.
+Canonical Quiz/Wholesale pages and a test article are not configured in this store; alternate templates supplied component coverage. Shopify-hosted accounts, checkout and app processing remain platform boundaries. The checkout extension is a [legacy, unsupported scaffold](extensions/checkout-trust-badges/README.md), not a delivered checkout feature.
 
----
+## Architecture and backend
 
-## Quickstart
+```mermaid
+flowchart LR
+    Visitor --> Theme[Liquid storefront and Web Components]
+    Theme --> CDN[Shopify CDN: public assets]
+    Theme --> Cart[Shopify Ajax: visitor cart]
+    Theme --> Privacy[Shopify native consent]
+    Cart --> Checkout[Shopify hosted checkout]
+    Merchant[Merchant configuration and catalog] --> Theme
+    Source[Reviewed source and tests] --> Preview[Development verification]
+    Preview --> Release[Separate controlled live release]
+```
 
-### Prerequisites
+This repository includes the frontend, Liquid server-rendered templates, test/CI tooling, a projected-capacity model and the retired wholesale Worker source. There is no separate project database or active custom commerce server. The Worker returns HTTP 410 without Admin API side effects; the seed script validates offline example data and rejects remote writes. See [architecture](docs/ARCHITECTURE.md) and [ADR 009](docs/adr/009-retire-wholesale-admin-proxy.md).
 
-- Node 22+
-- [Shopify CLI](https://shopify.dev/docs/themes/tools/cli) 3.93+
-- Git
+## Future scale and reliability
 
-### Install
+The engineering roadmap targets **10k → 100k → 1M+ simultaneous visitors** and a **99% rolling availability objective**. [Scalability](docs/SCALABILITY.md) gives workload equations, CDN/page/cart/checkout boundaries, bottlenecks, stage gates and conditional backend designs. [Operations](docs/OPERATIONS.md) defines SLIs, error budgets, monitoring, response, recovery and rollback. These documents describe how to qualify each stage, including platform capacity confirmation and representative testing.
 
-```bash
+The current free/local work introduces no paid service. Future infrastructure and platform entitlements are decisions to price and approve at the relevant stage. A native Shopify architecture is retained until measured requirements justify another service or a headless migration.
+
+## Setup
+
+Use Git and the Node/Shopify CLI/scanner versions maintained in [`scripts/config/toolchain.json`](scripts/config/toolchain.json).
+
+```sh
 git clone https://github.com/Zahidulislam2222/kindred-grove.git
 cd kindred-grove
-npm install                       # tests + lint only — theme ships unbundled
-npx playwright install chromium   # for local E2E / a11y / visual runs
-```
-
-### Configure
-
-```bash
+npm ci --no-audit --no-fund
+npx playwright install chromium
 cp .env.example .env
-# Fill in at least SHOPIFY_STORE_URL + SHOPIFY_THEME_ID_DEV.
-# See docs/CI-SECRETS.md for how to mint each credential.
 ```
 
-### Develop
+Configure the intended store, development theme, browser base/preview URL and optional storefront password in the ignored environment file. See [configuration ownership](docs/CONFIGURATION.md); do not paste credentials into commands or tracked files. The theme renders without npm runtime dependencies; npm installs the test harness.
 
-```bash
-shopify theme dev --theme $SHOPIFY_THEME_ID_DEV --store $SHOPIFY_STORE_URL
-# → opens a live-reload preview at https://127.0.0.1:9292
+```sh
+# Local source gates; Gitleaks must be available on PATH or GITLEAKS_BIN.
+node --test tests/security/*.test.cjs
+shopify theme check --fail-level=error
+
+# Actual browser verification on an explicitly configured development target.
+node --env-file=.env node_modules/@playwright/test/cli.js test tests/e2e tests/a11y --project=chromium
 ```
 
-### Test
+Use `shopify theme dev` only after explicitly configuring the intended store/theme and loading its environment: the watcher uploads edits automatically. For releases, freeze the reviewed artifact, compare remote state before writing, then pull and compare hashes. [Release guide](docs/RELEASE.md).
 
-```bash
-shopify theme check          # Liquid linting
-npm run test:e2e             # Playwright golden paths
-npm run test:a11y            # axe-core WCAG 2.1 AA
-npm run test:visual          # Percy snapshots (needs PERCY_TOKEN)
-```
+## Documentation
 
-### Deploy
-
-Deploys run from CI on merge to `main` (production) or `staging` branch. No manual pushes to production — see [`docs/CI-SECRETS.md`](docs/CI-SECRETS.md) for environment protection rules.
-
----
-
-## Project structure
-
-```
-kindred-grove/
-├── layout/          — theme.liquid (head, CSP, OG, structured data, skip link)
-├── templates/       — 14 JSON templates (index, product, collection, cart, quiz, wholesale, origin, styleguide, 404, gift-card, page, search, robots)
-├── sections/        — main-* host sections that accept @theme + @app blocks
-├── blocks/          — all merchant-composable blocks (hero, farm-story, cart-drawer, wholesale-form, pantry-quiz, predictive-search, etc.)
-├── snippets/        — reusable primitives (button, icon, image, form-field, honeypot, all 6 JSON-LD schemas)
-├── assets/          — CSS (theme/base/utilities/components) + web-component JS + no build step
-├── config/          — settings_schema.json (merchant-editable tokens)
-├── locales/         — en.default.json, ar.json (190+ keys each)
-├── extensions/      — checkout-trust-badges (scaffolded, separate deploy)
-├── scripts/         — dev-store seed + wholesale draft-order Cloudflare Worker
-├── tests/
-│   ├── e2e/         — Playwright specs (home, collection, pdp, cart, quiz)
-│   ├── visual/      — Percy snapshot suite
-│   └── a11y/        — axe via Playwright
-├── docs/            — 12 public docs + 8 ADRs + metaobject schema reference
-└── .github/workflows — 8 CI pipelines
-```
-
-See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the deep dive.
-
----
-
-## Key decisions
-
-| ADR | What | Why |
-|---|---|---|
-| [001](docs/adr/001-theme-blocks-over-legacy-sections.md) | Theme Blocks architecture | Merchant composability + Horizon parity + 8-level nesting |
-| [002](docs/adr/002-vanilla-js-web-components.md) | Vanilla JS + Web Components | Zero runtime deps, portability to Hydrogen |
-| [003](docs/adr/003-metaobjects-first.md) | Metaobjects-first content | Reusable farms / certifications / recipes across products |
-| [004](docs/adr/004-shopify-dev-mcp.md) | Shopify Dev MCP | Up-to-date Liquid + GraphQL knowledge in the editor |
-| [005](docs/adr/005-sentry-over-grafana-faro.md) | Sentry for errors | Free tier, PII scrubbing, CSP friendly |
-| [006](docs/adr/006-cloudflare-pages-for-case-study.md) | Cloudflare Pages for case study site | Free, fast, Git-integrated |
-| [007](docs/adr/007-playwright-for-e2e.md) | Playwright for E2E | Cross-browser, headless-first, solid Shopify fixtures |
-| [008](docs/adr/008-localstorage-feature-flags.md) | localStorage feature flags | Zero infrastructure A/B, DNT compliant |
-
----
-
-## Documentation index
-
-| Doc | For |
+| Need | Start here |
 |---|---|
-| [MERCHANT-GUIDE.md](docs/MERCHANT-GUIDE.md) | Merchants and content editors |
-| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Developers — rendering model, folder structure |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Developers — setup, test, commit conventions, PR flow |
-| [TESTING.md](docs/TESTING.md) | Developers — how to run + add tests, debug failures |
-| [ACCESSIBILITY.md](docs/ACCESSIBILITY.md) | Design + QA — WCAG 2.1 AA posture, manual checkpoints |
-| [PERFORMANCE.md](docs/PERFORMANCE.md) | Developers — budgets, LCP/CLS strategy, regression playbook |
-| [SECURITY.md](docs/SECURITY.md) | Security review — threat model, CSP, form hardening |
-| [AI-WORKFLOW.md](docs/AI-WORKFLOW.md) | Internal — prompts, velocity log, session notes |
-| [AI_GOVERNANCE.md](docs/AI_GOVERNANCE.md) | Internal — AI-vs-human review boundaries |
-| [ROADMAP.md](docs/ROADMAP.md) | Product — Phase 2, 3, 4 plans |
-| [CHANGELOG.md](docs/CHANGELOG.md) | Everyone — version history |
-| [metaobjects/SCHEMAS.md](docs/metaobjects/SCHEMAS.md) | Merchants + devs — metaobject + metafield definitions |
+| Complete public documentation navigation | [Documentation index](docs/README.md) |
+| Source structure, service ownership and decisions | [Architecture](docs/ARCHITECTURE.md), [ADRs](docs/adr/001-theme-blocks-over-legacy-sections.md) |
+| Developer onboarding and configuration | [Contributing](CONTRIBUTING.md), [Configuration](docs/CONFIGURATION.md) |
+| Security, data and demo controls | [Security](docs/SECURITY.md), [Privacy](docs/PRIVACY.md), [Demo safety](docs/DEMO-SAFETY.md) |
+| US/EU requirements and commercial launch prerequisites | [Compliance research](docs/COMPLIANCE-RESEARCH.md) |
+| Future 1M+ visitor architecture and 99% availability | [Scalability](docs/SCALABILITY.md), [Operations](docs/OPERATIONS.md) |
+| Performance and accessible interactions | [Performance](docs/PERFORMANCE.md), [Accessibility](docs/ACCESSIBILITY.md) |
+| Actual checks, known defects and publication | [Testing](docs/TESTING.md), [Defect log](DEFECT-LOG.md), [Release](docs/RELEASE.md) |
+| Merchant editing and truthful product content | [Merchant guide](docs/MERCHANT-GUIDE.md), [Media provenance](docs/MEDIA-PROVENANCE.md), [Metaobjects](docs/metaobjects/SCHEMAS.md) |
+| Milestones and maintenance | [Build plan](BUILD-PLAN.md), [Roadmap](docs/ROADMAP.md), [Changelog](docs/CHANGELOG.md) |
+| Responsible assisted development | [AI workflow](docs/AI-WORKFLOW.md), [Governance](docs/AI_GOVERNANCE.md) |
 
----
+## Repository layout
 
-## Quality bars
+`layout`, `templates`, `sections`, `blocks` and `snippets` contain Liquid composition. `assets` contains styles, components and demo media. `config` and `locales` own merchant settings and translated copy. `scripts` contains configuration, CI, offline catalog and capacity tools. `tests` contains committed automated regressions. `.github` contains workflow definitions. `extensions` contains the isolated legacy checkout example.
 
-| Metric | Target | Enforced by |
-|---|---|---|
-| Lighthouse — Performance | ≥ 0.90 | CI (blocking) |
-| Lighthouse — Accessibility | ≥ 0.95 | CI (blocking) |
-| axe-core violations | 0 | CI (blocking) |
-| Theme-check offenses | 0 | CI (blocking) |
-| Playwright golden paths | 5/5 passing | CI (blocking) |
-| Percy visual regressions | All reviewed | CI (blocks on un-reviewed diffs) |
-| Gitleaks findings | 0 real | CI (blocking) |
-| Sentry errors at ship | 0 | Manual pre-ship gate |
+Private recovery records, credentials, local research, browser artifacts and client document exports are excluded from the public repository. Public documentation is written for developers, merchants and clients, without access details or customer information.
 
----
+## License and content rights
 
-## License
-
-MIT — see [`LICENSE`](LICENSE). This theme is open for study, fork, and adaptation. The brand identity, copy, and images are © Kindred Grove.
-
----
-
-## Acknowledgements
-
-Built by [Anderson Collaborative](https://example.com) — AI-native Shopify practice. Delivery workflow is Shopify Dev MCP + Claude Code + Claude Design; velocity notes in [`docs/AI-WORKFLOW.md`](docs/AI-WORKFLOW.md).
+Code is provided under [MIT](LICENSE), except where a component explicitly states otherwise. The extension scaffold declares its own license status. Product facts, brand identity and third-party media are separate from the code license. Consult [media provenance](docs/MEDIA-PROVENANCE.md) before reuse; current imagery/video rights are not established by the presence of files in Git.

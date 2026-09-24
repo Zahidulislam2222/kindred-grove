@@ -1,17 +1,10 @@
-name: Lighthouse CI
+name: Lighthouse CI (manual/optional)
 
 on:
-  pull_request:
-    branches: [main, staging]
-    paths-ignore:
-      - 'docs/**'
-      - '**.md'
-      - '.gitignore'
-      - '.editorconfig'
+  workflow_dispatch:
 
 permissions:
   contents: read
-  pull-requests: write
 
 concurrency:
   group: lighthouse-${{ github.ref }}
@@ -19,43 +12,30 @@ concurrency:
 
 jobs:
   lighthouse:
-    name: Shopify Lighthouse CI
+    name: Shopify Lighthouse audit (manual/optional)
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-
+    timeout-minutes: 20
     steps:
-      - name: Preflight — check Lighthouse secrets
-        id: preflight
-        env:
-          STORE: ${{ secrets.SHOPIFY_STORE }}
-          CID: ${{ secrets.SHOPIFY_CLIENT_ID }}
-          CSEC: ${{ secrets.SHOPIFY_CLIENT_SECRET }}
-        run: |
-          if [ -z "$STORE" ] || [ -z "$CID" ] || [ -z "$CSEC" ]; then
-            {
-              echo "### Lighthouse CI skipped — secrets not provisioned"
-              echo ""
-              echo "SHOPIFY_STORE / SHOPIFY_CLIENT_ID / SHOPIFY_CLIENT_SECRET required. See \`docs/CI-SECRETS.md\` for the Dev Dashboard app mint steps."
-            } >> "$GITHUB_STEP_SUMMARY"
-            echo "::warning::Lighthouse CI skipped — required secrets missing."
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "skip=false" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Checkout
-        if: steps.preflight.outputs.skip != 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Preflight required Shopify configuration
+        env:
+          SHOPIFY_STORE: ${{ secrets.SHOPIFY_STORE }}
+          SHOPIFY_CLIENT_ID: ${{ secrets.SHOPIFY_CLIENT_ID }}
+          SHOPIFY_CLIENT_SECRET: ${{ secrets.SHOPIFY_CLIENT_SECRET }}
+          SHOPIFY_THEME_ID_DEV: ${{ secrets.SHOPIFY_THEME_ID_DEV }}
+        run: node scripts/ci/require-env.cjs SHOPIFY_STORE SHOPIFY_CLIENT_ID SHOPIFY_CLIENT_SECRET SHOPIFY_THEME_ID_DEV
 
       - name: Run Shopify Lighthouse CI
-        if: steps.preflight.outputs.skip != 'true'
-        uses: shopify/lighthouse-ci-action@v1
+        uses: shopify/lighthouse-ci-action@988f0eeb44ad5f298bd47150e5b9b01c27ead975 # v1
         with:
           store: ${{ secrets.SHOPIFY_STORE }}
           client_id: ${{ secrets.SHOPIFY_CLIENT_ID }}
           client_secret: ${{ secrets.SHOPIFY_CLIENT_SECRET }}
           password: ${{ secrets.SHOPIFY_STORE_PASSWORD }}
           pull_theme: ${{ secrets.SHOPIFY_THEME_ID_DEV }}
-          lhci_github_app_token: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
           lhci_min_score_performance: '0.9'
           lhci_min_score_accessibility: '0.95'

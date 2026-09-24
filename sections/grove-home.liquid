@@ -1,0 +1,115 @@
+{%- assign pantry_products = section.settings.products -%}
+<grove-journey class="grove-journey{% unless section.settings.enable_film %} grove-editorial{% endunless %}" data-motion="{{ section.settings.enable_film }}" data-travel="{{ section.settings.scroll_distance }}">
+  <div class="grove-journey__stage">
+    <picture class="grove-journey__poster"><source media="(max-width: 749px)" srcset="{{ 'grove-hero-mobile.webp' | asset_url }}"><img src="{{ 'grove-hero.webp' | asset_url }}" width="1536" height="864" alt="{{ section.settings.hero_alt | escape }}" fetchpriority="high" loading="eager"></picture>
+    <video class="grove-journey__video" muted playsinline preload="none" aria-hidden="true" tabindex="-1" data-src="{{ 'grove-journey.mp4' | asset_url }}"></video>
+    <div class="grove-journey__shade"></div>
+    <div class="grove-journey__copy">
+      <p class="grove-eyebrow"><span class="grove-small-line"></span><span data-copy-field="eyebrow">{{ section.settings.eyebrow | escape }}</span></p>
+      <h1><span data-copy-field="heading">{{ section.settings.heading | escape }}</span><br><em data-copy-field="italic">{{ section.settings.heading_italic | escape }}</em></h1>
+      <p class="grove-journey__description" data-copy-field="body">{{ section.settings.body | escape }}</p>
+      <div class="grove-hero-actions"><a class="grove-button grove-button--cream" href="#pantry">{{ 'grove.shop' | t }}<span aria-hidden="true">↗</span></a><a class="grove-text-link" href="#story">{{ 'grove.story' | t }} <span aria-hidden="true">↗</span></a></div>
+      {% unless section.settings.enable_film %}<p class="grove-hero-caption">{{ section.settings.manifesto_three | escape }}</p>{% endunless %}
+    </div>
+    <template data-journey-chapters>
+      <div data-eyebrow="{{ section.settings.eyebrow | escape }}" data-heading="{{ section.settings.heading | escape }}" data-italic="{{ section.settings.heading_italic | escape }}" data-body="{{ section.settings.body | escape }}"></div>
+      <div data-eyebrow="{{ section.settings.story_eyebrow | escape }}" data-heading="{{ section.settings.story_heading | escape }}" data-italic="{{ section.settings.story_italic | escape }}" data-body="{{ section.settings.story_body | escape }}"></div>
+      <div data-eyebrow="{{ section.settings.ritual_eyebrow | escape }}" data-heading="{{ section.settings.ritual_heading | escape }}" data-italic="{{ section.settings.ritual_italic | escape }}" data-body="{{ section.settings.ritual_body | escape }}"></div>
+    </template>
+    <div class="grove-journey__stamp" aria-hidden="true"><span>{{ section.settings.stamp_top | escape }}</span>{% render 'grove-mark' %}<span>{{ section.settings.stamp_bottom | escape }}</span></div>
+    {% unless section.settings.enable_film %}
+      {% assign featured_product = pantry_products | first %}
+      {% if featured_product != blank %}
+        <a class="grove-hero-product" href="{{ featured_product.url }}">
+          <span class="grove-hero-product__art">{% render 'grove-product-art', product: featured_product %}</span>
+          <span><span class="grove-eyebrow">{{ section.settings.featured_label | escape }}</span><strong>{{ featured_product.title | escape }}</strong><span class="grove-hero-product__price">{{ featured_product.price | money }}</span>{% render 'demo-price-label' %}</span>
+          <span class="grove-hero-product__arrow" aria-hidden="true">↗</span>
+        </a>
+      {% endif %}
+    {% endunless %}
+    <div class="grove-journey__bottom" {% unless section.settings.enable_film %}hidden{% endunless %}>
+      <a href="#pantry" class="grove-journey__skip">{{ 'grove.scroll' | t }}<span aria-hidden="true">↓</span></a>
+      <div class="grove-chapters" aria-label="{{ 'grove.journey' | t }}"><span class="is-active" data-chapter="0">01 <b>{{ 'grove.chapter_grove' | t }}</b></span><span data-chapter="1">02 <b>{{ 'grove.chapter_craft' | t }}</b></span><span data-chapter="2">03 <b>{{ 'grove.chapter_table' | t }}</b></span></div>
+      <button type="button" class="grove-motion-toggle" aria-pressed="false" data-pause-label="{{ 'grove.pause' | t }}" data-resume-label="{{ 'grove.resume' | t }}">{{ 'grove.pause' | t }}</button>
+    </div>
+    <div class="grove-journey__progress" aria-hidden="true"></div>
+  </div>
+</grove-journey>
+
+<div class="grove-manifesto"><span>{{ section.settings.manifesto_one | escape }}</span><span aria-hidden="true">✳</span><span>{{ section.settings.manifesto_two | escape }}</span><span aria-hidden="true">✳</span><span>{{ section.settings.manifesto_three | escape }}</span></div>
+
+<section class="grove-section grove-pantry" id="pantry" aria-labelledby="PantryHeading">
+  <div class="grove-section-heading" data-reveal><div><p class="grove-eyebrow">{{ section.settings.pantry_eyebrow | escape }}</p><h2 id="PantryHeading">{{ section.settings.pantry_heading | escape }} <em>{{ section.settings.pantry_italic | escape }}</em></h2></div><p>{{ section.settings.pantry_body | escape }}</p></div>
+  <grove-shop class="grove-products">
+    {%- for product in pantry_products -%}{% render 'grove-card', product: product, index: forloop.index %}{%- endfor -%}
+    <a href="#shelf" class="grove-pantry-note" data-reveal><span class="grove-eyebrow">{{ section.settings.set_eyebrow | escape }}</span>{% render 'grove-mark' %}<h3>{{ section.settings.set_heading | escape }}</h3><p>{{ section.settings.set_body | escape }}</p><span class="grove-text-link">{{ 'grove.build' | t }} <span aria-hidden="true">↗</span></span></a>
+  </grove-shop>
+</section>
+
+<section class="grove-story" id="story" aria-labelledby="StoryHeading">
+  <div class="grove-story__image" data-reveal><img src="{{ 'grove-pour.webp' | asset_url }}" width="1024" height="1365" loading="lazy" alt="{{ section.settings.pour_alt | escape }}"><span class="grove-image-caption">{{ section.settings.image_caption | escape }}</span></div>
+  <div class="grove-story__copy" data-reveal><p class="grove-eyebrow">{{ section.settings.story_eyebrow | escape }}</p><h2 id="StoryHeading">{{ section.settings.story_heading | escape }}<br><em>{{ section.settings.story_italic | escape }}</em></h2><p>{{ section.settings.story_body | escape }}</p><div class="grove-story__principles"><div><span>01</span><h3>{{ section.settings.principle_one | escape }}</h3></div><div><span>02</span><h3>{{ section.settings.principle_two | escape }}</h3></div><div><span>03</span><h3>{{ section.settings.principle_three | escape }}</h3></div></div><a class="grove-text-link" href="#pantry">{{ 'grove.discover' | t }} <span aria-hidden="true">↗</span></a></div>
+</section>
+
+<section class="grove-shelf-section grove-section" id="shelf" aria-labelledby="ShelfHeading">
+  <div class="grove-section-heading" data-reveal><div><p class="grove-eyebrow">{{ section.settings.shelf_eyebrow | escape }}</p><h2 id="ShelfHeading">{{ section.settings.shelf_heading | escape }} <em>{{ section.settings.shelf_italic | escape }}</em></h2></div><p>{{ section.settings.shelf_body | escape }}</p></div>
+  <grove-shelf class="grove-shelf" data-currency="{{ cart.currency.iso_code }}" data-locale="{{ request.locale.iso_code }}">
+    <div class="grove-shelf__scene" aria-hidden="true"><div class="grove-shelf__arch"></div>{% for product in pantry_products %}<div class="grove-shelf__object" data-shelf-object="{{ product.selected_or_first_available_variant.id }}">{% render 'grove-product-art', product: product %}</div>{% endfor %}<div class="grove-shelf__ledge"></div><span class="grove-eyebrow">{{ section.settings.shelf_caption | escape }}</span></div>
+    <form action="{{ routes.cart_add_url }}" method="post" class="grove-shelf__form">
+      {% for product in pantry_products %}<label class="grove-shelf__choice"><input type="checkbox" name="selection" value="{{ product.selected_or_first_available_variant.id }}" data-price="{{ product.selected_or_first_available_variant.price }}" {% unless product.available %}disabled{% endunless %}><span><strong>{{ product.title | escape }}</strong><small>{{ product.vendor | escape }}</small></span><b>{{ product.selected_or_first_available_variant.price | money }}</b></label>{% endfor %}
+      <div class="grove-shelf__total"><span>{{ 'grove.total' | t }}</span><strong data-shelf-total>{{ 0 | money }}</strong></div>
+      {% render 'demo-price-label' %}
+      <button class="grove-button grove-button--olive" type="submit" disabled>{{ 'grove.add_selection' | t }}<span aria-hidden="true">↗</span></button>
+      <p class="grove-form-status" role="status">{{ 'grove.select_hint' | t }}</p>
+    </form>
+  </grove-shelf>
+</section>
+
+<section class="grove-ritual" id="rituals" aria-labelledby="RitualHeading">
+  <img src="{{ 'grove-table.webp' | asset_url }}" width="1536" height="864" loading="lazy" alt="{{ section.settings.table_alt | escape }}">
+  <div class="grove-ritual__copy" data-reveal><p class="grove-eyebrow">{{ section.settings.ritual_eyebrow | escape }}</p><h2 id="RitualHeading">{{ section.settings.ritual_heading | escape }}<br><em>{{ section.settings.ritual_italic | escape }}</em></h2><p>{{ section.settings.ritual_body | escape }}</p><a class="grove-button grove-button--cream" href="#pantry">{{ 'grove.bring_home' | t }} <span aria-hidden="true">↗</span></a></div>
+</section>
+{% schema %}
+{"name":"Grove journey & pantry","settings":[
+{"type":"product_list","id":"products","label":"Pantry products","limit":4},
+{"type":"checkbox","id":"enable_film","label":"Enable cinematic scroll journey","default":false,"info":"Replaces the editorial opening with a scroll-controlled film. Reduced-motion visitors see a still image."},
+{"type":"text","id":"featured_label","label":"Featured product label","default":"MEET YOUR NEW PANTRY STAPLE"},
+{"type":"range","id":"scroll_distance","label":"Journey scroll distance","min":80,"max":240,"step":10,"unit":"vh","default":160},
+{"type":"text","id":"eyebrow","label":"Hero eyebrow","default":"THE MEDITERRANEAN PANTRY"},
+{"type":"text","id":"heading","label":"Hero heading","default":"Good things"},
+{"type":"text","id":"heading_italic","label":"Hero italic line","default":"take root."},
+{"type":"text","id":"body","label":"Hero description","default":"Olive oil, sun-ripened dates, and the simple pleasure of gathering around good food."},
+{"type":"text","id":"hero_alt","label":"Grove image description","default":"Warm evening light across an olive grove and rolling Mediterranean hills"},
+{"type":"text","id":"stamp_top","label":"Stamp top","default":"GROWN SLOW"},
+{"type":"text","id":"stamp_bottom","label":"Stamp bottom","default":"SHARED OFTEN"},
+{"type":"text","id":"manifesto_one","label":"Manifesto 1","default":"Simple ingredients."},
+{"type":"text","id":"manifesto_two","label":"Manifesto 2","default":"Everyday rituals."},
+{"type":"text","id":"manifesto_three","label":"Manifesto 3","default":"A table for everyone."},
+{"type":"text","id":"pantry_eyebrow","label":"Pantry eyebrow","default":"A FEW VERY GOOD THINGS"},
+{"type":"text","id":"pantry_heading","label":"Pantry heading","default":"Your everyday,"},
+{"type":"text","id":"pantry_italic","label":"Pantry italic","default":"a little better."},
+{"type":"text","id":"pantry_body","label":"Pantry description","default":"The kind of staples you reach for again and again. A generous pour. Something sweet. Nothing complicated."},
+{"type":"text","id":"set_eyebrow","label":"Set eyebrow","default":"BETTER TOGETHER"},
+{"type":"text","id":"set_heading","label":"Set heading","default":"A pantry with a little soul."},
+{"type":"text","id":"set_body","label":"Set description","default":"Bring your favorites together. Make a little room for something good."},
+{"type":"text","id":"pour_alt","label":"Oil image description","default":"Golden olive oil pouring into a handmade ceramic dish"},
+{"type":"text","id":"image_caption","label":"Image caption","default":"THE BEAUTY IS IN THE SIMPLE THINGS."},
+{"type":"text","id":"story_eyebrow","label":"Story eyebrow","default":"ROOTED IN SOMETHING REAL"},
+{"type":"text","id":"story_heading","label":"Story heading","default":"Less, but"},
+{"type":"text","id":"story_italic","label":"Story italic","default":"so much more."},
+{"type":"text","id":"story_body","label":"Story description","default":"Good food doesn’t need much. A piece of warm bread. A little olive oil. A handful of dates passed around the table. Kindred Grove is a celebration of those small, generous moments."},
+{"type":"text","id":"principle_one","label":"Principle 1","default":"A simpler pantry"},
+{"type":"text","id":"principle_two","label":"Principle 2","default":"A slower moment"},
+{"type":"text","id":"principle_three","label":"Principle 3","default":"A more generous table"},
+{"type":"text","id":"shelf_eyebrow","label":"Shelf eyebrow","default":"MAKE IT YOURS"},
+{"type":"text","id":"shelf_heading","label":"Shelf heading","default":"Good company"},
+{"type":"text","id":"shelf_italic","label":"Shelf italic","default":"for your shelf."},
+{"type":"text","id":"shelf_body","label":"Shelf description","default":"Choose your staples and watch your pantry come together. Just the things you love."},
+{"type":"text","id":"shelf_caption","label":"Shelf caption","default":"YOUR DAILY DOSE OF SOMETHING GOOD"},
+{"type":"text","id":"ritual_eyebrow","label":"Ritual eyebrow","default":"THE EVERYDAY, WELL SPENT"},
+{"type":"text","id":"ritual_heading","label":"Ritual heading","default":"Pull up"},
+{"type":"text","id":"ritual_italic","label":"Ritual italic","default":"a chair."},
+{"type":"text","id":"ritual_body","label":"Ritual description","default":"Tear the bread. Pour generously. Stay a little longer. The best things are meant to be shared."},
+{"type":"text","id":"table_alt","label":"Table image description","default":"Olive oil, dates and torn bread on a sunlit linen-covered terrace table"}
+],"presets":[{"name":"Grove journey & pantry"}]}
+{% endschema %}

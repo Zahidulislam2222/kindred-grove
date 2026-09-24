@@ -1,3 +1,6 @@
+{% if settings.demo_mode %}
+  <section class="kg-account section"><div class="container"><div class="kg-account__panel">{% render 'demo-disabled-message', message_key: 'demo.personal_flows_disabled' %}</div></div></section>
+{% else %}
 <section class="kg-account section">
   <div class="container kg-account__shell stack">
     <header class="stack-sm text-center">
@@ -14,10 +17,14 @@
             {%- endfor -%}
           </ul>
         {%- endif -%}
-        {% render 'form-field', id: 'RegisterFirstName', name: 'customer[first_name]', label: 'customer.register.first_name' | t, required: true, autocomplete: 'given-name' %}
-        {% render 'form-field', id: 'RegisterLastName', name: 'customer[last_name]', label: 'customer.register.last_name' | t, required: true, autocomplete: 'family-name' %}
-        {% render 'form-field', id: 'RegisterEmail', type: 'email', name: 'customer[email]', label: 'customer.register.email' | t, required: true, autocomplete: 'email' %}
-        {% render 'form-field', id: 'RegisterPassword', type: 'password', name: 'customer[password]', label: 'customer.register.password' | t, required: true, autocomplete: 'new-password' %}
+        {% assign field_label_customer_register_first_name = 'customer.register.first_name' | t %}
+{% render 'form-field', id: 'RegisterFirstName', name: 'customer[first_name]', label: field_label_customer_register_first_name, required: true, autocomplete: 'given-name' %}
+        {% assign field_label_customer_register_last_name = 'customer.register.last_name' | t %}
+{% render 'form-field', id: 'RegisterLastName', name: 'customer[last_name]', label: field_label_customer_register_last_name, required: true, autocomplete: 'family-name' %}
+        {% assign field_label_customer_register_email = 'customer.register.email' | t %}
+{% render 'form-field', id: 'RegisterEmail', type: 'email', name: 'customer[email]', label: field_label_customer_register_email, required: true, autocomplete: 'email' %}
+        {% assign field_label_customer_register_password = 'customer.register.password' | t %}
+{% render 'form-field', id: 'RegisterPassword', type: 'password', name: 'customer[password]', label: field_label_customer_register_password, required: true, autocomplete: 'new-password' %}
         {% render 'form-honeypot', name: 'register_company' %}
         <button type="submit" class="button button--primary">{{ 'customer.register.submit' | t }}</button>
       {%- endform -%}
@@ -27,3 +34,4 @@
     </div>
   </div>
 </section>
+{% endif %}

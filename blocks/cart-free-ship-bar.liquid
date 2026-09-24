@@ -5,10 +5,15 @@
 {%- endcomment -%}
 
 {%- liquid
-  assign threshold_cents = block.settings.threshold_cents | default: 7500
+  assign threshold_cents = block.settings.threshold_cents
+  assign threshold_floor = threshold_cents | floor
+  assign threshold_valid = false
+  if threshold_cents > 0 and threshold_cents == threshold_floor and threshold_cents <= 9007199254740991
+    assign threshold_valid = true
+  endif
   assign current = cart.total_price
   assign pct = 0
-  if threshold_cents > 0
+  if threshold_valid
     assign pct = current | times: 100 | divided_by: threshold_cents
   endif
   if pct > 100
@@ -18,25 +23,30 @@
   if remaining < 0
     assign remaining = 0
   endif
+  assign remaining_formatted = remaining | money
+  assign remaining_message = 'cart.freeship.remaining_html' | t: amount: remaining_formatted
 -%}
 
+{%- if settings.demo_mode != true and block.settings.shipping_policy_verified and threshold_valid and cart.currency.iso_code == shop.currency -%}
 <div
   class="kg-cart__freeship"
   data-kg-freeship
   data-threshold-cents="{{ threshold_cents }}"
+  data-threshold-currency="{{ shop.currency | escape }}"
   {{ block.shopify_attributes }}
 >
   <p class="kg-cart__freeship-msg" data-kg-freeship-msg aria-live="polite">
     {%- if remaining == 0 -%}
       {{ 'cart.freeship.unlocked' | t }}
     {%- else -%}
-      {{ 'cart.freeship.remaining_html' | t: amount: remaining | money }}
+      {{ remaining_message }}
     {%- endif -%}
   </p>
   <div class="kg-cart__freeship-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ pct }}">
     <div class="kg-cart__freeship-fill" data-kg-freeship-fill style="width: {{ pct }}%"></div>
   </div>
 </div>
+{%- endif -%}
 
 {% schema %}
 {
@@ -48,6 +58,13 @@
       "label": "Free shipping threshold (in cents)",
       "info": "e.g. 7500 = $75.00. Uses the shop's base currency.",
       "default": 7500
+    },
+    {
+      "type": "checkbox",
+      "id": "shipping_policy_verified",
+      "label": "Show progress after verifying the store's shipping policy",
+      "info": "Enable only when a current shipping policy confirms this threshold. Hidden in demo mode and when cart currency differs from shop currency.",
+      "default": false
     }
   ]
 }

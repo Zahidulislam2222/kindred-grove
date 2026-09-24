@@ -1,3 +1,6 @@
+{% if settings.demo_mode %}
+  <section class="kg-account section"><div class="container"><div class="kg-account__panel">{% render 'demo-disabled-message', message_key: 'demo.personal_flows_disabled' %}</div></div></section>
+{% else %}
 <section class="kg-account section">
   <div class="container stack">
     <header class="kg-account__header stack-sm">
@@ -9,14 +12,22 @@
       <details open class="kg-account__details">
         <summary class="kg-account__summary">{{ 'customer.addresses.add_new' | t }}</summary>
         {%- form 'customer_address', customer.new_address, class: 'stack-sm' -%}
-          {% render 'form-field', id: 'AddressFirstName', name: 'address[first_name]', label: 'customer.addresses.first_name' | t, required: true, autocomplete: 'given-name' %}
-          {% render 'form-field', id: 'AddressLastName', name: 'address[last_name]', label: 'customer.addresses.last_name' | t, required: true, autocomplete: 'family-name' %}
-          {% render 'form-field', id: 'AddressCompany', name: 'address[company]', label: 'customer.addresses.company' | t, autocomplete: 'organization' %}
-          {% render 'form-field', id: 'AddressStreet1', name: 'address[address1]', label: 'customer.addresses.address1' | t, required: true, autocomplete: 'address-line1' %}
-          {% render 'form-field', id: 'AddressStreet2', name: 'address[address2]', label: 'customer.addresses.address2' | t, autocomplete: 'address-line2' %}
-          {% render 'form-field', id: 'AddressCity', name: 'address[city]', label: 'customer.addresses.city' | t, required: true, autocomplete: 'address-level2' %}
-          {% render 'form-field', id: 'AddressZip', name: 'address[zip]', label: 'customer.addresses.zip' | t, required: true, autocomplete: 'postal-code' %}
-          {% render 'form-field', id: 'AddressPhone', type: 'tel', name: 'address[phone]', label: 'customer.addresses.phone' | t, autocomplete: 'tel' %}
+          {% assign field_label_customer_addresses_first_name = 'customer.addresses.first_name' | t %}
+{% render 'form-field', id: 'AddressFirstName', name: 'address[first_name]', label: field_label_customer_addresses_first_name, required: true, autocomplete: 'given-name' %}
+          {% assign field_label_customer_addresses_last_name = 'customer.addresses.last_name' | t %}
+{% render 'form-field', id: 'AddressLastName', name: 'address[last_name]', label: field_label_customer_addresses_last_name, required: true, autocomplete: 'family-name' %}
+          {% assign field_label_customer_addresses_company = 'customer.addresses.company' | t %}
+{% render 'form-field', id: 'AddressCompany', name: 'address[company]', label: field_label_customer_addresses_company, autocomplete: 'organization' %}
+          {% assign field_label_customer_addresses_address1 = 'customer.addresses.address1' | t %}
+{% render 'form-field', id: 'AddressStreet1', name: 'address[address1]', label: field_label_customer_addresses_address1, required: true, autocomplete: 'address-line1' %}
+          {% assign field_label_customer_addresses_address2 = 'customer.addresses.address2' | t %}
+{% render 'form-field', id: 'AddressStreet2', name: 'address[address2]', label: field_label_customer_addresses_address2, autocomplete: 'address-line2' %}
+          {% assign field_label_customer_addresses_city = 'customer.addresses.city' | t %}
+{% render 'form-field', id: 'AddressCity', name: 'address[city]', label: field_label_customer_addresses_city, required: true, autocomplete: 'address-level2' %}
+          {% assign field_label_customer_addresses_zip = 'customer.addresses.zip' | t %}
+{% render 'form-field', id: 'AddressZip', name: 'address[zip]', label: field_label_customer_addresses_zip, required: true, autocomplete: 'postal-code' %}
+          {% assign field_label_customer_addresses_phone = 'customer.addresses.phone' | t %}
+{% render 'form-field', id: 'AddressPhone', type: 'tel', name: 'address[phone]', label: field_label_customer_addresses_phone, autocomplete: 'tel' %}
 
           <label class="kg-account__checkbox">
             {{ form.set_as_default_checkbox }}
@@ -43,11 +54,21 @@
             <details id="EditAddress-{{ address.id }}" class="kg-account__details">
               <summary class="visually-hidden">{{ 'customer.addresses.edit' | t }}</summary>
               {%- form 'customer_address', address, class: 'stack-sm' -%}
-                {% render 'form-field', id: ('EditFirst-' | append: address.id), name: 'address[first_name]', label: 'customer.addresses.first_name' | t, value: address.first_name, required: true %}
-                {% render 'form-field', id: ('EditLast-' | append: address.id), name: 'address[last_name]', label: 'customer.addresses.last_name' | t, value: address.last_name, required: true %}
-                {% render 'form-field', id: ('EditStreet1-' | append: address.id), name: 'address[address1]', label: 'customer.addresses.address1' | t, value: address.address1, required: true %}
-                {% render 'form-field', id: ('EditCity-' | append: address.id), name: 'address[city]', label: 'customer.addresses.city' | t, value: address.city, required: true %}
-                {% render 'form-field', id: ('EditZip-' | append: address.id), name: 'address[zip]', label: 'customer.addresses.zip' | t, value: address.zip, required: true %}
+                {% assign field_label_customer_addresses_first_name = 'customer.addresses.first_name' | t %}
+{% assign field_id_edit_first = 'EditFirst-' | append: address.id %}
+{% render 'form-field', id: field_id_edit_first, name: 'address[first_name]', label: field_label_customer_addresses_first_name, value: address.first_name, required: true %}
+                {% assign field_label_customer_addresses_last_name = 'customer.addresses.last_name' | t %}
+{% assign field_id_edit_last = 'EditLast-' | append: address.id %}
+{% render 'form-field', id: field_id_edit_last, name: 'address[last_name]', label: field_label_customer_addresses_last_name, value: address.last_name, required: true %}
+                {% assign field_label_customer_addresses_address1 = 'customer.addresses.address1' | t %}
+{% assign field_id_edit_street1 = 'EditStreet1-' | append: address.id %}
+{% render 'form-field', id: field_id_edit_street1, name: 'address[address1]', label: field_label_customer_addresses_address1, value: address.address1, required: true %}
+                {% assign field_label_customer_addresses_city = 'customer.addresses.city' | t %}
+{% assign field_id_edit_city = 'EditCity-' | append: address.id %}
+{% render 'form-field', id: field_id_edit_city, name: 'address[city]', label: field_label_customer_addresses_city, value: address.city, required: true %}
+                {% assign field_label_customer_addresses_zip = 'customer.addresses.zip' | t %}
+{% assign field_id_edit_zip = 'EditZip-' | append: address.id %}
+{% render 'form-field', id: field_id_edit_zip, name: 'address[zip]', label: field_label_customer_addresses_zip, value: address.zip, required: true %}
                 <button type="submit" class="button button--primary button--sm">{{ 'customer.addresses.update' | t }}</button>
               {%- endform -%}
             </details>
@@ -60,3 +81,4 @@
     </div>
   </div>
 </section>
+{% endif %}

@@ -1,40 +1,64 @@
 import { test, expect } from '@playwright/test';
-import { unlockStorefront } from './_fixtures/auth';
+import { navigateStorefront, prepareStorefront } from './_fixtures/storefront';
 
 test.describe('Build-Your-Pantry quiz golden path', () => {
   test.beforeEach(async ({ page }) => {
-    await unlockStorefront(page);
+    await prepareStorefront(page);
   });
 
-  test('quiz page renders and progresses through stages', async ({ page }) => {
-    const response = await page.goto('/pages/quiz', { waitUntil: 'domcontentloaded' });
-    if (!response || response.status() === 404) test.skip(true, 'Quiz page not published in this store.');
+  test('answers every configured question, renders a safe collection result, and forgets answers on reload', async ({ page }) => {
+    const response = await navigateStorefront(page, '/pages/quiz');
+    if (!response) throw new Error('Quiz navigation completed without an HTTP response.');
+    if (response.status() === 404) test.skip(true, 'Quiz page returned an evidenced 404 in this store.');
+    expect(response.status(), `quiz route returned HTTP ${response.status()}`).toBeLessThan(400);
 
     const quiz = page.locator('kg-pantry-quiz');
-    await expect(quiz).toBeVisible();
+    await expect.poll(() => quiz.evaluate((element) => element.matches(':defined'))).toBe(true);
+    await expect(quiz.locator('[data-kg-quiz-shell]')).toBeVisible();
 
-    const advanceLimit = 10;
-    for (let step = 0; step < advanceLimit; step++) {
-      const firstOption = quiz.locator('input[type="radio"], button[data-quiz-option]').first();
-      if ((await firstOption.count()) === 0) break;
-      await firstOption.click({ force: true });
-      const next = quiz.getByRole('button', { name: /next|continue|see results|finish/i }).first();
-      if ((await next.count()) === 0) break;
-      const isVisible = await next.isVisible().catch(() => false);
-      if (!isVisible) break;
-      await next.click();
-      const finished = await quiz.getByText(/your pantry|recommendations|results/i).first().isVisible().catch(() => false);
-      if (finished) break;
-    }
-  });
-
-  test('result persists in localStorage between reloads', async ({ page }) => {
-    const response = await page.goto('/pages/quiz', { waitUntil: 'domcontentloaded' });
-    if (!response || response.status() === 404) test.skip(true, 'Quiz page not published in this store.');
-
-    const before = await page.evaluate(() => {
-      return Object.keys(window.localStorage).filter((k) => k.toLowerCase().includes('quiz') || k.toLowerCase().includes('kg-pantry'));
+    const questionCount = await quiz.locator('[data-kg-quiz-questions]').evaluate((element) => {
+      const parsed = JSON.parse((element as HTMLTemplateElement).dataset.json || 'null');
+      return Array.isArray(parsed) ? parsed.length : 0;
     });
-    expect(Array.isArray(before)).toBe(true);
+    expect(questionCount).toBeGreaterThan(0);
+
+    const legacyAnswerKey = await page.evaluate(() => {
+      const element = document.getElementById('kg-privacy-config');
+      const config = JSON.parse(element?.dataset.config || '{}');
+      return config.storageKeys?.legacyQuizAnswers;
+    });
+    if (typeof legacyAnswerKey !== 'string' || !legacyAnswerKey) throw new Error('Quiz legacy answer key is missing from valid privacy configuration.');
+
+    for (let index = 0; index < questionCount; index += 1) {
+      const option = quiz.locator('[data-kg-quiz-stage] input[type="radio"]').first();
+      await expect(option, `question ${index + 1} should expose a radio choice`).toBeVisible();
+      await option.check();
+      const next = quiz.locator('[data-kg-quiz-next]');
+      await expect(next).toBeEnabled();
+      await next.click();
+    }
+
+    const result = quiz.locator('.kg-quiz__result');
+    await expect(result).toBeVisible();
+    await expect(result.locator('.kg-quiz__result-name')).not.toBeEmpty();
+    const collectionLink = result.locator('a.button').first();
+    await expect(collectionLink).toBeVisible();
+    const href = await collectionLink.getAttribute('href');
+    expect(href).toBeTruthy();
+    const resultUrl = new URL(href!, page.url());
+    expect(resultUrl.origin).toBe(new URL(page.url()).origin);
+    expect(resultUrl.pathname).toMatch(/\/collections\/[a-z0-9][a-z0-9_-]*\/?$/i);
+
+    const ownedAnswerStorage = await page.evaluate((key) => ({
+      localStorageKeys: Object.keys(window.localStorage).filter((name) => name === key || [':', '-', '_'].some((separator) => name.startsWith(`${key}${separator}`))),
+      sessionStorageKeys: Object.keys(window.sessionStorage).filter((name) => name === key || [':', '-', '_'].some((separator) => name.startsWith(`${key}${separator}`))),
+    }), legacyAnswerKey);
+    expect(ownedAnswerStorage).toEqual({ localStorageKeys: [], sessionStorageKeys: [] });
+
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect.poll(() => quiz.evaluate((element) => element.matches(':defined'))).toBe(true);
+    await expect(quiz.locator('[data-kg-quiz-shell]')).toBeVisible();
+    await expect(quiz.locator('[data-kg-quiz-stage] input[type="radio"]').first()).not.toBeChecked();
+    await expect(quiz.locator('.kg-quiz__result')).toHaveCount(0);
   });
 });

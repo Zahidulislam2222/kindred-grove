@@ -28,7 +28,7 @@
             <ul class="stack">
               {%- for line in cart.items -%}
                 <li class="kg-cart-page__line" data-line-key="{{ line.key }}">
-                  <a href="{{ line.url }}" class="kg-cart-page__line-media">
+                  <a href="{{ line.url }}" class="kg-cart-page__line-media" aria-label="{{ line.product.title | escape }}">
                     {%- if line.image -%}
                       <img
                         src="{{ line.image | image_url: width: 240 }}"
@@ -39,6 +39,8 @@
                         alt="{{ line.product.title | escape }}"
                         loading="lazy"
                       >
+                    {%- else -%}
+                      {% render 'grove-product-art', product: line.product %}
                     {%- endif -%}
                   </a>
                   <div class="kg-cart-page__line-body stack-sm">
@@ -88,28 +90,36 @@
           </div>
 
           <aside class="kg-cart-page__sidebar stack">
-            <div class="kg-cart-page__note stack-sm">
-              <label for="CartNote" class="kg-cart-page__note-label">
-                {{ 'cart.gift_note.label' | t }}
-              </label>
-              <textarea
-                id="CartNote"
-                name="note"
-                rows="3"
-                maxlength="500"
-                class="kg-cart-page__note-input"
-              >{{ cart.note | escape }}</textarea>
-            </div>
+            {% if settings.demo_mode %}
+              {% render 'demo-disabled-message', message_key: 'demo.personal_flows_disabled' %}
+            {% else %}
+              <div class="kg-cart-page__note stack-sm">
+                <label for="CartNote" class="kg-cart-page__note-label">
+                  {{ 'cart.gift_note.label' | t }}
+                </label>
+                <textarea
+                  id="CartNote"
+                  name="note"
+                  rows="3"
+                  maxlength="500"
+                  class="kg-cart-page__note-input"
+                >{{ cart.note | escape }}</textarea>
+              </div>
+            {% endif %}
 
             <div class="kg-cart-page__summary">
               <div class="kg-cart-page__subtotal">
                 <span>{{ 'cart.subtotal' | t }}</span>
                 <span class="kg-cart-page__subtotal-amount">{{ cart.total_price | money }}</span>
               </div>
+              {% render 'demo-price-label' %}
               <p class="text-xs text-muted">{{ 'cart.tax_shipping_note' | t }}</p>
-              <button type="submit" name="checkout" class="button button--primary button--lg button--block">
-                {{ 'cart.checkout' | t }}
-              </button>
+              {% if settings.demo_mode %}
+                <button type="button" class="button button--primary button--lg button--block" data-demo-checkout disabled aria-disabled="true">{{ 'cart.checkout' | t }}</button>
+                {% render 'demo-disabled-message', message_key: 'demo.checkout_disabled' %}
+              {% else %}
+                <button type="submit" name="checkout" class="button button--primary button--lg button--block">{{ 'cart.checkout' | t }}</button>
+              {% endif %}
             </div>
           </aside>
         </div>

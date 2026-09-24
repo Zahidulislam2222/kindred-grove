@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main, staging]
+  push:
+    branches: [main, staging]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-security-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  security-config:
+    name: Security and config regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Read pinned toolchain
+        id: toolchain
+        run: node scripts/ci/toolchain.cjs >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ steps.toolchain.outputs.node }}
+
+      - name: Download and verify Gitleaks
+        env:
+          GITLEAKS_VERSION: ${{ steps.toolchain.outputs.gitleaks_version }}
+          GITLEAKS_SHA256: ${{ steps.toolchain.outputs.gitleaks_sha256 }}
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/gitleaks.tar.gz"
+          curl --fail --silent --show-error --location \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            --output "$archive"
+          printf '%s  %s\n' "$GITLEAKS_SHA256" "$archive" | sha256sum --check --status
+          tar -xzf "$archive" -C "$RUNNER_TEMP" gitleaks
+          "$RUNNER_TEMP/gitleaks" version
+
+      - name: Run Semgrep CE security rules
+        env:
+          SEMGREP_VERSION: ${{ steps.toolchain.outputs.semgrep }}
+        run: >-
+          pipx run --spec "semgrep==${SEMGREP_VERSION}" semgrep scan
+          --error --config p/security-audit --metrics=off
+          --disable-version-check assets scripts
+
+      - name: Run offline regression tests
+        env:
+          GITLEAKS_BIN: ${{ runner.temp }}/gitleaks
+        run: node --test tests/security/*.test.cjs

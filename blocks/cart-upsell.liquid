@@ -37,6 +37,7 @@
           <a href="{{ upsell.url }}">{{ upsell.title | escape }}</a>
         </p>
         <p class="kg-cart__upsell-price">{{ variant.price | money }}</p>
+        {% render 'demo-price-label' %}
       </div>
       <button
         type="button"

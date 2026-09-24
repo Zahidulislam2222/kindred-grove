@@ -1,47 +1,17 @@
 import { test, expect } from '@playwright/test';
-import { unlockStorefront } from './_fixtures/auth';
-import { firstProductUrl } from './_fixtures/storefront';
-
-/**
- * Dev-store caveat: Shopify's preview + password-protected storefronts
- * sometimes deny /cart/add.js on headless browsers (Private Access Token
- * challenge returns 401). When that happens we skip the assertion chain
- * with a clear reason so CI doesn't red on an infrastructure issue.
- */
-async function addToCartAndVerify(page: import('@playwright/test').Page) {
-  await page.getByRole('button', { name: /add to cart|add to bag/i }).first().click();
-  // Poll /cart.js until item appears (or timeout).
-  const state = await page
-    .waitForFunction(
-      async () => {
-        const r = await fetch('/cart.js', { headers: { Accept: 'application/json' } });
-        if (!r.ok) return null;
-        const body = await r.json();
-        return body.item_count > 0 ? body : null;
-      },
-      null,
-      { timeout: 8_000 },
-    )
-    .then((h) => h.jsonValue())
-    .catch(() => null);
-  if (!state) {
-    test.skip(
-      true,
-      'ATC did not persist to /cart on headless preview — Shopify bot-protection on dev-store. Retest on a public storefront.',
-    );
-  }
-}
+import { addToCartAndVerify, configuredTestCountry, firstProductUrl, getCartCount, navigateStorefront, prepareStorefront } from './_fixtures/storefront';
 
 test.describe('Cart drawer + cart page golden path', () => {
   test.beforeEach(async ({ page }) => {
-    await unlockStorefront(page);
+    await prepareStorefront(page);
   });
 
   test('drawer opens after add-to-cart and renders the line item', async ({ page }) => {
     const url = await firstProductUrl(page);
-    await page.goto(url, { waitUntil: 'domcontentloaded' });
+    await navigateStorefront(page, url);
 
-    await addToCartAndVerify(page);
+    const before = await getCartCount(page);
+    await addToCartAndVerify(page, before);
 
     const drawer = page.locator('kg-cart-drawer');
     await expect(drawer).toBeVisible({ timeout: 10_000 });
@@ -50,44 +20,74 @@ test.describe('Cart drawer + cart page golden path', () => {
 
   test('cart page hydrates with the previously-added item', async ({ page }) => {
     const url = await firstProductUrl(page);
-    await page.goto(url, { waitUntil: 'domcontentloaded' });
-    await addToCartAndVerify(page);
+    await navigateStorefront(page, url);
+    const before = await getCartCount(page);
+    await addToCartAndVerify(page, before);
     await expect(page.locator('kg-cart-drawer')).toBeVisible({ timeout: 10_000 });
 
-    await page.goto('/cart', { waitUntil: 'domcontentloaded' });
+    await navigateStorefront(page, '/cart');
     await expect(page.locator('a[href*="/products/"]').first()).toBeVisible();
 
-    const checkoutTrigger = page.locator('[name="checkout"], a[href*="/checkout"]').first();
-    await expect(checkoutTrigger).toBeAttached();
+    if (await page.locator('body').getAttribute('data-demo-mode') === 'true') {
+      const pageCheckout = page.locator('.kg-cart-page [data-demo-checkout]');
+      await expect(pageCheckout).toHaveCount(1);
+      await expect(pageCheckout).toBeVisible();
+      for (const control of await page.locator('[data-demo-checkout]').all()) {
+        await expect(control).toBeDisabled();
+      }
+    } else {
+      await expect(page.locator('[name="checkout"], a[href*="/checkout"]').first()).toBeAttached();
+    }
   });
 
-  test('gift-note input writes through to /cart.js attributes', async ({ page, request }) => {
+  test('cart drawer add, quantity, and remove controls move exact item count 0 to 1 to 2 to 0', async ({ page }, testInfo) => {
+    const initialCount = await getCartCount(page);
+    expect(initialCount, 'a fresh test browser context must start with an empty cart').toBe(0);
     const url = await firstProductUrl(page);
-    await page.goto(url, { waitUntil: 'domcontentloaded' });
-    await addToCartAndVerify(page);
+    await navigateStorefront(page, url);
+    await addToCartAndVerify(page, initialCount);
+
+    const drawer = page.locator('kg-cart-drawer');
+    await expect(drawer).toBeVisible();
+    await expect.poll(() => getCartCount(page)).toBe(1);
+    // Capture only the post-authentication demo cart; password artifacts stay disabled.
+    if (await page.locator('body').getAttribute('data-demo-mode') === 'true') {
+      await page.screenshot({ path: testInfo.outputPath('populated-demo-cart.png') });
+    }
+    const increment = drawer.locator('[data-kg-qty-increment]').first();
+    await expect(increment).toBeEnabled();
+    await increment.click();
+    await expect.poll(() => getCartCount(page)).toBe(2);
+    await expect(drawer.locator('[data-kg-qty-input]').first()).toHaveValue('2');
+
+    const remove = drawer.locator('[data-kg-cart-remove]').first();
+    await expect(remove).toBeEnabled();
+    await remove.click();
+    await expect.poll(() => getCartCount(page)).toBe(0);
+    await expect(drawer.locator('[data-kg-cart-empty]')).toBeVisible();
+  });
+
+  test('gift-note controls reflect demo mode without submitting visitor text', async ({ page }) => {
+    const url = await firstProductUrl(page);
+    await navigateStorefront(page, url);
+    const before = await getCartCount(page);
+    await addToCartAndVerify(page, before);
     await expect(page.locator('kg-cart-drawer')).toBeVisible({ timeout: 10_000 });
 
-    const note = page
-      .locator(
-        'kg-cart-drawer textarea, kg-cart-drawer [data-gift-note], textarea[name*="note"], textarea[name*="gift"]',
-      )
-      .first();
-    if ((await note.count()) === 0) test.skip(true, 'No gift-note input on this build.');
+    const demoMode = await page.locator('body').getAttribute('data-demo-mode');
+    const note = page.locator('kg-cart-drawer textarea, kg-cart-drawer [data-gift-note], textarea[name*="note"], textarea[name*="gift"]');
+    if (demoMode === 'true') {
+      await expect(note).toHaveCount(0);
+      await expect(page.locator('.kg-demo-disabled-message').first()).toBeVisible();
+    } else {
+      await expect(note.first()).toBeVisible();
+      // Never fill or submit personal/free-text cart data in the E2E suite.
+    }
+  });
 
-    const message = `e2e-${Date.now()}`;
-    await note.fill(message);
-    await note.blur();
-
-    await expect
-      .poll(
-        async () => {
-          const res = await request.get('/cart.js');
-          const body = await res.json();
-          const attrs: Record<string, string> = body.attributes || {};
-          return Object.values(attrs).join(' ') + ' ' + (body.note || '');
-        },
-        { timeout: 10_000 },
-      )
-      .toContain(message);
+  test('configured country is selected through Shopify native localization', async ({ page }) => {
+    const country = configuredTestCountry();
+    test.skip(!country, 'TEST_COUNTRY is unset; no country context was requested.');
+    await expect(page.locator('#GroveCountryForm select[name="country_code"]')).toHaveValue(country!);
   });
 });

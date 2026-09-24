@@ -5,6 +5,7 @@
     article (Article, required)
 {%- endcomment -%}
 
+{%- unless settings.demo_mode -%}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -33,3 +34,4 @@
   "description": {{ article.excerpt_or_content | strip_html | truncate: 160 | json }}
 }
 </script>
+{%- endunless -%}

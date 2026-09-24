@@ -5,6 +5,7 @@
   on mobile.
 {%- endcomment -%}
 
+{%- unless settings.demo_mode -%}
 {%- liquid
   assign items = 4
   if block.settings.item_count
@@ -38,6 +39,7 @@
     </ul>
   </div>
 </section>
+{%- endunless -%}
 
 {% schema %}
 {

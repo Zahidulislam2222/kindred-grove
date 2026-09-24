@@ -5,6 +5,7 @@
   stays the same so merchant layout doesn't break.
 {%- endcomment -%}
 
+{%- unless settings.demo_mode -%}
 {%- liquid
   assign avg = block.settings.avg_rating | default: 4.9
   assign count = block.settings.total_count | default: 0
@@ -59,6 +60,7 @@
     </ul>
   </div>
 </section>
+{%- endunless -%}
 
 {% schema %}
 {

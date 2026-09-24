@@ -1,70 +1,128 @@
 {%- comment -%}
-  BreadcrumbList JSON-LD.
+  BreadcrumbList JSON-LD, omitted from demo storefronts so sample product data
+  is not exposed as production search markup. Names and URLs are each encoded
+  with Liquid's JSON filter before assembling the JSON objects.
 
-  Auto-builds a trail based on template:
-    - product:    Home → collection (if linked) → product
-    - collection: Home → collection
-    - page:       Home → page
-    - article:    Home → blog → article
-
-  Accepts (optional):
-    trail — array of { name, url } to override the default
+  Accepts (optional): trail — array of { name, url } to override the default.
 {%- endcomment -%}
 
 {%- liquid
-  assign crumbs = ''
+  assign crumbs_json = ''
+  assign crumb_position = 0
 
   if trail
-    assign crumbs = trail
+    for crumb in trail
+      assign crumb_position = crumb_position | plus: 1
+      capture crumb_json
+        echo '{"@type":"ListItem","position":'
+        echo crumb_position
+        echo ',"name":'
+        echo crumb.name | json
+        echo ',"item":'
+        echo crumb.url | json
+        echo '}'
+      endcapture
+      unless forloop.first
+        assign crumbs_json = crumbs_json | append: ','
+      endunless
+      assign crumbs_json = crumbs_json | append: crumb_json
+    endfor
   else
+    assign crumb_position = 1
+    assign home_url = shop.url | append: routes.root_url
     capture home_crumb
-      echo '{"@type":"ListItem","position":1,"name":"Home","item":"' | append: shop.url | append: '/"}'
+      echo '{"@type":"ListItem","position":1,"name":'
+      echo 'Home' | json
+      echo ',"item":'
+      echo home_url | json
+      echo '}'
     endcapture
-    assign crumbs = home_crumb
+    assign crumbs_json = home_crumb
 
     if template contains 'product'
       if collection and collection.handle
-        capture coll_crumb
-          echo ',{"@type":"ListItem","position":2,"name":' | append: collection.title | json | append: ',"item":"' | append: shop.url | append: collection.url | append: '"}'
+        assign crumb_position = crumb_position | plus: 1
+        assign collection_url = shop.url | append: collection.url
+        capture collection_crumb
+          echo ',{"@type":"ListItem","position":'
+          echo crumb_position
+          echo ',"name":'
+          echo collection.title | json
+          echo ',"item":'
+          echo collection_url | json
+          echo '}'
         endcapture
-        assign crumbs = crumbs | append: coll_crumb
-        capture prod_crumb
-          echo ',{"@type":"ListItem","position":3,"name":' | append: product.title | json | append: ',"item":"' | append: shop.url | append: product.url | append: '"}'
-        endcapture
-        assign crumbs = crumbs | append: prod_crumb
-      else
-        capture prod_crumb
-          echo ',{"@type":"ListItem","position":2,"name":' | append: product.title | json | append: ',"item":"' | append: shop.url | append: product.url | append: '"}'
-        endcapture
-        assign crumbs = crumbs | append: prod_crumb
+        assign crumbs_json = crumbs_json | append: collection_crumb
       endif
+      assign crumb_position = crumb_position | plus: 1
+      assign product_url = shop.url | append: product.url
+      capture product_crumb
+        echo ',{"@type":"ListItem","position":'
+        echo crumb_position
+        echo ',"name":'
+        echo product.title | json
+        echo ',"item":'
+        echo product_url | json
+        echo '}'
+      endcapture
+      assign crumbs_json = crumbs_json | append: product_crumb
     elsif template contains 'collection'
-      capture coll_crumb
-        echo ',{"@type":"ListItem","position":2,"name":' | append: collection.title | json | append: ',"item":"' | append: shop.url | append: collection.url | append: '"}'
+      assign crumb_position = crumb_position | plus: 1
+      assign collection_url = shop.url | append: collection.url
+      capture collection_crumb
+        echo ',{"@type":"ListItem","position":'
+        echo crumb_position
+        echo ',"name":'
+        echo collection.title | json
+        echo ',"item":'
+        echo collection_url | json
+        echo '}'
       endcapture
-      assign crumbs = crumbs | append: coll_crumb
+      assign crumbs_json = crumbs_json | append: collection_crumb
     elsif template contains 'page'
+      assign crumb_position = crumb_position | plus: 1
+      assign page_url = shop.url | append: page.url
       capture page_crumb
-        echo ',{"@type":"ListItem","position":2,"name":' | append: page.title | json | append: ',"item":"' | append: shop.url | append: page.url | append: '"}'
+        echo ',{"@type":"ListItem","position":'
+        echo crumb_position
+        echo ',"name":'
+        echo page.title | json
+        echo ',"item":'
+        echo page_url | json
+        echo '}'
       endcapture
-      assign crumbs = crumbs | append: page_crumb
+      assign crumbs_json = crumbs_json | append: page_crumb
     elsif template contains 'article'
+      assign crumb_position = crumb_position | plus: 1
+      assign blog_url = shop.url | append: blog.url
       capture blog_crumb
-        echo ',{"@type":"ListItem","position":2,"name":' | append: blog.title | json | append: ',"item":"' | append: shop.url | append: blog.url | append: '"}'
+        echo ',{"@type":"ListItem","position":'
+        echo crumb_position
+        echo ',"name":'
+        echo blog.title | json
+        echo ',"item":'
+        echo blog_url | json
+        echo '}'
       endcapture
-      assign crumbs = crumbs | append: blog_crumb
-      capture art_crumb
-        echo ',{"@type":"ListItem","position":3,"name":' | append: article.title | json | append: ',"item":"' | append: shop.url | append: article.url | append: '"}'
+      assign crumbs_json = crumbs_json | append: blog_crumb
+      assign crumb_position = crumb_position | plus: 1
+      assign article_url = shop.url | append: article.url
+      capture article_crumb
+        echo ',{"@type":"ListItem","position":'
+        echo crumb_position
+        echo ',"name":'
+        echo article.title | json
+        echo ',"item":'
+        echo article_url | json
+        echo '}'
       endcapture
-      assign crumbs = crumbs | append: art_crumb
+      assign crumbs_json = crumbs_json | append: article_crumb
     endif
   endif
 -%}
 
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [{{ crumbs }}]
-}
-</script>
+{%- unless settings.demo_mode or crumbs_json == blank -%}
+  <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{{ crumbs_json }}]}
+  </script>
+{%- endunless -%}
