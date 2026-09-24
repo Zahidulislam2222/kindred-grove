@@ -175,8 +175,9 @@ test('Shopify preview output helper validates URLs and does not print raw JSON',
 
 test('testing documentation states the actual local and remote CI boundaries', () => {
   const docs = read('docs/TESTING.md');
-  assert.match(docs, /no GitHub workflow run was performed/i);
-  assert.match(docs, /not yet verified as enabled or required/i);
+  assert.match(docs, /passed hosted \[Security and config regression\]/i);
+  assert.match(docs, /no status contexts are configured as required/i);
+  assert.match(docs, /No hosted browser or deployment run was invoked/i);
   assert.match(docs, /production writes are disabled/i);
   assert.doesNotMatch(docs, /Every pull request .* pushes a fresh preview/i);
 });
