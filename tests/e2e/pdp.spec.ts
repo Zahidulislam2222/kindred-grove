@@ -34,6 +34,7 @@ test.describe('Product detail page (PDP) golden path', () => {
           gallery: bounds(gallery),
           purchase: bounds(purchase),
           atcFlexWrap: getComputedStyle(document.querySelector('.kg-atc') as Element).flexWrap,
+          demoMode: document.body.dataset.demoMode === 'true',
           demoLabels: [...document.querySelectorAll('.kg-atc > .kg-demo-price-label')].map(bounds),
         };
       });
@@ -41,8 +42,12 @@ test.describe('Product detail page (PDP) golden path', () => {
       expect(layout.documentWidth, `document width at ${width}px`).toBeLessThanOrEqual(width);
       expect(layout.gallery, `gallery present at ${width}px`).not.toBeNull();
       expect(layout.purchase, `purchase panel present at ${width}px`).not.toBeNull();
-      expect(layout.atcFlexWrap, `demo ATC wrapping at ${width}px`).toBe(width <= 370 ? 'wrap' : 'nowrap');
-      expect(layout.demoLabels.length, `demo ATC price label at ${width}px`).toBeGreaterThan(0);
+      if (layout.demoMode) {
+        expect(layout.atcFlexWrap, `optional price-label wrapping at ${width}px`).toBe(width <= 370 ? 'wrap' : 'nowrap');
+        expect(layout.demoLabels.length).toBeGreaterThan(0);
+      } else {
+        expect(layout.demoLabels).toHaveLength(0);
+      }
       for (const label of layout.demoLabels) {
         expect(label!.left, `demo price label left edge at ${width}px`).toBeGreaterThanOrEqual(0);
         expect(label!.right, `demo price label right edge at ${width}px`).toBeLessThanOrEqual(width);

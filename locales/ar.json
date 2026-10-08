@@ -367,5 +367,28 @@
     "price_high": "السعر: من الأعلى إلى الأقل",
     "alphabetical": "أبجديًا",
     "apply": "تطبيق"
+  },
+  "storefront": {
+    "breadcrumb": "مسار التنقل",
+    "home": "الرئيسية",
+    "browse_pantry": "اكتشف المؤن",
+    "name": "الاسم",
+    "email": "البريد الإلكتروني",
+    "message": "رسالتك",
+    "send_message": "إرسال الرسالة",
+    "contact_success": "شكرًا لك. تم إرسال رسالتك.",
+    "wholesale_eyebrow": "لعملك",
+    "quiz_eyebrow": "مؤن تناسبك",
+    "search_title": "ابحث عن شيء طيب.",
+    "search_label": "ابحث في المؤن",
+    "search_placeholder": "جرّب زيت الزيتون أو التمر",
+    "search_submit": "بحث",
+    "search_count": "{{ count }} نتائج لـ «{{ terms }}»",
+    "search_empty": "لا توجد نتائج. جرّب كلمة أخرى أو تصفّح المؤن.",
+    "access_eyebrow": "أشياء طيبة بانتظارك",
+    "access_heading": "أهلًا بك على مائدتنا.",
+    "access_body": "أدخل كلمة مرور المتجر لاكتشاف كيندرد غروف.",
+    "access_password": "كلمة مرور المتجر",
+    "access_submit": "دخول المتجر"
   }
 }

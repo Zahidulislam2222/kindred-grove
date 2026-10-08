@@ -363,5 +363,28 @@
     "price_high": "Price: high to low",
     "alphabetical": "Alphabetical",
     "apply": "Apply"
+  },
+  "storefront": {
+    "breadcrumb": "Breadcrumb",
+    "home": "Home",
+    "browse_pantry": "Explore the pantry",
+    "name": "Name",
+    "email": "Email",
+    "message": "Your message",
+    "send_message": "Send message",
+    "contact_success": "Thank you. Your message has been sent.",
+    "wholesale_eyebrow": "FOR YOUR BUSINESS",
+    "quiz_eyebrow": "A PANTRY THAT FEELS LIKE YOU",
+    "search_title": "Find something good.",
+    "search_label": "Search the pantry",
+    "search_placeholder": "Try olive oil or dates",
+    "search_submit": "Search",
+    "search_count": "{{ count }} results for “{{ terms }}”",
+    "search_empty": "No results found. Try another word or browse the pantry.",
+    "access_eyebrow": "GOOD THINGS AWAIT",
+    "access_heading": "Welcome to our table.",
+    "access_body": "Enter the store password to explore Kindred Grove.",
+    "access_password": "Store password",
+    "access_submit": "Enter the grove"
   }
 }

@@ -1,6 +1,13 @@
 # Storefront architecture
 
-Updated 2026-09-24. Kindred Grove is an unbundled Shopify Liquid theme with vanilla JavaScript enhancements. It is a demonstration storefront, not a custom commerce backend. Phase 2 is accepted on the development theme; [BUILD-PLAN.md](../BUILD-PLAN.md) owns phase status.
+## Current storefront composition — 2026-10-08
+
+The connected domain now serves the reviewed normal storefront. Seven native Shopify Pages supply Our Story, Recipes, FAQ, Contact, Shipping & Returns, Find Your Pantry and Wholesale. Maintained content lives in `content/storefront-pages.json`; writes update native resources after local review. Global native page pickers drive shared header/footer URLs and active-link semantics.
+
+The default page section supplies responsive editorial layouts and contact handling, with conditional static Theme Blocks for discovery and wholesale. The quiz is not experiment-gated. Search uses the native GET route, product cards and pagination; password rendering uses Shopify's native form. Native prices/forms/notes/checkout are enabled by the active configuration. Existing optional legacy guard code is inactive. No custom commerce backend or runtime dependency was added.
+
+The old live theme remains rollback material. Exact154-file parity and actual live browser checks are recorded in TESTING.md. Shopify's partner-development access restriction remains independent of theme publication.
+
 
 ## System boundaries
 

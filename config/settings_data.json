@@ -9,7 +9,15 @@
  */
 {
   "current": {
-    "demo_mode": true,
+    "demo_mode": false,
+    "storefront_story_page": "our-story",
+    "storefront_recipes_page": "recipes",
+    "storefront_faq_page": "faq",
+    "storefront_contact_page": "contact",
+    "storefront_shipping_page": "shipping-and-returns",
+    "storefront_quiz_page": "quiz",
+    "storefront_wholesale_page": "wholesale",
+    "feature_flags_json": "[]",
     "grove_oil_product": "organic-single-origin-olive-oil",
     "grove_dates_product": "medjool-dates",
     "trust_halal": false,

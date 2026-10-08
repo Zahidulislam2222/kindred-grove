@@ -1,12 +1,12 @@
 # Merchant guide
 
-This guide describes the current Kindred Grove demonstration theme and the steps a merchant would complete before real commerce. Use a development/unpublished theme for changes and inspect its actual role in Shopify; a theme name is not its publication status.
+This guide describes the current Kindred Grove storefront and the steps a merchant would complete before real commerce. Use a development/unpublished theme for changes and inspect its actual role in Shopify; a theme name is not its publication status.
 
 ## Current storefront
 
-The Grove homepage uses a cinematic opening, synchronized chapter wording, cream/terracotta styling, product imagery and shopping interactions. Its header hides while scrolling down and returns while scrolling up or using navigation. The film supports pause and reduced motion. Product/collection templates use real Shopify catalog data, while prices are visibly labeled as samples in demo mode.
+The Grove homepage uses a cinematic opening, synchronized chapter wording, cream/terracotta styling, product imagery and shopping interactions. Its header hides while scrolling down and returns while scrolling up or using navigation. The film supports pause and reduced motion. Product/collection templates use real Shopify catalog data, with native Shopify prices in the active normal-storefront configuration.
 
-The accepted development checks cover product browsing, cart add/change/remove, consent controls, header/video, keyboard/focus, narrow layouts and mobile navigation without JavaScript. Optional template files do not create Shopify page resources: this store has no canonical Quiz or Wholesale page and no test article. English/Arabic locale files do not establish that both languages or every currency are published in Shopify Markets.
+The accepted development checks cover product browsing, cart add/change/remove, consent controls, header/video, keyboard/focus, narrow layouts and mobile navigation without JavaScript. Optional template files do not create Shopify page resources: this store now has seven native content pages, including canonical Quiz and Wholesale; no test article is configured. English/Arabic locale files do not establish that both languages or every currency are published in Shopify Markets.
 
 ## Where content belongs
 
@@ -27,7 +27,7 @@ Use [configuration ownership](CONFIGURATION.md) to identify developer-managed li
 
 1. Confirm the intended unpublished theme and capture the current baseline before making changes.
 2. Update content/settings in the appropriate owner, keeping the local source and reviewed configuration synchronized.
-3. Preview desktop/mobile layouts, check keyboard access, readable text, product links, sample-price labels and consent controls.
+3. Preview desktop/mobile layouts, check keyboard access, readable text, product links, native prices and consent controls.
 4. Run relevant automated and real-flow checks; changes to media require performance and accessibility review.
 5. Review the exact artifact and separate its upload from publication. Saving the currently live theme changes the live storefront; saving an unpublished theme does not itself make it live.
 
@@ -41,7 +41,7 @@ Current journey media is approximately 5.5 MiB on disk and uses complete-blob lo
 
 ## Products, claims and prices
 
-Demo mode is on by default. It labels sample prices and suppresses theme-generated promotional claims, review/certification content, sample structured data and checkout controls. The cart remains interactive so visitors can evaluate the interface without ordering.
+Normal storefront mode is the current default and checked configuration. Prices come from Shopify; newsletter, contact, wholesale, notes and checkout controls use native flows. Optional legacy guard code remains available in source, but is inactive. No product, payment, shipping or legal readiness is established merely by enabling controls.
 
 Before enabling commerce, supply and verify real product facts: ingredients, allergens, nutrition/quantity, origin where required, responsible operator, storage/use instructions, certifications and authorized claims. Product information requirements depend on product and destination. Maintain evidence for origin, sustainability and certification wording; do not use the illustrative seed catalog as proof.
 
@@ -55,9 +55,9 @@ Demo mode disables checkout controls rendered by this theme. It does not switch 
 
 ## Quiz, wholesale, newsletter and accounts
 
-The quiz questions/personas are merchant-authored configuration. Answers stay in component memory, do not persist after reload and are not sent to telemetry. Enable its feature and create/assign the actual page only through the reviewed release process. The development functional check used an alternate Contact template; it did not create a public Quiz page.
+The quiz questions/personas are merchant-authored configuration. Answers stay in component memory, do not persist after reload and are not sent to telemetry. The canonical Find Your Pantry page uses the shared default-page section and a static theme block. It is available independently of experiment assignments.
 
-Newsletter and wholesale/contact forms are replaced with informational copy in demo mode. Outside demo, the source retains native Shopify handling. There is no custom Klaviyo forwarding or automatic wholesale draft-order creation; the old Worker is retired. Client cooldowns/honeypots are not server security guarantees. Establish actual inbox ownership, lawful collection, retention, unsubscribe/suppression and response procedures before enabling forms.
+The active newsletter, wholesale and contact forms use native Shopify handling. There is no custom Klaviyo forwarding or automatic wholesale draft-order creation; the old Worker is retired. Client cooldowns/honeypots are not server security guarantees. Establish actual inbox ownership, lawful collection, retention, unsubscribe/suppression and response procedures before accepting personal data.
 
 Theme-rendered classic account/customer details and comment/cart-note forms are guarded in demo. Shopify-hosted account surfaces can bypass theme templates; do not assume theme settings govern them.
 

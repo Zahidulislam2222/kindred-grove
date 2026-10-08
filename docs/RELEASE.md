@@ -1,6 +1,13 @@
 # Source publication and theme release
 
-Source publication, a development upload and a live Shopify publication are different operations. This guide keeps the tested artifact, its authorization and the remote target explicit.
+## Verified storefront release — 2026-10-08
+
+The user explicitly authorized native live publication and source push. Fresh snapshots confirmed the older live theme and the candidate had no independent remote changes before publication. The reviewed 154-file local artifact was uploaded, downloaded and compared, exercised in preview, published, inventoried as live, downloaded again with 154/154 exact SHA-256 matches, then verified on the bare domain. The former live theme remains available for rollback. No direct production editing occurred.
+
+Live browser evidence:55 passed, three documented skips, zero failures, plus native search 1/1. Source/configuration tests 98/98; Theme Check zero errors/two existing warnings; syntax, package, scans and fresh reviews passed. See TESTING.md for scope and missing gates. Shopify's partner-development password remains enforced; publication does not change billing or merchant entitlement. No paid resource or plan was provisioned.
+
+Source delivery uses the existing feature branch and PR #8 under the configured author. Required GitHub review is preserved; there is no protected-branch override. The private recovery checkpoint records the exact local/remote commit verification.
+
 
 ## Current repository boundary
 

@@ -1,17 +1,23 @@
 # Kindred Grove — 10-Phase Build Plan
 
+## Current repair milestone — 2026-10-08
+
+The user superseded the earlier Phase 2 stop for a normal storefront release: diagnose the actual domain/live role, complete native content pages, remove active sample restrictions and catalog fixtures, verify then publish and push. Seven canonical pages now exist. Normal mode and shared page navigation are implemented locally. Published source has exact 154-file local/live parity. Live browser gate covers 55 passing cases plus native search 1/1, zero failures and three catalog/article-dependent skips. Native publication and bare-domain identity are verified. Source delivery uses the existing feature branch and PR #8; protected main still requires approving review. Partner-development password removal remains a platform limitation; no paid plan or infrastructure is authorized.
+
+Private checkpoint `memory/storefront-repair-CURRENT.md` records before/after snapshots, native writes, artifact manifests, per-gate evidence and replay guards for interruption recovery. No external document/PDF was requested for this task. Later paid infrastructure milestones remain separate.
+
 **Revision 2 · 2026-09-24. Phase 2 complete for development; public documentation and GitHub handoff authorized.**
 
 Phases are complete delivery milestones. Closely coupled configuration, security, privacy, demo content and storefront behavior are built together in Phase 2, using parallel bounded tasks and one integration gate. They are not five separate active phases. Root owns architecture, integration, monitoring and review; Luna implements assigned work. Prepared work for later milestones is retained without claiming those phases are complete.
 
-**Approved domain:** `kindred-grove.zahidul-islam.com`. **Cost boundary:** free/local tools and existing verified entitlements only. No paid service, upgrade, card-required signup, paid generation, live purchase or public load test. The redesign remains unpublished; the custom domain currently serves the existing live theme.
+**Approved domain:** `kindred-grove.zahidul-islam.com`. **Cost boundary:** free/local tools and existing verified entitlements only. No paid service, upgrade, card-required signup, paid generation, live purchase or public load test. The reviewed normal storefront is now live; Shopify's development-store password remains enforced.
 
 ## Delivery tracker
 
 | Phase | Complete deliverable | Status |
 |---:|---|---|
-| 1 | Connected Shopify subdomain and verified service boundary | Verified for existing live theme |
-| 2 | Safe, functional demo storefront | **Complete for development** — criteria 6/6; publication/documentation handoff follows |
+| 1 | Connected Shopify subdomain and verified service boundary | Reverified DNS, native domain connection and SSL on the published theme |
+| 2 | Functional native storefront | **Published normal storefront** — seven canonical content pages, 56 browser passes and exact 154-file parity; platform/business limits documented |
 | 3 | USA/EU applicability, content and data-governance evidence | **Not started**; earlier research prepared; merchant launch facts unresolved |
 | 4 | Measured performance and media delivery | Budgets and risks documented; measurement pending |
 | 5 | Capacity model and scaling design | Local model/harness prepared and tested; not Shopify capacity |

@@ -35,6 +35,7 @@
           {% content_for 'blocks' %}
         {% else %}
           <div data-kg-cart-items></div>
+          {% content_for 'block', type: 'cart-gift-note', id: 'default-cart-gift-note' %}
         {% endif %}
       </div>
 

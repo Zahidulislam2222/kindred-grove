@@ -1,12 +1,15 @@
 # Configuration boundaries
 
-Updated 2026-09-24. Phase 2 is accepted on the development theme. This map describes the reviewed configuration owners and their deployment/browser evidence.
+Updated 2026-10-08. The published normal storefront adds native page ownership. Current live evidence:98/98regressions, 56 browser passes and 154/154 exact hashes. Historical Phase 2 was accepted on the development theme. This map describes the reviewed configuration owners and their deployment/browser evidence.
 
 ## Owners
 
 | Runtime or value | Authoritative owner | Consumers and rule |
 |---|---|---|
 | Merchant choices, demo mode, products and section copy | Shopify settings/schema and section/block settings | Liquid templates; no environment-variable copy of catalog or business content |
+| Navigation destinations | Global merchant page pickers in Shopify settings | Shared header/footer read native page URLs; configured pages must exist |
+| Maintained editorial page content | `content/storefront-pages.json`, synchronized to existing native Shopify Pages | Titles, handles and HTML are reviewed locally first; browser readback verifies remote resources |
+| Page presentation and artwork | Grove page section schema/settings | Default page section conditionally renders discovery/wholesale theme blocks by native page identity |
 | Translated interface text | `locales/en.default.json`, `locales/ar.json` | Liquid and escaped browser configuration |
 | Optional component transport, UI timing and display limits | `snippets/client-config.liquid` | `assets/client-runtime.js` validates the payload; search, recommendations, quick view and recently viewed consume it |
 | Cart routes, artwork and messages | `snippets/client-config.liquid` | Shared cart coordinator and shopping components; Shopify supplies native route and asset URLs |

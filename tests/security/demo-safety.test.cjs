@@ -7,12 +7,12 @@ function readCommentPrefixedJson(path) {
   return JSON.parse(read(path).replace(/^\s*\/\*[\s\S]*?\*\//, ''));
 }
 
-test('demo mode is default-on in schema and explicitly true in the local theme settings', () => {
+test('normal storefront is default-on and explicitly configured in local settings', () => {
   const schema = JSON.parse(read('config/settings_schema.json'));
   const demoSetting = schema.flatMap((group) => group.settings || []).find((setting) => setting.id === 'demo_mode');
   assert.ok(demoSetting);
-  assert.equal(demoSetting.default, true);
-  assert.equal(readCommentPrefixedJson('config/settings_data.json').current.demo_mode, true);
+  assert.equal(demoSetting.default, false);
+  assert.equal(readCommentPrefixedJson('config/settings_data.json').current.demo_mode, false);
   assert.match(read('layout/theme.liquid'), /data-demo-mode="\{\{ settings\.demo_mode \}\}"/);
 });
 

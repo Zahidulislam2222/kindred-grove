@@ -1,21 +1,22 @@
 # Kindred Grove
 
-A Shopify pantry storefront with a cinematic, scroll-synchronized homepage, warm cream/terracotta styling, merchant-editable content and a deliberately controlled shopping demo. Built with Liquid, CSS and vanilla JavaScript Web Components; Shopify provides catalog, cart, hosted rendering and checkout services.
+A Shopify pantry storefront with a cinematic, scroll-synchronized homepage, warm cream/terracotta styling, merchant-editable content and native shopping and enquiry flows. Built with Liquid, CSS and vanilla JavaScript Web Components; Shopify provides catalog, cart, hosted rendering and checkout services.
 
-**Current delivery:** Phase 2 accepted on the development theme. The redesigned theme is not published live. The connected storefront domain is [kindred-grove.zahidul-islam.com](https://kindred-grove.zahidul-islam.com), which currently serves the existing live theme and may require the development-store password. The GitHub source and the live storefront are separate releases.
+**Current delivery, 2026-10-08:** The complete storefront is published on [kindred-grove.zahidul-islam.com](https://kindred-grove.zahidul-islam.com), with seven native content pages and normal cart/forms/checkout controls. Shopify enforces a password on this partner development store; the domain is connected with SSL. Live verification:56 browser passes, zero failures, three catalog/article-dependent skips;98/98 security/configuration regressions and 154/154 exact file hash matches. See [testing](docs/TESTING.md) for gate scope and remaining platform/business limits.
 
 ## Experience and verified behavior
 
 - Cinematic hero with left-side copy changing with the film's chapters in both scroll directions; pause and reduced-motion behavior.
 - Header hides during downward scrolling and returns when scrolling up, focusing navigation, or opening a menu/dialog.
 - Product and collection browsing, pantry interactions, quick view and a native Shopify cart drawer with quantity and removal controls.
-- Demo notices and sample-price labels; theme checkout and personal-information forms are disabled in demo mode.
+- Native prices, cart, checkout controls, contact, wholesale and newsletter forms; the current theme configuration has no visitor-facing sample notices or disabled commerce guards.
+- Our Story, Recipes, FAQ, Contact, Shipping & Returns, Find Your Pantry and Wholesale pages with shared navigation.
 - Native consent controls, purpose-gated optional storage and a memory-only pantry quiz. Theme telemetry loaders are removed.
 - Responsive layouts, keyboard/focus behavior, mobile navigation without JavaScript and English/Arabic locale source.
 
-Phase 2 evidence: **95/95 security/configuration tests**, **41 browser passes, 0 failures, 5 documented skips**, separate Quiz/Wholesale functional **2/2** and active axe **2/2**, and **150/150 exact local/artifact/development file hashes**. Theme Check reported **0 errors and 2 existing warnings**. See [testing](docs/TESTING.md) for scope, skips and manual checks still needed.
+Historical Phase 2 evidence: **95/95 security/configuration tests**, **41 browser passes, 0 failures, 5 documented skips**, separate Quiz/Wholesale functional **2/2** and active axe **2/2**, and **150/150 exact local/artifact/development file hashes**. Theme Check reported **0 errors and 2 existing warnings**. See [testing](docs/TESTING.md) for scope, skips and manual checks still needed.
 
-Canonical Quiz/Wholesale pages and a test article are not configured in this store; alternate templates supplied component coverage. Shopify-hosted accounts, checkout and app processing remain platform boundaries. The checkout extension is a [legacy, unsupported scaffold](extensions/checkout-trust-badges/README.md), not a delivered checkout feature.
+Canonical Quiz and Wholesale pages are now configured; their native resources are separate from theme templates. No test article is configured. Shopify-hosted accounts, checkout and app processing remain platform boundaries. The checkout extension is a [legacy, unsupported scaffold](extensions/checkout-trust-badges/README.md), not a delivered checkout feature.
 
 ## Architecture and backend
 
@@ -71,7 +72,7 @@ Use `shopify theme dev` only after explicitly configuring the intended store/the
 | Complete public documentation navigation | [Documentation index](docs/README.md) |
 | Source structure, service ownership and decisions | [Architecture](docs/ARCHITECTURE.md), [ADRs](docs/adr/001-theme-blocks-over-legacy-sections.md) |
 | Developer onboarding and configuration | [Contributing](CONTRIBUTING.md), [Configuration](docs/CONFIGURATION.md) |
-| Security, data and demo controls | [Security](docs/SECURITY.md), [Privacy](docs/PRIVACY.md), [Demo safety](docs/DEMO-SAFETY.md) |
+| Security, privacy and storefront controls | [Security](docs/SECURITY.md), [Privacy](docs/PRIVACY.md), [Storefront mode boundaries](docs/DEMO-SAFETY.md) |
 | US/EU requirements and commercial launch prerequisites | [Compliance research](docs/COMPLIANCE-RESEARCH.md) |
 | Future 1M+ visitor architecture and 99% availability | [Scalability](docs/SCALABILITY.md), [Operations](docs/OPERATIONS.md) |
 | Performance and accessible interactions | [Performance](docs/PERFORMANCE.md), [Accessibility](docs/ACCESSIBILITY.md) |
@@ -82,7 +83,7 @@ Use `shopify theme dev` only after explicitly configuring the intended store/the
 
 ## Repository layout
 
-`layout`, `templates`, `sections`, `blocks` and `snippets` contain Liquid composition. `assets` contains styles, components and demo media. `config` and `locales` own merchant settings and translated copy. `scripts` contains configuration, CI, offline catalog and capacity tools. `tests` contains committed automated regressions. `.github` contains workflow definitions. `extensions` contains the isolated legacy checkout example.
+`layout`, `templates`, `sections`, `blocks` and `snippets` contain Liquid composition. `assets` contains styles, components and editorial media. `config` and `locales` own merchant settings and translated copy. `scripts` contains configuration, CI, offline catalog and capacity tools. `tests` contains committed automated regressions. `.github` contains workflow definitions. `extensions` contains the isolated legacy checkout example.
 
 Private recovery records, credentials, local research, browser artifacts and client document exports are excluded from the public repository. Public documentation is written for developers, merchants and clients, without access details or customer information.
 

@@ -80,6 +80,9 @@ test.describe('Cart drawer + cart page golden path', () => {
       await expect(note).toHaveCount(0);
       await expect(page.locator('.kg-demo-disabled-message').first()).toBeVisible();
     } else {
+      await expect(page.locator('kg-cart-drawer [data-kg-cart-items]')).toHaveCount(1);
+      await expect(page.locator('kg-cart-drawer [data-kg-cart-gift]')).toHaveCount(1);
+      await page.locator('kg-cart-drawer [data-kg-cart-gift] summary').click();
       await expect(note.first()).toBeVisible();
       // Never fill or submit personal/free-text cart data in the E2E suite.
     }

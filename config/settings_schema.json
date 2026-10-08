@@ -152,7 +152,7 @@
         "type": "checkbox",
         "id": "demo_mode",
         "label": "Demo mode",
-        "default": true,
+        "default": false,
         "info": "Shows sample catalog pricing, disables the theme checkout button and contact/newsletter submissions, and hides unverified trust badges. Turn off only after live products, policies, and Shopify checkout are verified."
       }
     ]
@@ -227,6 +227,18 @@
         "info": "Array of {name, default, rollout, variants}. Example below.",
         "default": "[\n  {\n    \"name\": \"pantry_quiz\",\n    \"default\": false,\n    \"rollout\": 100,\n    \"variants\": [\"off\", \"on\"]\n  },\n  {\n    \"name\": \"hero_copy\",\n    \"default\": \"a\",\n    \"rollout\": 50,\n    \"variants\": [\"a\", \"b\"]\n  }\n]"
       }
+    ]
+  },
+  {
+    "name": "Storefront pages",
+    "settings": [
+      {"type":"page","id":"storefront_story_page","label":"Our Story page"},
+      {"type":"page","id":"storefront_recipes_page","label":"Recipes page"},
+      {"type":"page","id":"storefront_faq_page","label":"FAQ page"},
+      {"type":"page","id":"storefront_contact_page","label":"Contact page"},
+      {"type":"page","id":"storefront_shipping_page","label":"Shipping and returns page"},
+      {"type":"page","id":"storefront_quiz_page","label":"Pantry quiz page"},
+      {"type":"page","id":"storefront_wholesale_page","label":"Wholesale page"}
     ]
   },
   {

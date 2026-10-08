@@ -1,0 +1,43 @@
+{%- liquid
+  assign editorial_image = blank
+  if page.id == settings.storefront_story_page.id
+    assign editorial_image = section.settings.story_artwork
+  elsif page.id == settings.storefront_recipes_page.id
+    assign editorial_image = section.settings.recipes_artwork
+  endif
+-%}
+<article class="grove-page{% if editorial_image != blank %} grove-page--editorial{% endif %}">
+  <header class="grove-page__hero">
+    <div class="grove-page__intro">
+      <nav class="grove-breadcrumb" aria-label="{{ 'storefront.breadcrumb' | t }}"><a href="{{ routes.root_url }}">{{ 'storefront.home' | t }}</a><span aria-hidden="true">/</span><span>{{ page.title | escape }}</span></nav>
+      <p class="grove-eyebrow">{{ section.settings.eyebrow | escape }}</p>
+      <h1>{{ page.title | escape }}</h1>
+      <a class="grove-text-link" href="{{ routes.all_products_collection_url }}">{{ 'storefront.browse_pantry' | t }} <span aria-hidden="true">↗</span></a>
+    </div>
+    {% if editorial_image != blank %}<div class="grove-page__art"><img src="{{ editorial_image | asset_url }}" width="1024" height="1365" alt="{{ section.settings.artwork_alt | escape }}" loading="eager"></div>{% endif %}
+  </header>
+  <div class="grove-page__content rte">{{ page.content }}</div>
+  {% if page.id == settings.storefront_quiz_page.id %}
+    <div class="grove-page__contact">{% content_for 'block', type: 'pantry-quiz', id: 'grove-pantry-discovery' %}</div>
+  {% elsif page.id == settings.storefront_wholesale_page.id %}
+    <div class="grove-page__contact">{% content_for 'block', type: 'wholesale-form', id: 'grove-wholesale-inquiry' %}</div>
+  {% endif %}
+  {% if page.id == settings.storefront_contact_page.id %}
+    <div class="grove-page__contact">
+      {% form 'contact', id: 'GroveContact', class: 'grove-contact-form' %}
+        {% if form.posted_successfully? %}<p role="status">{{ 'storefront.contact_success' | t }}</p>{% endif %}
+        {% if form.errors %}<div role="alert">{{ form.errors | default_errors }}</div>{% endif %}
+        <div class="grove-contact-form__row">
+          <div><label for="GroveContactName">{{ 'storefront.name' | t }}</label><input id="GroveContactName" name="contact[name]" autocomplete="name" value="{{ form.name | escape }}" required></div>
+          <div><label for="GroveContactEmail">{{ 'storefront.email' | t }}</label><input id="GroveContactEmail" type="email" name="contact[email]" autocomplete="email" value="{{ form.email | escape }}" required></div>
+        </div>
+        <label for="GroveContactMessage">{{ 'storefront.message' | t }}</label><textarea id="GroveContactMessage" name="contact[body]" rows="6" required>{{ form.body | escape }}</textarea>
+        <button class="grove-button grove-button--olive" type="submit">{{ 'storefront.send_message' | t }} <span aria-hidden="true">↗</span></button>
+      {% endform %}
+    </div>
+  {% endif %}
+  <aside class="grove-page__closing"><p class="grove-eyebrow">{{ section.settings.closing_eyebrow | escape }}</p><h2>{{ section.settings.closing_heading | escape }}</h2><a class="grove-button grove-button--olive" href="{{ routes.all_products_collection_url }}">{{ 'grove.shop' | t }} <span aria-hidden="true">↗</span></a></aside>
+</article>
+{% schema %}
+{"name":"Grove page","blocks":[{"type":"@theme"}],"settings":[{"type":"text","id":"eyebrow","label":"Page eyebrow","default":"THE KINDRED GROVE WAY"},{"type":"text","id":"story_artwork","label":"Story asset filename","default":"grove-pour.webp"},{"type":"text","id":"recipes_artwork","label":"Recipes asset filename","default":"grove-table.webp"},{"type":"text","id":"artwork_alt","label":"Editorial image description","default":"Olive oil and good food around a shared table"},{"type":"text","id":"closing_eyebrow","label":"Closing eyebrow","default":"MAKE ROOM FOR GOOD THINGS"},{"type":"text","id":"closing_heading","label":"Closing heading","default":"Your next everyday ritual."}]}
+{% endschema %}

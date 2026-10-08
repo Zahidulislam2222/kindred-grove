@@ -1,6 +1,17 @@
 # Testing and CI boundaries — Kindred Grove
 
-Last updated: 2026-09-24
+## Verified storefront release — 2026-10-08
+
+The published normal storefront passed **55 browser checks, zero failures, three evidenced skips, zero flaky cases** in a fresh bare-domain Chromium context. An additional real native search/result/mobile-axe check passed **1/1**. The seven canonical pages were checked at 1440/390/320 px for HTTP 200, exact headings, real navigation, body content and reflow; all seven passed axe WCAG checks. Contact/wholesale/newsletter/native checkout controls were inspected without submitting messages, personal data, orders or payments. Cart 0→1→2→0, quiz question/result/reload, native consent, GPC/DNT, film/header and no-JavaScript navigation passed.
+
+Skipped: selected product has fewer than two variants; the active collection has no sort control; the blog has no article to exercise. These are documented catalog limits, not passing flows.
+
+Local gates: 98/98 security/configuration; 29 JavaScript syntax files; Theme Check zero errors/two existing orphan-snippet warnings; native theme package passed. Public-source Gitleaks and Semgrep returned zero findings; installed edit hook and fresh-context reviews passed. No standalone type-checker, JS/CSS linter or bundler-build script exists. Bandit is inapplicable to the non-Python shipping code. No dependencies were added.
+
+All 154 reviewed local, frozen and downloaded live files match exact SHA-256. Native inventory and fresh browser responses confirm the intended theme is live. Existing old live theme is retained for rollback. DNS/TLS/primary domain are connected; Shopify still enforces its partner-development password. No paid plan change was made. Rights/provenance, real-order processing and inbox delivery remain outside this verification.
+
+The first gate caught a regenerated quiz slug and missing cart fallback note; both were fixed before publication. The full rerun then caught two stale test assumptions; corrected tests passed without force clicks or event injection. Historical records below describe prior artifacts.
+
 
 ## Required local regression checks
 

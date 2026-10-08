@@ -9,7 +9,6 @@ test.describe('Build-Your-Pantry quiz golden path', () => {
   test('answers every configured question, renders a safe collection result, and forgets answers on reload', async ({ page }) => {
     const response = await navigateStorefront(page, '/pages/quiz');
     if (!response) throw new Error('Quiz navigation completed without an HTTP response.');
-    if (response.status() === 404) test.skip(true, 'Quiz page returned an evidenced 404 in this store.');
     expect(response.status(), `quiz route returned HTTP ${response.status()}`).toBeLessThan(400);
 
     const quiz = page.locator('kg-pantry-quiz');
@@ -32,7 +31,8 @@ test.describe('Build-Your-Pantry quiz golden path', () => {
     for (let index = 0; index < questionCount; index += 1) {
       const option = quiz.locator('[data-kg-quiz-stage] input[type="radio"]').first();
       await expect(option, `question ${index + 1} should expose a radio choice`).toBeVisible();
-      await option.check();
+      await option.locator('xpath=..').click();
+      await expect(option).toBeChecked();
       const next = quiz.locator('[data-kg-quiz-next]');
       await expect(next).toBeEnabled();
       await next.click();

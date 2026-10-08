@@ -11,7 +11,9 @@
   "sections": {
     "main": {
       "type": "main-wholesale",
-      "settings": {}
+      "settings": {},
+      "blocks": {"inquiry":{"type":"wholesale-form","settings":{}}},
+      "block_order":["inquiry"]
     }
   },
   "order": [

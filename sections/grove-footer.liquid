@@ -16,10 +16,13 @@
       {% endif %}
     </div>
   </div>
+  <div class="grove-footer__directory">
+    <nav aria-label="{{ 'grove.footer_nav' | t }}">{% render 'grove-page-links', extended: true %}</nav>
+    <div class="grove-footer__policies">{% for policy in shop.policies %}{% if policy.body != blank %}<a href="{{ policy.url }}">{{ policy.title | escape }}</a>{% endif %}{% endfor %}</div>
+  </div>
   <a class="grove-footer__wordmark" href="{{ routes.root_url }}">{{ shop.name | escape }}</a>
   <div class="grove-footer__bottom">
     <span>© {{ 'now' | date: '%Y' }} {{ shop.name | escape }}</span>
-    <nav aria-label="{{ 'grove.footer_nav' | t }}"><a href="{{ routes.root_url }}#pantry">{{ 'grove.shop' | t }}</a><a href="{{ routes.root_url }}#story">{{ 'grove.story' | t }}</a>{% for policy in shop.policies %}{% if policy.body != blank %}<a href="{{ policy.url }}">{{ policy.title | escape }}</a>{% endif %}{% endfor %}</nav>
     <div class="grove-footer__controls">
       {% if localization.available_countries.size > 1 %}
         {% form 'localization', id: 'GroveCountryForm', class: 'grove-country-form' %}

@@ -1,61 +1,23 @@
-{%- comment -%}
-  Search results page — Day 2 skeleton.
-  Day 12 replaces with predictive search (GraphQL, 300ms debounce) showing products + farms + recipes.
-{%- endcomment -%}
-
-<section class="search" style="
-  max-width: var(--page-width);
-  margin-inline: auto;
-  padding-block: var(--space-12);
-  padding-inline: var(--space-6);
-">
-  <header class="search__header">
-    <h1>Search</h1>
-
-    <form action="{{ routes.search_url }}" method="get" role="search" class="search__form">
-      <label for="search-input" class="visually-hidden">Search</label>
-      <input
-        id="search-input"
-        type="search"
-        name="q"
-        value="{{ search.terms | escape }}"
-        placeholder="Search products, farms, recipes…"
-        autocomplete="off"
-        required
-      >
-      <button type="submit" class="button button--primary">Search</button>
-    </form>
-  </header>
-
-  {%- if search.performed -%}
-    <p class="search__count">
-      {%- if search.results_count == 0 -%}
-        No results found for <em>{{ search.terms | escape }}</em>.
-      {%- else -%}
-        {{ search.results_count }} result{% if search.results_count != 1 %}s{% endif %} for <em>{{ search.terms | escape }}</em>.
-      {%- endif -%}
-    </p>
-
-    {%- paginate search.results by 12 -%}
-      <ul class="search__results">
-        {%- for item in search.results -%}
-          <li class="search__result">
-            <a href="{{ item.url }}">
-              <h2>{{ item.title | escape }}</h2>
-              {%- if item.object_type == 'product' -%}
-                <p class="search__price">{{ item.price | money }}</p>
-              {%- endif -%}
-            </a>
-          </li>
-        {%- endfor -%}
-      </ul>
-
-      {%- if paginate.pages > 1 -%}
-        {%- comment -%} Day 12 adds proper pagination with rel prev/next schema {%- endcomment -%}
-        <nav class="search__pagination" aria-label="Search results pagination">
-          {{ paginate | default_pagination }}
-        </nav>
-      {%- endif -%}
-    {%- endpaginate -%}
-  {%- endif -%}
+<section class="grove-search">
+  <header><p class="grove-eyebrow">{{ 'grove.shop' | t }}</p><h1>{{ 'storefront.search_title' | t }}</h1></header>
+  <form action="{{ routes.search_url }}" method="get" role="search" class="grove-search__form">
+    <label for="GroveSearch" class="visually-hidden">{{ 'storefront.search_label' | t }}</label>
+    <input id="GroveSearch" type="search" name="q" value="{{ search.terms | escape }}" placeholder="{{ 'storefront.search_placeholder' | t }}" required>
+    <button class="grove-button grove-button--olive" type="submit">{{ 'storefront.search_submit' | t }} <span aria-hidden="true">↗</span></button>
+  </form>
+  {% if search.performed %}
+    {% if search.results_count == 0 %}
+      <p role="status">{{ 'storefront.search_empty' | t }}</p><a class="grove-text-link" href="{{ routes.all_products_collection_url }}">{{ 'storefront.browse_pantry' | t }} ↗</a>
+    {% else %}
+      <p role="status">{{ 'storefront.search_count' | t: count: search.results_count, terms: search.terms | escape }}</p>
+      {% paginate search.results by 12 %}
+        <ul class="grove-search__results">
+          {% for item in search.results %}
+            <li>{% if item.object_type == 'product' %}{% render 'grove-card', product: item, index: forloop.index %}{% else %}<article class="grove-search__editorial"><h2><a href="{{ item.url }}">{{ item.title | escape }}</a></h2><p>{{ item.content | strip_html | truncatewords: 30 }}</p></article>{% endif %}</li>
+          {% endfor %}
+        </ul>
+        {% if paginate.pages > 1 %}<nav class="grove-pagination" aria-label="{{ 'blog.pagination' | t }}">{{ paginate | default_pagination }}</nav>{% endif %}
+      {% endpaginate %}
+    {% endif %}
+  {% endif %}
 </section>

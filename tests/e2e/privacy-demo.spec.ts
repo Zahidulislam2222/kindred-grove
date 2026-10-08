@@ -124,7 +124,7 @@ function attachRequestCategories(page: Page, testInfo: TestInfo) {
   };
 }
 
-test.describe('privacy and demo storefront integration', () => {
+test.describe('privacy and storefront integration', () => {
   test('native consent accepts, saves partial preferences, withdraws, and persists after reload', async ({ page }, testInfo) => {
     const finishRequestEvidence = attachRequestCategories(page, testInfo);
     await unlockStorefront(page);
@@ -251,50 +251,24 @@ test.describe('privacy and demo storefront integration', () => {
     expect(scripts.namedThemeSdkMarkers).toEqual([]);
   });
 
-  test('demo product price, notice, PII controls, JSON-LD and visible checkout path match demo mode', async ({ page }, testInfo) => {
-    const finishRequestEvidence = attachRequestCategories(page, testInfo);
-    // Deliberately do not use prepareStorefront here: it auto-declines the banner.
+  test('normal product pricing, native forms and checkout controls render without sample notices', async ({ page }) => {
     await unlockStorefront(page);
     await handleNativeConsent(page);
-
-    const productPath = await firstProductUrl(page);
-    const productUrl = new URL(productPath, page.url());
-    if (productUrl.origin !== new URL(page.url()).origin) throw new Error('The observed product link escaped the storefront origin.');
-    const response = await navigateStorefront(page, productUrl.pathname);
-    if (!response) throw new Error('Product navigation completed without an HTTP response.');
-    expect(response.status(), `product route returned HTTP ${response.status()}`).toBeLessThan(400);
-
-    await expect(page.locator('body')).toHaveAttribute('data-demo-mode', 'true');
-    await expect(page.locator('.kg-demo-notice')).toBeVisible();
-    await expect(page.locator('.kg-price .kg-demo-price-label').first()).toBeVisible();
-    await expect(page.locator('script[type="application/ld+json"]')).toHaveCount(0);
-    await expect(page.locator('meta[property^="product:price:"]')).toHaveCount(0);
-    await expect(page.locator('meta[property="product:availability"]')).toHaveCount(0);
-
-    // The native country form is an allowed preference control; personal-data
-    // newsletter/contact inputs and their active submission paths are absent.
-    await expect(page.locator('footer input[name="contact[email]"], footer input[type="email"]')).toHaveCount(0);
-    await expect(page.locator('footer form[action*="contact"], footer form[action*="customer"]')).toHaveCount(0);
-    await expect(page.locator('form[action*="contact"]')).toHaveCount(0);
-
-    const cartOpener = page.locator('[data-kg-cart-open]').first();
-    await expect(cartOpener).toBeVisible();
-    await cartOpener.click();
-    const drawer = page.locator('#CartDrawer [role="dialog"]');
+    await navigateStorefront(page, await firstProductUrl(page));
+    await expect(page.locator('body')).toHaveAttribute('data-demo-mode', 'false');
+    await expect(page.locator('.kg-demo-notice, .kg-demo-price-label, .kg-demo-disabled-message')).toHaveCount(0);
+    await expect(page.locator('script[type="application/ld+json"]').first()).toBeAttached();
+    await expect(page.locator('footer input[type="email"]')).toHaveCount(1);
+    await page.locator('[data-kg-cart-open]').first().click();
+    const drawer=page.locator('#CartDrawer [role="dialog"]');
     await expect(drawer).toBeVisible();
-    await expect(drawer.locator('[data-demo-checkout]')).toBeDisabled();
-    await expect(drawer.locator('button[name="checkout"], input[name="checkout"]')).toHaveCount(0);
-    await expect(drawer.locator('[name="note"], [data-kg-cart-note]')).toHaveCount(0);
-    await expect(drawer.locator('.kg-demo-price-label')).toBeVisible();
-
-    const scripts = await finishRequestEvidence();
-    expect(scripts.inspectionScope).toBe('named-authored-theme-assets-only');
-    expect(scripts.inspectedNamedThemeScriptBodies).toBeGreaterThan(0);
-    expect(scripts.namedThemeSdkMarkers).toEqual([]);
+    await expect(drawer.locator('[data-demo-checkout]')).toHaveCount(0);
+    await expect(drawer.locator('[name="checkout"]')).toHaveCount(1);
+    // No personal data, form submission, order or payment is performed here.
   });
 });
 
-test('theme-rendered wholesale contact route has no active contact form in demo mode', async ({ page }) => {
+test('wholesale route renders a native enquiry form', async ({ page }) => {
   await unlockStorefront(page);
   await handleNativeConsent(page);
   const { baseUrl } = readTestConfig(process.env);
@@ -304,12 +278,12 @@ test('theme-rendered wholesale contact route has no active contact form in demo 
   if (response.status() === 404) test.skip(true, 'The merchant has no /pages/wholesale content route (observed HTTP 404).');
   expect(response.status(), `wholesale route returned HTTP ${response.status()}`).toBeLessThan(400);
   if (new URL(page.url()).origin !== storefrontOrigin) test.skip(true, 'Wholesale route redirected outside the storefront origin.');
-  await expect(page.locator('body')).toHaveAttribute('data-demo-mode', 'true');
-  await expect(page.locator('form[action*="contact"]')).toHaveCount(0);
-  await expect(page.locator('.kg-demo-disabled-message').first()).toBeVisible();
+  await expect(page.locator('body')).toHaveAttribute('data-demo-mode', 'false');
+  await expect(page.locator('#WholesaleInquiryForm')).toBeVisible();
+  await expect(page.locator('#WholesaleInquiryForm input[type="email"]')).toBeVisible();
 });
 
-test('theme-rendered customer account login has no active personal-data form in demo mode', async ({ page }) => {
+test('theme-rendered customer account login offers a native form', async ({ page }) => {
   await unlockStorefront(page);
   await handleNativeConsent(page);
   const { baseUrl } = readTestConfig(process.env);
@@ -321,12 +295,12 @@ test('theme-rendered customer account login has no active personal-data form in 
   }
   if (response.status() === 404) test.skip(true, 'Classic customer login is unavailable at the observed storefront route (HTTP 404).');
   expect(response.status(), `customer login route returned HTTP ${response.status()}`).toBeLessThan(400);
-  await expect(page.locator('body')).toHaveAttribute('data-demo-mode', 'true');
-  await expect(page.locator('.kg-account form')).toHaveCount(0);
-  await expect(page.locator('.kg-account .kg-demo-disabled-message')).toBeVisible();
+  await expect(page.locator('body')).toHaveAttribute('data-demo-mode', 'false');
+  await expect(page.locator('.kg-account form').first()).toBeVisible();
+  await expect(page.locator('.kg-account .kg-demo-disabled-message')).toHaveCount(0);
 });
 
-test('theme-rendered article comments have no active personal-data form in demo mode', async ({ page }) => {
+test('theme-rendered article comments follow merchant configuration', async ({ page }) => {
   await unlockStorefront(page);
   await handleNativeConsent(page);
   const response = await page.goto('/blogs/news', { waitUntil: 'domcontentloaded' });
@@ -344,11 +318,11 @@ test('theme-rendered article comments have no active personal-data form in demo 
   const articleResponse = await page.goto(articleUrl.href, { waitUntil: 'domcontentloaded' });
   if (!articleResponse) throw new Error('Article navigation completed without an HTTP response.');
   expect(articleResponse.status(), `article route returned HTTP ${articleResponse.status()}`).toBeLessThan(400);
-  await expect(page.locator('body')).toHaveAttribute('data-demo-mode', 'true');
+  await expect(page.locator('body')).toHaveAttribute('data-demo-mode', 'false');
 
-  await expect(page.locator('.kg-article__comments form')).toHaveCount(0);
+  await expect(page.locator('.kg-article__comments .kg-demo-disabled-message')).toHaveCount(0);
   const comments = page.locator('.kg-article__comments');
   if (await comments.count() > 0) {
-    await expect(comments.locator('.kg-demo-disabled-message')).toBeVisible();
+    await expect(comments.locator('form')).toBeVisible();
   }
 });

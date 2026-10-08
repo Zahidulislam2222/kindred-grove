@@ -1,6 +1,14 @@
 # Changelog
 
-All notable changes to this theme are documented here. Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the project uses day-tagged versions during the Phase 1 build sprint (`v0.0-day1` … `v0.0-day21`). Semantic versioning kicks in at Phase 1 handover (`v1.0.0`).
+## 2026-10-08 — Complete normal storefront release
+
+- Published the reviewed pantry theme after native drift checks and exact 154-file upload/download parity; retained the old live theme for rollback.
+- Created six native content pages and updated Contact in place; shared navigation now reaches seven canonical content pages.
+- Added responsive editorial, FAQ, contact, recipe, search and password presentation; canonical quiz/wholesale use conditional static blocks.
+- Set normal-storefront defaults, removed the quiz's experiment definition, restored fallback cart notes, and reversibly moved 15 active fixture products to drafts.
+- Verified 55 live browser checks+search 1/1, zero failures; 98/98 local regressions, syntax, Theme Check, native package, scans and independent review. Three catalog/article-dependent checks skipped.
+- Preserved the connected domain and documented Shopify's enforced development password. Updated source/recovery documentation; no paid plan, order or message was created.
+
 
 ## Development delivery and public handoff — 2026-09-24
 

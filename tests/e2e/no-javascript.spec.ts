@@ -16,14 +16,14 @@ test('mobile primary navigation stays visible without JavaScript at 320px and 39
 
     await expect(header).toBeAttached();
     expect(await header.evaluate((element) => element.matches(':defined'))).toBe(false);
-    await expect(nav.locator('a')).toHaveCount(3);
+    await expect(nav.locator('a')).toHaveCount(5);
 
     for (const width of [320, 390]) {
       await page.setViewportSize({ width, height: 844 });
       await expect(nav, `primary navigation should be visible without JavaScript at ${width}px`).toBeVisible();
       await expect(nav).toHaveCSS('position', 'static');
       await expect(menuToggle, `inert menu control should be hidden at ${width}px`).toBeHidden();
-      await expect(nav.locator('a')).toHaveCount(3);
+      await expect(nav.locator('a')).toHaveCount(5);
       for (const link of await nav.locator('a').all()) await expect(link).toBeVisible();
 
       const layout = await page.evaluate(() => {
