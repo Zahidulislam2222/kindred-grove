@@ -1,6 +1,6 @@
 # Contributing
 
-This repository contains an unpublished Shopify theme redesign and its test tooling. Read [BUILD-PLAN.md](BUILD-PLAN.md) for the active milestone and [ARCHITECTURE.md](docs/ARCHITECTURE.md) for service boundaries. Do not infer deployment status from a branch or theme name.
+This repository contains the published Kindred Grove Shopify theme, native content definitions and its test tooling. Visitors use a separately shared storefront password; Shopify manages the commerce backend. Read [BUILD-PLAN.md](BUILD-PLAN.md) for the active milestone and [ARCHITECTURE.md](docs/ARCHITECTURE.md) for service boundaries. Do not infer deployment status from a branch or theme name.
 
 ## Setup
 
@@ -47,12 +47,14 @@ The unbundled theme has no standalone JS/CSS lint, type-check or bundler-build s
 - Use the shared bounded client transport for additive Shopify requests. Pass locale-aware route data from Shopify. Never retry a cart mutation automatically after an uncertain outcome.
 - Web Components must clean up listeners, observers and nonessential reads on disconnection and tolerate reconnection.
 - Show safe localized failures. Do not send customer payloads or raw errors to a telemetry SDK. Optional collection requires the explicit privacy boundary and applicable consent.
-- Preserve demo guards, native fallbacks, keyboard access, reduced motion and direction-aware CSS. Color/spacing/motion decisions belong in the existing token/settings layer.
+- Preserve legacy safeguards, native fallbacks, keyboard access, reduced motion and direction-aware CSS. Color/spacing/motion decisions belong in the existing token/settings layer.
 - Add genuine CI regression tests under the existing `tests/` conventions. Personal diagnostic scripts remain in a separate ignored project folder. Improve existing test tools in place; do not delete them during cleanup.
 
 ## Release and hosted CI status
 
-Local release workflow files currently fail closed before writes while reusable drift/parity automation is unfinished. The old default-branch production workflow still permits automatic live writes until the replacement is reviewed and merged; do not run it. The latest repository inspection found no required `main` status contexts and an inactive Gitleaks workflow; the checked-in branch-protection file is a sample, not evidence of enforcement.
+Current native protection check, 2026-10-08: main requires one approving review and linear history; no named status contexts are required. The current public refresh preserves these rules. Source publication uses the reviewed feature branch and existing PR; it does not bypass approval or deploy the theme. Documentation regressions now verify links/heading anchors, current access/backend descriptions and maintained project language. Include these checks in the full offline security suite.
+
+Local release workflow files currently fail closed before writes while reusable drift/parity automation is unfinished. The old default-branch production workflow still permits automatic live writes until the replacement is reviewed and merged; do not run it. The latest repository inspection found no required `main` status contexts and an inactive Gitleaks workflow; the checked-in branch-protection file is a reference, not evidence of enforcement.
 
 On 2026-09-24, [PR #8](https://github.com/Zahidulislam2222/kindred-grove/pull/8) at source commit `078aae7` passed hosted [Security and config regression](https://github.com/Zahidulislam2222/kindred-grove/actions/runs/35937547220) and [Liquid linting](https://github.com/Zahidulislam2222/kindred-grove/actions/runs/35937547177). Main still requires one approving review; no status contexts are configured as required. Gitleaks remains disabled by inactivity remotely, with source/history/staged scans performed locally. No hosted browser or deployment run was invoked.
 

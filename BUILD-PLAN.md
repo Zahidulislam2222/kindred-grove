@@ -1,14 +1,20 @@
 # Kindred Grove — 10-Phase Build Plan
 
+## Current publication milestone — 2026-10-08
+
+The user accepts shared visitor-password access and authorizes a complete public documentation refresh, safe source push under Zahidul Islam's existing identity, then selective in-place Google Doc updates and a validated canonical PDF refresh. Retain Shopify-native architecture. Current source is published on the release branch; protected main requires an approving review. Public passwordless launch and production commerce are separate future gates. This documentation release does not activate infrastructure or spend.
+
+The historical Phase2 acceptance and restrictions below refer to the September development artifact. October delivery enables native forms and storefront controls and adds seven canonical pages; current behavior is owned by the README, architecture, access, testing and release guides.
+
 ## Current repair milestone — 2026-10-08
 
-The user superseded the earlier Phase 2 stop for a normal storefront release: diagnose the actual domain/live role, complete native content pages, remove active sample restrictions and catalog fixtures, verify then publish and push. Seven canonical pages now exist. Normal mode and shared page navigation are implemented locally. Published source has exact 154-file local/live parity. Live browser gate covers 55 passing cases plus native search 1/1, zero failures and three catalog/article-dependent skips. Native publication and bare-domain identity are verified. Source delivery uses the existing feature branch and PR #8; protected main still requires approving review. Partner-development password removal remains a platform limitation; no paid plan or infrastructure is authorized.
+The user superseded the earlier Phase 2 stop for a normal storefront release: diagnose the actual domain/live role, complete native content pages, remove active reference restrictions and catalog fixtures, verify then publish and push. Seven canonical pages now exist. Normal mode and shared page navigation are implemented locally. Published source has exact 154-file local/live parity. Live browser gate covers 55 passing cases plus native search 1/1, zero failures and three catalog/article-dependent skips. Native publication and bare-domain identity are verified. Source delivery uses the existing feature branch and PR #8; protected main still requires approving review. Partner-development password removal remains a platform limitation; no paid plan or infrastructure is authorized.
 
 Private checkpoint `memory/storefront-repair-CURRENT.md` records before/after snapshots, native writes, artifact manifests, per-gate evidence and replay guards for interruption recovery. No external document/PDF was requested for this task. Later paid infrastructure milestones remain separate.
 
 **Revision 2 · 2026-09-24. Phase 2 complete for development; public documentation and GitHub handoff authorized.**
 
-Phases are complete delivery milestones. Closely coupled configuration, security, privacy, demo content and storefront behavior are built together in Phase 2, using parallel bounded tasks and one integration gate. They are not five separate active phases. Root owns architecture, integration, monitoring and review; Luna implements assigned work. Prepared work for later milestones is retained without claiming those phases are complete.
+Phases are complete delivery milestones. Closely coupled configuration, security, privacy, development storefront content and storefront behavior are built together in Phase 2, using parallel bounded tasks and one integration gate. They are not five separate active phases. Root owns architecture, integration, monitoring and review; Luna implements assigned work. Prepared work for later milestones is retained without claiming those phases are complete.
 
 **Approved domain:** `kindred-grove.zahidul-islam.com`. **Cost boundary:** free/local tools and existing verified entitlements only. No paid service, upgrade, card-required signup, paid generation, live purchase or public load test. The reviewed normal storefront is now live; Shopify's development-store password remains enforced.
 
@@ -35,7 +41,7 @@ Phases are complete delivery milestones. Closely coupled configuration, security
 - Keep merchant content/settings native; validate configuration once per runtime. Same-origin requests, safe contextual output, bounded reads, explicit consent and no automatically retried cart writes are shared architecture requirements.
 - Tests, syntax/type/lint/build checks, security scans and real browser checks have separate evidence. Missing or skipped checks are not passes. Independent review must come from a context that did not author the diff. Keep the installed scan hook active.
 - Record before state, intended mutation, result, exact deployed hashes, failures and next action in the private project checkpoint. Update the dossier before derived public facts. Preserve append-only incident stories and test tooling. Google Docs and `my-project-view/` remain untouched without the separate explicit request.
-- No unsupported claims of every-law compliance, complete security, million-user capacity, measured uptime or production readiness. Complete the controllable demo requirements; record merchant/platform dependencies explicitly rather than inventing facts.
+- No unsupported claims of every-law compliance, complete security, million-user capacity, measured uptime or production readiness. Complete the controllable development storefront requirements; record merchant/platform dependencies explicitly rather than inventing facts.
 
 ## Phase 1 — Connected subdomain and service boundary
 
@@ -51,9 +57,9 @@ Phases are complete delivery milestones. Closely coupled configuration, security
 
 **Root gate / status:** verified for the existing live theme. Redesign verification is separate. Rollback restores the previous Shopify primary domain and removes only this task's unchanged CNAME, preserving unrelated records. Dev-store password restrictions remain intact; see [Shopify dev-store capabilities](https://shopify.dev/docs/storefronts/themes/tools/development-stores).
 
-## Phase 2 — Safe, functional demo storefront
+## Phase 2 — Safe, functional development storefront
 
-**Outcome:** one integrated demo that visitors can navigate and shop experimentally, with truthful content, controlled data handling and secure browser behavior.
+**Outcome:** one integrated development storefront that visitors can navigate and shop experimentally, with truthful content, controlled data handling and secure browser behavior.
 
 **Parallel workstreams:**
 
@@ -61,7 +67,7 @@ Phases are complete delivery milestones. Closely coupled configuration, security
 |---|---|---|
 | Configuration and tooling | Validated Node/browser settings, safe environment template, scanner coverage, trusted preview/password targets; retire unsafe unused writers | Configuration/secret audit and reproducible commands |
 | Privacy and data handling | Native consent adapter, purpose-gated storage, withdrawal cleanup, memory-only quiz, disabled optional telemetry | Native banner settings, real accept/reject/withdrawal and network/storage checks |
-| Demo and content controls | Default-on demo notice, inactive real signup/inquiry/checkout UI, sample labels, unsupported claims/schema suppression, native country/preferences controls | Truthful platform boundaries and actual rendered behavior |
+| development storefront and content controls | Default-on development storefront notice, inactive real signup/inquiry/checkout UI, reference labels, unsupported claims/schema suppression, native country/preferences controls | Truthful platform boundaries and actual rendered behavior |
 | Storefront experience | Direction-aware header, synchronized hero copy/video, pause/reduced motion/failure behavior, keyboard/mobile interactions | Actual development browser tests and visual inspection |
 | Requests and cart integrity | Safe URLs/output, locale-aware routes, bounded/cancelled reads, stale-response protection, serialized user mutations, unknown-outcome cart reconciliation | Hostile-input and failure tests plus real native cart flows |
 
@@ -73,7 +79,7 @@ These tasks share layout, settings and browser behavior, so they merge into one 
 
 1. One validated owner for changeable configuration; real secrets absent from inspected shipping source/staging/history; private recovery paths ignored. Legacy tools cannot silently publish or activate products.
 2. Optional theme processing denies by default, honors GPC/DNT, and responds to actual consent withdrawal. Quiz answers do not persist or enter telemetry. Native cart behavior remains usable.
-3. Demo notices are visible; real PII submission and theme checkout controls are disabled in demo mode. Unsupported reviews, origin/certification claims and sample promotional structured data do not masquerade as verified facts. Platform-hosted account/checkout surfaces are explicitly outside theme control.
+3. development storefront notices are visible; real PII submission and theme checkout controls are disabled in legacy restricted mode. Unsupported reviews, origin/certification claims and reference promotional structured data do not masquerade as verified facts. Platform-hosted account/checkout surfaces are explicitly outside theme control.
 4. Header hides down/reveals up and on focus/menu/modal use; video/copy synchronize; pause, reduced motion and failed media preserve a usable storefront. Desktop/mobile, keyboard and no-JavaScript paths are exercised where supported.
 5. Dynamic URLs and attributes are validated/escaped. Optional reads time out/cancel safely; stale responses cannot overwrite current UI. Cart writes do not automatically retry; unknown outcomes are reconciled and communicated truthfully.
 6. Local tests/scans/Theme Check and independent review pass for the frozen artifact; development upload has exact pulled hash parity; actual product/cart/privacy/UX flows pass. Missing type/lint/build tooling is reported explicitly.
@@ -88,13 +94,13 @@ These tasks share layout, settings and browser behavior, so they merge into one 
 
 ## Phase 3 — USA/EU applicability and governance evidence
 
-**Outcome:** a client-reviewable record linking actual demo controls and commercial launch prerequisites to applicable official sources.
+**Outcome:** a client-reviewable record linking actual development storefront controls and commercial launch prerequisites to applicable official sources.
 
 **Luna tasks:** maintain content/data inventories, trace requirement IDs to tested controls, prepare merchant-fact and rights/retention/incident checklists. Root researches applicability and reviews every public claim.
 
 **Deliverables:** [COMPLIANCE-RESEARCH.md](docs/COMPLIANCE-RESEARCH.md), actual privacy/vendor/data map, media provenance, SKU/market information requirements, pricing/discount and returns/withdrawal requirements, accessibility evidence, tax/import/food-label triggers, rights-request and breach-response procedures. Research covers GDPR/ePrivacy, applicable US state privacy/GPC/health-data rules, COPPA/CAN-SPAM, consumer contracts/reviews/advertising, food information, accessibility and media/IP/AI-transparency triggers.
 
-**Acceptance:** each requirement has jurisdiction/trigger, official source and checked date, applicability decision or missing fact, control owner, actual evidence and next review date. No invented entity/address, certification, nutrition, tax rate, shipment promise or licensing claim. Commercial requirements that need real merchant facts remain explicit launch gates; the demo does not enable unresolved real commerce.
+**Acceptance:** each requirement has jurisdiction/trigger, official source and checked date, applicability decision or missing fact, control owner, actual evidence and next review date. No invented entity/address, certification, nutrition, tax rate, shipment promise or licensing claim. Commercial requirements that need real merchant facts remain explicit launch gates; the development storefront does not enable unresolved real commerce.
 
 **Root gate:** verify the matrix against Phase 2's actual requests/storage/content and native markets. Current markets are US and Canada; EU commercial rollout is not established. Legal/tax interpretation requiring professional review stays a dependency, not a paid service commissioned by this plan.
 
@@ -114,11 +120,11 @@ These tasks share layout, settings and browser behavior, so they merge into one 
 
 **Outcome:** developers can reproduce workload projections and understand what must change or be verified at 10k, 100k and 1M concurrent visitors.
 
-**Luna tasks:** validated scenario model, loopback-only mock harness, failure/overflow tests and exact observed local results. Root owns platform boundaries, assumptions and graduation gates.
+**Luna tasks:** validated scenario model, loopback-only local simulator harness, failure/overflow tests and exact observed local results. Root owns platform boundaries, assumptions and graduation gates.
 
 **Deliverables:** [SCALABILITY.md](docs/SCALABILITY.md), `scripts/capacity/`, assumptions for page frequency/static requests/cache hits/cart writes/checkout starts/burst and media transfer, plus service ownership and future bottleneck decisions. Native Shopify/CDN/checkout remain distinct; no per-visitor Admin API or accidental public Worker fan-out.
 
-**Acceptance:** concurrency and throughput are distinct; all projections are finite and labeled PROJECTED; local measurements say LOCAL_MOCK_NOT_SHOPIFY; local harness cannot target an external service and enforces request/concurrency/duration limits. Document platform entitlement/capacity evidence and authorized external tests needed for each scale level. No assertion that a free tier supports one million users.
+**Acceptance:** concurrency and throughput are distinct; all projections are finite and labeled PROJECTED; local measurements say the explicit local-only, non-Shopify classification; local harness cannot target an external service and enforces request/concurrency/duration limits. Document platform entitlement/capacity evidence and authorized external tests needed for each scale level. No assertion that a free tier supports one million users.
 
 **Root gate / prepared evidence:** local harness completed 1,000 requests with zero errors; focused tests passed, including overflow rejection after review. Validate final code independently. This is prepared local evidence, not a Shopify load test or closed capacity milestone.
 
@@ -128,9 +134,9 @@ These tasks share layout, settings and browser behavior, so they merge into one 
 
 **Luna tasks:** bounded privacy-safe probe/report tooling and SLI/error-budget calculations; root reviews success semantics and free monitoring options.
 
-**Deliverables:** separate browsing/cart/checkout indicators, rolling 30-day window, coverage/missing-sample reporting, failure categories, owner/alert/runbook procedure and [OPERATIONS.md](docs/OPERATIONS.md). Use an independently available monitoring source only after its free entitlement and traffic limits are verified.
+**Deliverables:** separate browsing/cart/checkout indicators, rolling 30-day window, coverage/missing-observation reporting, failure categories, owner/alert/runbook procedure and [OPERATIONS.md](docs/OPERATIONS.md). Use an independently available monitoring source only after its free entitlement and traffic limits are verified.
 
-**Acceptance:** password/error/challenge pages do not count as successful shopping; dependency failures stay in the end-to-end result; missing samples are unknown. Continuous-time 99% over 30 days permits 432 minutes unavailable, distinct from a request-count budget. Local laptop checks do not establish continuous availability. No paid monitor or real customer purchase.
+**Acceptance:** password/error/challenge pages do not count as successful shopping; dependency failures stay in the end-to-end result; missing observations are unknown. Continuous-time 99% over 30 days permits 432 minutes unavailable, distinct from a request-count budget. Local laptop checks do not establish continuous availability. No paid monitor or real customer purchase.
 
 **Root gate:** exercise success/failure/missing-data cases and report actual coverage. Proposed SLO remains separate from an SLA and observed uptime.
 
@@ -189,7 +195,7 @@ Historical private checkpoints retain their original phase numbers. This mapping
 | Earlier topic phase | New delivery milestone |
 |---|---|
 | 1 Domain | 1 |
-| 2 Configuration, 3 Security, 4 Privacy, 5 Demo controls, 6 Header/UX, 7 Request resilience | 2, with formal applicability evidence in 3 |
+| 2 Configuration, 3 Security, 4 Privacy, 5 development storefront controls, 6 Header/UX, 7 Request resilience | 2, with formal applicability evidence in 3 |
 | 5 Commercial legal/content research | 3 |
 | 7 Performance | 4 |
 | 8 Capacity | 5 |

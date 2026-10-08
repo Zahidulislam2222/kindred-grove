@@ -1,6 +1,6 @@
 # Availability, incident response and recovery
 
-Status: 99% is a proposed per-path service objective. Continuous monitoring, an accountable on-call rotation, and recovery rehearsal are not yet implemented or verified. Reviewed 2026-09-24.
+Status: 99% is a proposed per-path service objective. Continuous monitoring, an accountable on-call rotation, and recovery rehearsal are not yet implemented or verified. Documentation reviewed 2026-10-08; dated measurements retain their original observation dates.
 
 This runbook describes future operating practice for the Shopify storefront. Shopify hosts core theme rendering, cart and checkout services; the merchant owns store configuration, commerce operations and provider relationships. The theme team can observe and reduce client-side failures, but cannot promise or directly repair Shopify platform availability. This document is not an SLA, staffed support commitment or claim of measured uptime.
 
@@ -14,7 +14,7 @@ Adopt a 99% good-event target over a rolling 30-day window separately for browsi
 | Cart | An isolated, empty test context can add one known available test variant, read the expected item/quantity, and clear that same cart without duplicate mutation. | Add not persisted, wrong quantity, ambiguous result not reconciled, remove/clear failure, wrong storefront or market. |
 | Checkout navigation | A cart with a test item can navigate to a genuine Shopify-hosted checkout without submitting customer or payment data or placing an order. This measures navigation only, not payment authorization or completed purchases. | Dead end, invalid checkout route, error/challenge page, navigation timeout. |
 
-Calculate event SLI as `good eligible observations / all eligible observations`. Keep an end-to-end view that includes Shopify and other dependencies; add separately attributed theme/platform/provider breakdowns for diagnosis rather than excluding dependency errors. Report the event denominator, sample schedule, actual received count and missing count. Use a separate latency SLI such as “good requests completing within a reviewed threshold / eligible requests”; do not silently mix latency targets into availability after collection starts.
+Calculate event SLI as `good eligible observations / all eligible observations`. Keep an end-to-end view that includes Shopify and other dependencies; add separately attributed theme/platform/provider breakdowns for diagnosis rather than excluding dependency errors. Report the event denominator, observation schedule, actual received count and missing count. Use a separate latency SLI such as “good requests completing within a reviewed threshold / eligible requests”; do not silently mix latency targets into availability after collection starts.
 
 At 99% continuous-time availability over 30 days, the illustrative time allowance is 432 minutes (7 hours 12 minutes). A request/event error budget is separately `eligible events × 1%`; do not translate failed probe counts into downtime without matching the measurement model. A 99% objective is a target only after the merchant approves it. It is not observed performance or a promise of uptime.
 
@@ -22,12 +22,12 @@ At 99% continuous-time availability over 30 days, the illustrative time allowanc
 
 No continuous, independent monitoring service is active under this project. The private domain audit is on-demand and can be interrupted with its host. Before enabling a monitor, verify its current free entitlement, request limits, region, retention, privacy behavior and any cost; do not add a paid service or schedule mutation probes by assumption. Shopify's own performance dashboard and status information can provide platform context, but do not replace a real shopper-path SLI. Use browser synthetic lab checks for known routes and optional privacy-approved field performance only after consent and data processing are reviewed. Shopify recommends combining appropriate field/lab performance evidence; theme performance metrics include TTFB, LCP, CLS and INP. [Shopify performance guidance](https://shopify.dev/docs/storefronts/themes/best-practices/performance/index).
 
-Record only timestamp, region, tested theme role/revision, market, path indicator, duration, result and a coarse failure category. Exclude passwords, cookies, cart tokens, customer fields, full checkout/session URLs and raw provider bodies. Monitoring configuration (probe frequency, timeout, alert thresholds and sample minimums) must have one centrally maintained owner when implemented; do not scatter values through probe code.
+Record only timestamp, region, tested theme role/revision, market, path indicator, duration, result and a coarse failure category. Exclude passwords, cookies, cart tokens, customer fields, full checkout/session URLs and raw provider bodies. Monitoring configuration (probe frequency, timeout, alert thresholds and minimum observation counts) must have one centrally maintained owner when implemented; do not scatter values through probe code.
 
 Proposed initial alert policy, pending named on-call owner and traffic-volume review:
 
-- Fast-burn page: any path's event-based error budget burn exceeds 14.4× over both 1-hour and 6-hour windows, provided each window meets its minimum sample count. This indicates rapid budget consumption, not necessarily a platform outage.
-- Sustained-burn ticket: burn exceeds 6× across 6-hour and 3-day windows, with adequate sample volume.
+- Fast-burn page: any path's event-based error budget burn exceeds 14.4× over both 1-hour and 6-hour windows, provided each window meets its minimum observation count. This indicates rapid budget consumption, not necessarily a platform outage.
+- Sustained-burn ticket: burn exceeds 6× across 6-hour and 3-day windows, with adequate observation volume.
 - Coverage alert: scheduled observations are missing for a whole region/window or below the agreed coverage floor; show status as unknown rather than green.
 - Direct incident trigger: checkout navigation, cart mutation correctness, data exposure or TLS for the intended domain is materially broken even if a low-traffic ratio has not crossed an alert threshold.
 
@@ -80,6 +80,25 @@ Use this release sequence:
 Rehearse restoration on an unpublished theme: select the previous reviewed manifest, restore its files/settings, compare downloaded hashes, and rerun theme/cart/privacy/navigation smoke checks. Time the exercise from recovery declaration to verified restored behavior; compare with the proposed ≤30-minute target and update it honestly. Do not test data restoration by deleting, resetting or mutating live catalog, customer or order records.
 
 ## Known failure handling
+
+### Availability qualification and interruption recovery
+
+The future 99% objective becomes operational only after the service owner approves definitions, monitoring coverage, alert recipients and response hours. Observe browsing, cart correctness and checkout navigation separately over a rolling 30-day window. Report both success ratios and missing observations; keep dependency failures in the end-to-end indicator. Platform status and a homepage HTTP200 are diagnostic inputs, not substitutes for actual shopper-path results.
+
+Keep two browsing checks distinct: the public entry check verifies the expected password gate on this development store; the authorized storefront check verifies real page content after visitor-password entry. Neither result alone establishes anonymous storefront availability. A future production launch must require real content from a fresh unauthenticated visitor context. Password/challenge pages must never count as a successful shopping observation.
+
+| Operating milestone | Acceptance evidence | Owner |
+|---|---|---|
+| Measurement definition | Named paths, eligible/good events, latency thresholds, markets/regions, coverage floor and privacy-safe fields | Service owner |
+| Monitor validation | Controlled non-production failure is detected; absence is shown as unknown; credentials remain private | Technical operator |
+| Alert delivery | Primary and backup actually receive a controlled notification; escalation and off-hours coverage are agreed | Incident owner |
+| Rolling-window review | Numerator, denominator, observation coverage, failures and budget use are recorded for 30 days | Service owner |
+| Recovery rehearsal | Previous theme restored on an unpublished target; elapsed time, hash parity and real smoke checks recorded | Release owner |
+| Campaign go/no-go | Dependency capacity approval, incident coverage, fulfillment/support readiness and known rollback | Merchant and capacity owner |
+
+For power loss or an interrupted push, record the intended commit and phase before mutation. On resume inspect Git status, native remote head and CI before replaying. For an interrupted document edit, re-read the current document revision and check which planned corrections exist. For PDF refresh, keep the canonical last-known-good export until the same document's new export has a valid header, readable pages and a non-empty result; replace atomically after preserving a recovery copy. These operations do not authorize deleting source, orders, customer records or previous incident stories.
+
+Suggested incident classification: exposure or payment/cart correctness failures receive immediate containment and merchant escalation; broad browsing outages prioritize platform diagnosis and known-good restoration; isolated content defects enter the defect log with a reproducible route/revision. Response times become commitments only when staffing and channels are verified. Post-incident review records the symptom, cause, fix, proof, escaped gate and lesson without public shopper/access details.
 
 | Failure | Immediate behavior | Recovery evidence |
 |---|---|---|

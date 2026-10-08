@@ -1,10 +1,10 @@
 # AI-assisted engineering governance
 
-Updated 2026-09-24. This describes the current project workflow. Earlier assistant names, tool-access limitations, blanket review assertions and automatic-deployment claims are historical and are not evidence of the present environment.
+Updated 2026-10-08. This describes the current project workflow. Earlier assistant names, tool-access limitations, blanket review assertions and automatic-deployment claims are historical and are not evidence of the present environment.
 
 ## Responsibilities
 
-The user requested Astra/root for architecture, monitoring and review, with Luna handling bounded implementation tasks in parallel. Related tasks belong to one delivery milestone with a combined acceptance gate. Parallel assignments have explicit file ownership and cannot independently deploy an unfinished shared worktree.
+The project maintainer owns scope, integration, verification and publication. Independent review occurs in a fresh context against the exact criteria and diff. Parallel implementation is used only when explicitly authorized and with separate file ownership; review is not permission to deploy or bypass required human approval.
 
 The root agent reads the current rules, project state and evidence; writes acceptance criteria before significant implementation; researches platform behavior from official sources; and reviews integration and real flows. A reviewer who did not author a change checks it against the criteria. Independent AI review is not human approval or a legal/security certification.
 
@@ -31,7 +31,7 @@ Human review remains a release/merge responsibility. Do not assert that a human 
 
 Credentials remain in approved local/platform secret storage and the ignored recovery record. The private dossier contains the durable project narrative without secrets; ignored project memory contains working checkpoints. Public docs are scrubbed outputs, not copies of private infrastructure or customer records.
 
-No real customer data is needed for the demo's tests. Use synthetic fixtures and isolated carts; avoid recording password entry or complete cookie/request payloads. Do not claim that provider retention/training settings are known without checking the active account and product. Client Google Docs and `my-project-view/` artifacts are edited only on an explicit request; the current handoff includes that authorization. They are not committed with public source.
+No real customer data is needed for the development storefront's tests. Use synthetic fixtures and isolated carts; avoid recording password entry or complete cookie/request payloads. Do not claim that provider retention/training settings are known without checking the active account and product. Client Google Docs and `my-project-view/` artifacts are edited only on an explicit request; the current handoff includes that authorization. They are not committed with public source.
 
 ## Evidence and cost honesty
 

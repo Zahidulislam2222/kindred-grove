@@ -29,7 +29,7 @@ Publish the candidate on a feature branch and open a pull request. Do not bypass
 
 1. Read native repository/branch/workflow settings and compare the remote base with local history. Fetch/reconcile changes without overwriting local work.
 2. Inspect the intended file list. Exclude credentials, environment values, private dossier/memory, client documents/PDFs, browser artifacts and local connection settings. Ignore rules do not untrack an already tracked file.
-3. Inspect the full proposed source and history with secret scanning; check configuration ownership, media provenance, truthful demo claims and documentation links. Resolve findings without disabling hooks.
+3. Inspect the full proposed source and history with secret scanning; check configuration ownership, media provenance, truthful development storefront claims and documentation links. Resolve findings without disabling hooks.
 4. Run applicable security/configuration tests, syntax, Theme Check, static analysis and independent review. Reuse unchanged artifact evidence explicitly; rerun behavior when code changes warrant it.
 5. Stage a reviewed allowlist, inspect staged diff and scan staged content. Commit with a concrete summary, then push without force. Confirm local commit equals the remote branch commit and no private path entered the tree.
 6. Open the pull request with tests, current behavior, remaining gates and the separation from live publication. Observe actual hosted checks; do not call missing or skipped gates green.
@@ -44,7 +44,7 @@ Check both process exit status and Shopify's structured upload errors. This proj
 
 The private Phase2delivery helper performed these steps for the current accepted artifact. It is not a portable public deployment product: reusable reviewed-artifact/drift/recovery automation remains a future milestone. Accordingly the checked-in deploy workflows fail closed before theme writes.
 
-Live publication needs a separate explicit decision for a concrete tested theme. GitHub merge does not authorize theme publication. Confirm payment/demo settings, product/legal/content readiness, monitoring, incident owner and rollback artifact first.
+Live publication needs a separate explicit decision for a concrete tested theme. GitHub merge does not authorize theme publication. Confirm payment/development storefront settings, product/legal/content readiness, monitoring, incident owner and rollback artifact first.
 
 ## Interrupted work and rollback
 

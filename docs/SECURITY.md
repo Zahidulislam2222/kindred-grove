@@ -35,7 +35,7 @@ The layout has a meta CSP. Its source is authoritative; do not copy a stale dire
 
 ## Secrets and scan coverage
 
-Never put Admin API credentials into Liquid, assets, tests, fixtures, logs, command arguments or public documentation. CLI consumers use environment variables; public `.env.example` values are placeholders only. Privileged tokens do not belong in browser configuration. A public integration identifier is not a private API key, but still needs accurate purpose and vendor documentation.
+Never put Admin API credentials into Liquid, assets, tests, fixtures, logs, command arguments or public documentation. CLI consumers use environment variables; public `.env.example` values are safe example values only. Privileged tokens do not belong in browser configuration. A public integration identifier is not a private API key, but still needs accurate purpose and vendor documentation.
 
 `.gitleaks.toml` inherits default rules and excludes only exact root credential paths. The regression fixture proves shipping scripts, docs, tests and `.env.example` remain scanned, including nested files that resemble private root names. Upstream Gitleaks 8.30.1 still excludes dependency lockfiles and binary files; inherited exclusions are a documented limitation, not a scanned-clean claim for those files. The installed edit hook and independent scans complement code review; neither establishes absence of all vulnerabilities.
 
@@ -43,7 +43,7 @@ Private credential/recovery paths were ignored, untracked and absent from the in
 
 ## CI and release trust
 
-The repository is public. Native inventory found the Gitleaks workflow disabled by inactivity and `main` with an empty required-status list. Checked-in workflows and a branch-protection sample do not prove hosted enforcement. Record any later native change separately.
+The repository is public. Native inventory found the Gitleaks workflow disabled by inactivity and `main` with an empty required-status list. Checked-in workflows and a branch-protection reference do not prove hosted enforcement. Record any later native change separately.
 
 Never use green skipped jobs as release evidence. Missing credentials are a blocked/failed prerequisite. Do not expose secrets to untrusted pull-request code or use `pull_request_target` to execute it. Pin action references to verified commits and install the locked test harness. Percy or paid AI review is not part of the required free gate.
 
@@ -56,6 +56,23 @@ Shopify remains a processor/platform dependency. Native privacy policy and opt-o
 Theme-owned optional tracking must fail closed without the relevant permission. Diagnostic payloads must not include shopper fields, arbitrary exceptions containing form data, URLs with identifiers, cart tokens or raw upstream responses. Browser tests must not persist password entry or live customer data in artifacts. Merchant identity, retention, rights requests, processors and actual regional obligations still require documented business facts.
 
 ## Reporting and response
+
+### Threat and future-control register
+
+| Threat / trust boundary | Existing mitigation | Remaining qualification |
+|---|---|---|
+| Merchant data entering HTML/script/URLs | Contextual escaping, escaped configuration transport, shape/size validation and same-origin route checks | Review every new rendering context; an HTML-escaped unsafe URL is still unsafe |
+| Admin credentials exposed to shoppers | Secrets remain environment/private-store inputs; no per-visitor Admin API request | Verify every staged/history tree and recovery file boundary before publication |
+| Incorrect or repeated cart side effects | Intent serialization, bounded reads and reconciliation; no blind retry after uncertainty | Test representative variant/stock/error cases; platform cart behavior remains Shopify-owned |
+| Optional data processing without permission | Purpose-specific native consent plus platform permission; GPC/DNT denials and owned-state cleanup | Inventory actual app/pixel/platform behavior and rehearse rights/retention operations |
+| Untrusted change entering release | Scoped branch, pinned toolchain/actions, source tests/scans and independent review | Enforce required approving review; native main protection currently has no required status contexts |
+| Overprivileged merchant access | Platform supports separate access roles; visitor password is distinct from admin login | Merchant verifies MFA, least privilege, recovery access, revocation and account audit |
+| Unsafe optional backend | Former public wholesale side-effect Worker retired | Any new service needs [backend admission criteria](BACKEND.md), authorization, idempotency, durable admission and bounded work |
+| Supply-chain or unsupported extension | Lockfile/scans; isolated old extension has no accepted runtime role | Triage alerts, verify registry versions and migrate the unsupported extension only through a separate approved app project |
+
+Use [OWASP ASVS](https://owasp.org/projects/asvs) as a requirements and verification framework when expanding server-side services. Apply authentication, object-level authorization, injection prevention, session isolation, validation, secret management, logging minimization and recovery to actual applicable boundaries. ASVS use is not a certification, and theme-only checks do not validate Shopify's internal infrastructure.
+
+The GitHub publication contains no new paid scanner, provider, infrastructure or telemetry activation. Preserve the installed scan hook; fix any finding rather than bypassing it. Public reports identify severity/component/status without customer data, private access details or usable credentials. See the repository's [reporting policy](../SECURITY.md).
 
 Use the repository's private vulnerability reporting channel only if the repository owner has enabled it; otherwise obtain a verified private contact from the maintainer. No security mailbox or response SLA has been verified, so this document does not invent one. Do not post an exploit, customer data or credentials in a public issue.
 

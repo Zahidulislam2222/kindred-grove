@@ -1,12 +1,16 @@
 # Accessibility — Kindred Grove
 
-Last reviewed: 2026-09-24. Engineering target: **WCAG 2.2 AA**. Phase 2 is accepted for the reviewed development artifact; automated checks are not a complete accessibility assessment or legal certificate.
+Documentation updated: 2026-10-08; dated observations below retain their original dates. Engineering target: **WCAG 2.2 AA**. Phase 2 is accepted for the reviewed development artifact; automated checks are not a complete accessibility assessment or legal certificate.
 
-## Verified development evidence
+## Current published evidence — 2026-10-08
+
+All seven canonical content pages passed selected WCAG axe checks and responsive reflow at 1440/390/320 px. The authenticated browser suite passed 55 cases plus a native search/mobile-axe check 1/1; cart, memory-only quiz, consent, keyboard/header/reduced-motion and no-JavaScript flows were exercised. The published theme has 154-file hash parity. Complete manual/assistive-technology review remains open.
+
+## Historical development evidence — 2026-09-24
 
 The final integrated browser run passed 41 cases with zero failures, five documented skips and no flaky results. Its axe checks passed on home, cart, collection and search. Separate active alternate Quiz and Wholesale template checks passed 2/2 with zero violations. The quiz progressbar was visible and its accessible name matched the rendered heading; all five questions, the result link and reset after reload were exercised. Canonical Quiz/Wholesale pages are absent; the Quiz test explicitly enabled its feature after native consent.
 
-Direction-aware header reveal on focus/menu use, keyboard/Escape/focus return, synchronized video/copy and reduced motion were exercised. No-JavaScript navigation passed at 320/390 px. Product reflow passed at 320/370/371/390/1440 px, including the sample-price label and media. The country-selector contrast defect and unnamed quiz progressbar were corrected and checked on the uploaded artifact. Local/frozen/downloaded theme parity is 150/150.
+Direction-aware header reveal on focus/menu use, keyboard/Escape/focus return, synchronized video/copy and reduced motion were exercised. No-JavaScript navigation passed at 320/390 px. Product reflow passed at 320/370/371/390/1440 px, including the reference-price label and media. The country-selector contrast defect and unnamed quiz progressbar were corrected and checked on the uploaded artifact. Local/frozen/downloaded theme parity is 150/150.
 
 Earlier desktop/mobile visual checks covered 1440/390 px. A 200% root-font-size experiment was only an approximation; it does not establish browser zoom conformance. Automated keyboard checks cover named interactions, not every possible journey or assistive technology.
 
@@ -26,7 +30,7 @@ The accessibility workflow is manual and requires configured preview credentials
 
 ## Remaining manual checks
 
-The maintained [manual checklist](../tests/a11y/MANUAL-CHECKS.md) records checks not established by axe: screen readers, actual 200%/400% browser zoom, text spacing, forced colors, complete keyboard paths, Arabic RTL, touch targets and real-device mobile assistive technology. Its unchecked boxes remain unverified. Single-variant catalog and missing article/merchant pages limit route coverage.
+The maintained [manual checklist](../tests/a11y/MANUAL-CHECKS.md) records checks not established by axe: screen readers, actual 200%/400% browser zoom, text spacing, forced colors, complete keyboard paths, Arabic RTL, touch targets and real-device mobile assistive technology. Its unchecked boxes remain unverified. The selected single-variant product, collection without a sort control and missing article limit current conditional coverage. The seven canonical content pages now exist; earlier missing-page observations were resolved in the October release.
 
 The current homepage includes a film with pause/reduced-motion behavior. Evaluate media alternatives against its actual content before changing footage; neither an obsolete “no video” statement nor a passing automated scan settles that review. No real order or customer-information submission is needed for accessibility testing.
 

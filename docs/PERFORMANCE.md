@@ -28,9 +28,9 @@ Optional product UI now uses the reviewed bounded request/cancellation runtime. 
 ## Reproducible regression checks
 
 1. Record theme revision/role, route, market, viewport, device/profile, cache state, consent state and tool version. Hide the native preview toolbar only through Shopify's supported preview configuration when appropriate; verify the intended theme still renders.
-2. Confirm real content before measuring. Password pages, bot challenges and wrong-market unavailable products are not valid shopping performance samples.
+2. Confirm real content before measuring. Password pages, bot challenges and wrong-market unavailable products are not valid shopping performance observations.
 3. Retain reports without credentials or customer data. Compare like-for-like runs; report medians and variation, not a cherry-picked score.
 4. Inspect the changed request waterfall, media bytes, long tasks and layout shifts. Fix regressions before considering a budget change. Any budget adjustment requires a reason and separate review.
 5. Keep keyboard, reduced-motion and cart behavior passing alongside speed checks. Fast rendering does not excuse broken purchase behavior.
 
-[SCALABILITY.md](SCALABILITY.md) separates concurrency from throughput and documents local mock observations. [OPERATIONS.md](OPERATIONS.md) defines the unmeasured 99% availability target and recovery gates. Neither a Lighthouse score nor a local mock establishes Shopify capacity or uptime.
+[SCALABILITY.md](SCALABILITY.md) separates concurrency from throughput and documents local workload simulator observations. [OPERATIONS.md](OPERATIONS.md) defines the unmeasured 99% availability target and recovery gates. Neither a Lighthouse score nor a local workload simulator establishes Shopify capacity or uptime.

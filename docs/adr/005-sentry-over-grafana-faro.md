@@ -62,7 +62,7 @@ Scope:
 2. **Roll-your-own via Cloudflare Workers** — rejected. We already have enough infra; adding a bespoke error sink means writing our own deduper, grouper, and release tagger. That's rebuilding Sentry badly. Case study wants "production-grade," not "home-grown."
 3. **Shopify's native Web Pixels API for errors** — rejected. Web Pixels is an analytics event API, not an error-tracking product. No stack traces, no release tagging, no issue grouping.
 4. **Datadog RUM** — rejected. Enterprise-priced, no free tier that fits; would not screenshot as a credible "independent dev shipped this" signal.
-5. **LogRocket** — rejected. Session replay is tempting for a case study but raises a real PII question on a store that will have (fake) customer traffic during the Day-23 Loom demo. Avoid the liability.
+5. **LogRocket** — rejected. Session replay is tempting for a case study but raises a real PII question on a store that will have (fake) customer traffic during the Day-23 Loom development storefront. Avoid the liability.
 
 ## References
 

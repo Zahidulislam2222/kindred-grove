@@ -1,8 +1,8 @@
-# Privacy in the Kindred Grove demo theme
+# Privacy in the Kindred Grove storefront
 
-**Last reviewed: 2026-09-24** · **Scope: theme-owned behavior in the reviewed Shopify development artifact**
+**Current-state documentation review: 2026-10-08** · **Scope: theme-owned behavior; original observation dates remain explicit**
 
-This page explains what the custom theme does with visitor information and where its control ends. It is implementation documentation, not a substitute for the merchant’s privacy notice or a determination of which laws apply. The demo’s actual data practices, vendor settings, and the merchant’s identity and contact details must be verified before commercial use.
+This page explains what the custom theme does with visitor information and where its control ends. It is implementation documentation, not a substitute for the merchant’s privacy notice or a determination of which laws apply. The development storefront’s actual data practices, vendor settings, and the merchant’s identity and contact details must be verified before commercial use.
 
 ## What the theme does
 
@@ -16,7 +16,7 @@ The theme also treats browser Global Privacy Control (GPC) and Do Not Track (DNT
 | Recently viewed product handles and timestamps | Product personalization only when preferences consent and Shopify’s preferences-processing permission both allow it. | Browser local storage; at most 12 records, each no older than 30 days. Allowed product detail reads use same-origin Shopify product JSON routes. On denial or withdrawal, the owned history key is removed and the component is hidden. | Security tests cover consent gating, bounded retention, stale records, same-origin reads, and denial cleanup. This is theme-local retention, not a schedule for Shopify order data. |
 | Pantry quiz choices, including dietary selections | Calculate a requested on-page recommendation. The quiz does not infer a diagnosis or transmit choices. | Component memory for the current page only; cleared when the quiz resets or its page/component is discarded. It does not use local storage, session storage, analytics, or answer/persona telemetry. A legacy answer key is removed on startup; the theme does not read or restore it. | Browser flow answered five questions, followed a result to a real collection page, reloaded and verified the quiz reset. Security checks verified the legacy key was absent from both local and session storage. |
 | Announcement dismissal | Hide the current announcement for this page view. | Page memory only; no persistent dismissal write. Narrowly scoped legacy theme-owned keys are removed at startup. | Security tests cover no persistence and cleanup boundaries. |
-| Cart actions | Add, change, or remove sample products in the demo; normal commerce behavior when the demo guard is disabled. | Shopify cart endpoints and Shopify’s cart/session infrastructure. Cart and eventual order data are not theme-local records; Shopify and merchant retention, fulfillment, payment, and account practices govern them. | Phase 2 browser tests verified add 0→1→2→0 and cart-state reconciliation. No order was placed. |
+| Cart actions | Add, change, or remove Shopify catalog variants through the native visitor cart. | Shopify cart endpoints and Shopify’s cart/session infrastructure. Cart and eventual order data are not theme-local records; Shopify and merchant retention, fulfillment, payment, and account practices govern them. | Phase 2 browser tests verified add 0→1→2→0 and cart-state reconciliation. No order was placed. |
 | Merchant-authored quiz, persona, and feature definitions | Render maintained storefront content and configuration. These are not visitor answers. | Shopify theme settings and escaped HTML template attributes; parsed as JSON by the theme. | Security tests cover strict shape/size validation, HTML context escaping, and translated defaults. Alternate quiz rendering confirmed valid live configuration. |
 | Consent state and platform commerce data | Shopify’s privacy and commerce functions. The theme reads consent state but does not control Shopify’s platform collection. | Shopify and any services configured by the merchant. Their individual retention and subprocessors are not set by theme code. | Native consent UI was tested for unknown state, accept, partial preferences, withdrawal, and reload. Platform-wide processing was not exhaustively measured. |
 
@@ -30,7 +30,7 @@ The details above describe the custom theme only. They do not establish that eve
 | Shopify Customer Privacy API and native banner | The theme calls the purpose-specific API. The native banner/preferences UI was exercised in the development preview. Shopify’s banner settings were saved and reloaded with 299/299 region entries selected on 2026-09-24. | Recheck regions, purpose defaults, language, links, and behavior for intended markets after any Shopify settings or region change. A region selection is not a legal applicability decision. |
 | Shopify Network Intelligence | Observed enabled in Shopify admin on 2026-09-24. The attempted disable flow indicated Shop would need to be uninstalled; it was cancelled and no setting was changed. | Determine the store’s actual platform configuration and need before launch. Do not infer that theme consent checks control this platform feature. |
 | Installed apps, app pixels, Shopify-hosted checkout and accounts | Their collection, destinations, and retention are outside theme controls and were not exhaustively inventoried. The account route redirected to a Shopify-hosted surface in the tested development context. | Inventory each app, pixel, embedded script, and service; document purpose, categories, regions, contractual role, retention/deletion, and consent integration. Test hosted checkout/accounts separately. |
-| Newsletter and contact | With the theme’s `demo_mode` setting enabled, theme-rendered newsletter/contact submissions are replaced by disabled copy. No customer form was submitted during Phase 2. Turning demo mode off restores Shopify-native theme form routes, but does not itself prove the merchant’s recipient, consent, suppression, or retention process. | Keep disabled until the merchant identifies the destination and owner, verifies notices and lawful signup, tests unsubscribe/suppression, and approves real submissions. Review any app or external recipient independently. |
+| Newsletter and contact | Native newsletter/contact/wholesale forms are currently enabled and were inspected without submitting customer information. Actual recipient delivery, lawful signup, suppression and retention operations are not verified. An inactive optional legacy setting can suppress theme-rendered forms; it does not control hosted or app-injected collection. | Before real collection, the merchant identifies the destination and owner, verifies notices and lawful signup, tests unsubscribe/suppression, and approves submissions. Review any app or external recipient independently. |
 
 ## Visitor choices and requests
 
@@ -55,7 +55,7 @@ Before launch, the merchant must approve a retention schedule by data category a
 
 ## Developer and merchant release checks
 
-Before disabling demo mode or enabling a new vendor, market, or data purpose:
+Before real collection or enabling a new vendor, market, or data purpose:
 
 - Update the data and vendor inventory from the actual published theme, Shopify admin, app embeds/pixels, and observed browser requests.
 - Reconcile the privacy notice and any notice-at-collection links with real fields, recipients, purposes, retention, rights, and contact channels.

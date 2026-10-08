@@ -14,7 +14,7 @@ The accepted development checks cover product browsing, cart add/change/remove, 
 |---|---|
 | Product titles, descriptions, variants, prices and inventory | Shopify product/catalog administration |
 | Homepage film choice, imagery, chapter wording and merchandising | The intended theme's Grove section settings |
-| Brand presentation and demo mode | Theme settings and the theme's checked configuration |
+| Brand presentation and legacy restricted mode | Theme settings and the theme's checked configuration |
 | Interface translations | Locale files; storefront language publication is a separate merchant setting |
 | Farm, recipe, certification and related editorial records | Reviewed metaobject definitions and entries |
 | Pages and assigned templates | Shopify page administration, then theme template assignment |
@@ -45,13 +45,13 @@ Normal storefront mode is the current default and checked configuration. Prices 
 
 Before enabling commerce, supply and verify real product facts: ingredients, allergens, nutrition/quantity, origin where required, responsible operator, storage/use instructions, certifications and authorized claims. Product information requirements depend on product and destination. Maintain evidence for origin, sustainability and certification wording; do not use the illustrative seed catalog as proof.
 
-A Shopify compare-at price is not a verified legal price-history record. Approve discount history, final/unit pricing where applicable, tax/shipping disclosure and refund/withdrawal handling for each supported market. Free-shipping progress is hidden in demo and requires explicit policy verification plus matching currency outside demo. See [US/EU requirements](COMPLIANCE-RESEARCH.md).
+A Shopify compare-at price is not a verified legal price-history record. Approve discount history, final/unit pricing where applicable, tax/shipping disclosure and refund/withdrawal handling for each supported market. Free-shipping progress requires explicit merchant policy verification and matching shop/cart currencies; the optional inactive legacy restriction can also suppress it. Development-store membership itself is not this component’s condition. See [US/EU requirements](COMPLIANCE-RESEARCH.md).
 
 ## Cart and checkout
 
 The drawer supports actual Shopify cart add, quantity change and removal. Verified development flow was 0→1→2→0. A write with an uncertain network outcome is not blindly repeated; the runtime reconciles cart state. Check status messages and item totals before repeating an action.
 
-Demo mode disables checkout controls rendered by this theme. It does not switch Shopify payments to test mode or disable direct platform checkout URLs. Hosted accounts/checkout and app interfaces require their own review. Do not enter real personal/payment data for a portfolio demonstration. The checkout extension folder is a legacy unsupported example, not an installed badge feature.
+The optional inactive legacy restriction can suppress checkout controls rendered by this theme. It does not switch Shopify payments to test mode or disable direct platform checkout URLs. Hosted accounts/checkout and app interfaces require their own review. Do not enter real personal/payment data for a portfolio demonstration. The checkout extension folder is a legacy unsupported example, not an installed badge feature.
 
 ## Quiz, wholesale, newsletter and accounts
 
@@ -59,7 +59,7 @@ The quiz questions/personas are merchant-authored configuration. Answers stay in
 
 The active newsletter, wholesale and contact forms use native Shopify handling. There is no custom Klaviyo forwarding or automatic wholesale draft-order creation; the old Worker is retired. Client cooldowns/honeypots are not server security guarantees. Establish actual inbox ownership, lawful collection, retention, unsubscribe/suppression and response procedures before accepting personal data.
 
-Theme-rendered classic account/customer details and comment/cart-note forms are guarded in demo. Shopify-hosted account surfaces can bypass theme templates; do not assume theme settings govern them.
+Current classic account/customer templates and comment/cart-note controls use native platform behavior; an inactive legacy restriction can suppress theme-rendered content. Shopify-hosted account surfaces can bypass theme templates; do not assume theme settings govern them.
 
 ## Privacy and localization
 

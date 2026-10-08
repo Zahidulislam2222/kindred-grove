@@ -1,5 +1,13 @@
 # Testing and CI boundaries — Kindred Grove
 
+## Public documentation release verification — 2026-10-08
+
+The full offline security/configuration suite passed 102/102 after adding four public-documentation regressions. Local file links and heading anchors resolve; current landing documentation names password access, Shopify-managed backend ownership and future 1M+/99% objectives. Product framing checks preserve technical identifiers rather than rewriting protocol/evidence labels.
+
+Theme Check reported zero errors and two existing orphan-snippet warnings. Semgrep CE ran 23 applicable rules on 40 tracked frontend/script files with zero findings; public-source and full-history Gitleaks scans found no secrets in their reviewed scope. The installed security hook passed. Fresh-context documentation review returned PASS after correcting stale current-state descriptions, historical ADR claims, a catalog-path description and an anchor regression.
+
+All 154 shipping-source hashes still match the published artifact manifest. No frontend runtime, backend service, dependency or Shopify setting changes are included in this documentation release; the existing authenticated browser evidence below is retained with its original scope. Native theme packaging is verified separately. Standalone type check, JS/CSS lint and bundler build are absent; Bandit is inapplicable to shipping JS/CSS/Liquid. Hosted checks and exact remote source head must be observed after push; prior runs are not evidence for a new commit.
+
 ## Verified storefront release — 2026-10-08
 
 The published normal storefront passed **55 browser checks, zero failures, three evidenced skips, zero flaky cases** in a fresh bare-domain Chromium context. An additional real native search/result/mobile-axe check passed **1/1**. The seven canonical pages were checked at 1440/390/320 px for HTTP 200, exact headings, real navigation, body content and reflow; all seven passed axe WCAG checks. Contact/wholesale/newsletter/native checkout controls were inspected without submitting messages, personal data, orders or payments. Cart 0→1→2→0, quiz question/result/reload, native consent, GPC/DNT, film/header and no-JavaScript navigation passed.
@@ -51,7 +59,7 @@ leave a temporary unpublished theme to inspect and remove through Shopify.
 
 The local harness expects `BASE_URL` to be HTTPS (or localhost HTTP), with an
 optional same-origin `PREVIEW_URL`. A storefront password, if needed, is passed
-as `SHOPIFY_STORE_PASSWORD`. Example target values below are placeholders and
+as `SHOPIFY_STORE_PASSWORD`. Example target values below are safe example values and
 must be replaced with the intended test storefront and preview URL:
 
 ```sh
@@ -97,8 +105,7 @@ must stop the write.
 
 ## GitHub configuration state
 
-`.github/branch-protection.json` is a sample only; its wrapper fields
-`sample_only` and `not_applied_to_remote` intentionally make it unsuitable as a
+`.github/branch-protection.json` is a reference-only proposal; its wrapper fields make it unsuitable as a
 direct GitHub API request. It recommends the CI security/config, Theme Check,
 and Gitleaks statuses after they have been enabled and observed.
 On 2026-09-24, [PR #8](https://github.com/Zahidulislam2222/kindred-grove/pull/8) at source commit `078aae7` passed hosted [Security and config regression](https://github.com/Zahidulislam2222/kindred-grove/actions/runs/35937547220) and [Liquid linting](https://github.com/Zahidulislam2222/kindred-grove/actions/runs/35937547177). Main still requires one approving review; no status contexts are configured as required. Gitleaks remains disabled by inactivity remotely, with source/history/staged scans performed locally. No hosted browser or deployment run was invoked.

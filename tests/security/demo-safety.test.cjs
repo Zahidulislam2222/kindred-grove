@@ -47,7 +47,7 @@ test('theme checkout controls and built-in contact/newsletter forms are disabled
   assert.match(legacyFooter, /if settings\.demo_mode[\s\S]*?demo\.newsletter_disabled[\s\S]*?else[\s\S]*?form 'contact'/);
   assert.match(newsletter, /if settings\.demo_mode[\s\S]*?demo\.newsletter_disabled[\s\S]*?else[\s\S]*?form 'contact'/);
   assert.match(wholesale, /if settings\.demo_mode[\s\S]*?demo\.contact_disabled[\s\S]*?else[\s\S]*?form 'contact'/);
-  assert.match(read('docs/DEMO-SAFETY.md'), /direct Shopify checkout URL/i);
+  assert.match(read('docs/STOREFRONT-ACCESS.md'), /direct Shopify checkout URL/i);
 });
 
 test('demo mode removes cart-note inputs, article comments, and theme customer-data flows', () => {
@@ -154,5 +154,5 @@ test('media provenance lists the actual local export sources and marks license e
   }
   assert.match(provenance, /Unverified/);
   assert.match(provenance, /does not claim that media is AI-generated, original, stock, or licensed/i);
-  assert.match(read('docs/DEMO-SAFETY.md'), /Shopify-hosted customer account and checkout surfaces may bypass theme rendering/i);
+  assert.match(read('docs/STOREFRONT-ACCESS.md'), /Shopify-hosted customer account and checkout surfaces may bypass theme rendering/i);
 });

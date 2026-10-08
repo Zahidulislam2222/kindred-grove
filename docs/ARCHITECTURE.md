@@ -2,7 +2,7 @@
 
 ## Current storefront composition — 2026-10-08
 
-The connected domain now serves the reviewed normal storefront. Seven native Shopify Pages supply Our Story, Recipes, FAQ, Contact, Shipping & Returns, Find Your Pantry and Wholesale. Maintained content lives in `content/storefront-pages.json`; writes update native resources after local review. Global native page pickers drive shared header/footer URLs and active-link semantics.
+The connected domain reaches Shopify’s required visitor-password page. After entering the separately shared storefront password, visitors see the published reviewed storefront. Seven native Shopify Pages supply Our Story, Recipes, FAQ, Contact, Shipping & Returns, Find Your Pantry and Wholesale. Maintained content lives in `content/storefront-pages.json`; writes update native resources after local review. Global native page pickers drive shared header/footer URLs and active-link semantics.
 
 The default page section supplies responsive editorial layouts and contact handling, with conditional static Theme Blocks for discovery and wholesale. The quiz is not experiment-gated. Search uses the native GET route, product cards and pagination; password rendering uses Shopify's native form. Native prices/forms/notes/checkout are enabled by the active configuration. Existing optional legacy guard code is inactive. No custom commerce backend or runtime dependency was added.
 
@@ -33,11 +33,11 @@ Shopify owns hosted rendering, catalog, inventory, cart and checkout services. T
 | `templates/` | Native Shopify route/template composition |
 | `sections/`, `blocks/` | Merchant-editable presentation and product/cart/form components |
 | `snippets/` | Reused markup, configuration transport, product cards and structured data |
-| `assets/` | Unbundled styles, Web Components and static demo media |
+| `assets/` | Unbundled styles, Web Components and static development storefront media |
 | `config/`, `locales/` | Shopify settings and maintained translated interface content |
 | `scripts/config/` | Validated local/CI tool configuration and version manifest |
 | `scripts/ci/` | CI prerequisites, preview validation and release blocking helpers |
-| `scripts/capacity/` | Projected workload model and loopback-only mock harness |
+| `scripts/capacity/` | Projected workload model and loopback-only local simulator harness |
 | `tests/` | Committed automated security, browser, accessibility and optional visual tests |
 | `docs/` | Public engineering evidence and decisions |
 
@@ -45,7 +45,7 @@ Private credentials, remote snapshots, investigation notes and recovery records 
 
 ## Rendering and interaction
 
-Liquid renders real catalog data and native navigation. JavaScript enhances the page through custom elements: Grove header/journey/pantry interactions, product variants and gallery, cart drawer, search, quick view, recommendations, quiz and recently viewed history. Native links and suitable forms remain the fallback where JavaScript is unavailable; demo mode deliberately disables real personal-data submissions and theme checkout controls under the accepted Phase 2 controls.
+Liquid renders real catalog data and native navigation. JavaScript enhances the page through custom elements: Grove header/journey/pantry interactions, product variants and gallery, cart drawer, search, quick view, recommendations, quiz and recently viewed history. Native links and suitable forms remain the fallback where JavaScript is unavailable. Native forms and theme checkout controls are currently enabled. An optional inactive legacy restriction does not control hosted accounts, payment settings or checkout entitlement.
 
 The cinematic hero maps scroll position to film time and updates its left-side copy by actual chapters. Header scroll direction uses hysteresis, shows navigation when focused/open and reserves layout height. Visible header height separately positions the sticky hero. Reduced-motion mode retains a static poster. Actual pause/seek and chapter regressions passed on development; media-byte performance measurement remains a future milestone. See [PERFORMANCE.md](PERFORMANCE.md).
 
@@ -81,3 +81,7 @@ Deployment order: inspect native theme role → retain remote snapshot → recon
 [SCALABILITY.md](SCALABILITY.md) models 10k/100k/1M visitor scenarios separately from request rates, cache misses, cart writes and checkout starts. The harness creates only a local synthetic server and cannot establish Shopify capacity. A migration to a custom headless stack is not required merely to make the architecture look scalable; it adds services and obligations that need their own evidence.
 
 [OPERATIONS.md](OPERATIONS.md) defines the proposed 99% rolling availability objective, separate browsing/cart/checkout indicators, missing-observation coverage, incident response and recovery rehearsal. No continuous observed uptime or million-user capacity is claimed.
+
+## Documentation ownership
+
+Current service contracts are in [BACKEND.md](BACKEND.md); cross-functional delivery and commercial requirements are in [PROJECT-REQUIREMENTS.md](PROJECT-REQUIREMENTS.md). Dated historical decisions preserve context; current source/release evidence takes precedence. The public documentation contains no credentials, private recovery records or customer data.

@@ -6,7 +6,7 @@ Updated 2026-10-08. The published normal storefront adds native page ownership. 
 
 | Runtime or value | Authoritative owner | Consumers and rule |
 |---|---|---|
-| Merchant choices, demo mode, products and section copy | Shopify settings/schema and section/block settings | Liquid templates; no environment-variable copy of catalog or business content |
+| Merchant choices, legacy restricted mode, products and section copy | Shopify settings/schema and section/block settings | Liquid templates; no environment-variable copy of catalog or business content |
 | Navigation destinations | Global merchant page pickers in Shopify settings | Shared header/footer read native page URLs; configured pages must exist |
 | Maintained editorial page content | `content/storefront-pages.json`, synchronized to existing native Shopify Pages | Titles, handles and HTML are reviewed locally first; browser readback verifies remote resources |
 | Page presentation and artwork | Grove page section schema/settings | Default page section conditionally renders discovery/wholesale theme blocks by native page identity |
@@ -21,7 +21,7 @@ Updated 2026-10-08. The published normal storefront adds native page ownership. 
 | Browser test timeouts/retries/workers | `scripts/config/test-defaults.json` | No duplicated defaults in runner/fixtures |
 | Tool versions and Gitleaks archive checksum | `scripts/config/toolchain.json` | CI toolchain helper; action revisions remain pinned at their workflow use sites |
 | Capacity assumptions and loopback harness limits | `scripts/capacity/scenarios.json` | Model and local-only synthetic harness; no external target support |
-| Preserved legacy catalog | `scripts/data/legacy-demo-products.json` | Offline validator only; source content is unverified and is not an active seed catalog |
+| Preserved legacy catalog | Maintained historical catalog JSON under `scripts/data/` | Offline validator only; source content is unverified and is not an active seed catalog |
 | CI credentials and target IDs | GitHub secrets/environment inputs | Workflow preflight and target validation; never values in source |
 
 Shopify supplies locale-aware route data, prices, currency and product records. Predictive-search decimal prices are major currency units; product/cart prices use Shopify minor-unit representation. The component-specific formatter contracts are covered by regression fixtures. Use its [routes object](https://shopify.dev/docs/api/liquid/objects/routes) and [Ajax API guidance](https://shopify.dev/docs/api/ajax), rather than constructing an environment-specific host in application code.
@@ -65,7 +65,7 @@ Unused future GA, Sentry, Klaviyo, review-app, headless and Cloudflare variables
 ## Audit status
 
 - Combined local security/configuration gate: 95/95 tests. Actual development browser gate: 41 passed, 0 failed, 5 documented skips; alternate Quiz/Wholesale flows 2/2 and active axe 2/2.
-- Seed/demo source review accepted the fixed offline path and demo guards; root reran seed 5/5, including default and blocked apply.
+- Offline catalog source review accepted the fixed offline path and legacy safeguards; root reran seed 5/5, including default and blocked apply.
 - Toolchain pins and action-tag mappings were checked against official release sources earlier in this task; hosted security/configuration and Liquid checks passed for PR8/source078aae7; see TESTING.md for run links.
 - Independent cart/config, quiz/privacy and model source reviews passed after corrections. Public-source Gitleaks and Semgrep returned zero findings; the combined development theme has exact 150-file local/downloaded parity. Actual Phase 2 storefront acceptance passed within the documented route/platform scope.
 - Standalone JS/CSS lint, type-check and bundler-build scripts are absent. Report those gaps explicitly; native Liquid uses Shopify rendering and Theme Check.

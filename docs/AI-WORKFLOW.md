@@ -17,7 +17,7 @@ Kindred Grove uses an architecture/review agent and bounded implementation agent
 |---|---|---|
 | Native Shopify cart JSON used a legacy JavaScript MIME type | Allow bounded JSON parsing only on known native JSON routes; never execute the body | Provider-contract regressions plus actual cart0→1→2→0 without false errors |
 | Quiz configuration selector and translated JSON escaping did not match actual markup | Component-local configuration lookup and context-specific escaping | Five-question/result/reload flow and active axe passed |
-| Product sample-price label overflowed a narrow viewport | Demo-only wrapping at narrow widths after measuring the actual overflow | Reflow checks at320/370/371/390/1440px |
+| Product reference-price label overflowed a narrow viewport | historical restricted-mode wrapping at narrow widths after measuring the actual overflow | Reflow checks at320/370/371/390/1440px |
 | Shopify CLI returned exit0 while reporting rejected files in JSON | Inspect structured errors and pull/hash every delivered file | Exact150/150local/artifact/developmentparity |
 
 Detailed escaped defects are in [DEFECT-LOG.md](../DEFECT-LOG.md). The current accepted evidence is recorded in [TESTING.md](TESTING.md).

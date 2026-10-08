@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-10-08 — Public engineering documentation refresh
+
+- Reconciled published native storefront, seven-page routing, shared visitor-password access and Shopify-managed backend ownership across all READMEs and current guides.
+- Added backend service contracts, a complete readiness/ownership matrix and discoverable security-reporting guidance.
+- Expanded staged 1M+ concurrency qualification, 99% availability measurement, monitoring, event operations and interruption/recovery procedures.
+- Refreshed legal/privacy/food/email/payment requirements from official sources, including Canadian market questions and the passed EU green-claim application date.
+- Preserved historical evidence while updating public project language and canonical access documentation links. Runtime theme source and platform settings are unchanged by this documentation release.
+- Google Doc synchronization follows verified GitHub push; existing content and native formatting are preserved through targeted edits/additions, then the same document is exported and its canonical PDF refreshed after validation.
+
 ## 2026-10-08 — Complete normal storefront release
 
 - Published the reviewed pantry theme after native drift checks and exact 154-file upload/download parity; retained the old live theme for rollback.
@@ -14,7 +23,7 @@
 
 - Added the Grove cinematic homepage, scroll-synchronized copy and direction-aware header with keyboard/reduced-motion behavior.
 - Added bounded request/configuration handling, serialized cart mutations with reconciliation, consent-gated optional storage and memory-only quiz behavior.
-- Added default demo notices/sample labels and guarded theme checkout, personal-data forms and unsupported claims; retired the public wholesale Admin API proxy and remote catalog writer.
+- Added default development storefront notices/reference labels and guarded theme checkout, personal-data forms and unsupported claims; retired the public wholesale Admin API proxy and remote catalog writer.
 - Corrected native Shopify JSON MIME compatibility, escaped quiz configuration, narrow product reflow, no-JavaScript mobile navigation, contrast and progressbar naming.
 - Development acceptance: 95/95 security/configuration tests; 41 browser passes, zero failures, five documented skips; alternate Quiz/Wholesale flows 2/2 and active axe 2/2; 150/150 exact theme-file parity. Theme Check 0 errors / 2 existing warnings.
 - Added public US/EU applicability, security/privacy, future 1M+ capacity, 99% availability, recovery and staged-roadmap documentation; refreshed root/extension READMEs and merchant instructions.
@@ -138,7 +147,7 @@ The entries below preserve historical release notes. Historical analytics, vendo
 - `blocks/cart-drawer.liquid`, `cart-free-ship-bar.liquid`, `cart-item-list.liquid`, `cart-upsell.liquid`, `cart-gift-note.liquid`.
 - `assets/cart-drawer.js` — `<kg-cart-drawer>` web component.
 - `templates/cart.json` + `sections/main-cart.liquid` — no-JS-functional cart page.
-- `extensions/checkout-trust-badges/` — checkout UI extension scaffold.
+- `extensions/checkout-trust-badges/` — checkout UI extension reference implementation.
 
 ## [v0.0-day8] — 2026-04-19 — PDP part 2
 
@@ -175,7 +184,7 @@ The entries below preserve historical release notes. Historical analytics, vendo
 - Sentry wiring, Web Vitals → GA4 RUM skeleton.
 - `docs/adr/004-shopify-dev-mcp.md`, `docs/adr/005-sentry-over-grafana-faro.md`.
 
-## [v0.0-day2] — 2026-04-19 — Theme scaffolding
+## [v0.0-day2] — 2026-04-19 — Theme foundation
 
 - Full folder structure (sections/blocks/snippets/templates/config/locales/assets).
 - Layout with CSP, skip link, token injection, canonical, OG + Twitter cards.
@@ -188,7 +197,7 @@ The entries below preserve historical release notes. Historical analytics, vendo
 - Dev store, Shopify CLI, Node 22, Theme Check installed.
 - Shopify Dev MCP configured, connected to Claude Code.
 - Three theme environments on dev store.
-- Brand brief, fictional SOW, AI-workflow log scaffolded.
+- Brand brief, fictional SOW, AI-workflow log initialized.
 - Design system (tokens, colors, typography) generated directly by Claude Code.
 
 ---
