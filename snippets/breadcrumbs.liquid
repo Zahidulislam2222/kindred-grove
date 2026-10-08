@@ -1,10 +1,9 @@
 {%- comment -%}
-  Breadcrumbs snippet — visual trail + BreadcrumbList JSON-LD for SEO.
-  Auto-derives from template + product/collection context.
+  Breadcrumbs snippet — visible navigation trail.
+  The global schema-breadcrumb snippet owns structured data separately.
 {%- endcomment -%}
 
 {%- liquid
-  assign shop_origin = shop.url
   assign crumbs_list = ''
   assign crumbs_list = crumbs_list | append: 'Home|' | append: routes.root_url | append: ';'
 
@@ -47,27 +46,4 @@
     </ol>
   </nav>
 
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        {%- assign idx = 0 -%}
-        {%- for c in crumbs -%}
-          {%- if c == blank -%}{%- continue -%}{%- endif -%}
-          {%- assign parts = c | split: '|' -%}
-          {%- assign title = parts[0] -%}
-          {%- assign url = parts[1] -%}
-          {%- assign idx = idx | plus: 1 -%}
-          {%- unless forloop.first -%},{%- endunless -%}
-          {
-            "@type": "ListItem",
-            "position": {{ idx }},
-            "name": "{{ title | escape }}",
-            "item": "{{ shop_origin }}{{ url }}"
-          }
-        {%- endfor -%}
-      ]
-    }
-  </script>
 {%- endif -%}

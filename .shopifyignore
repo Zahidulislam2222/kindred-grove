@@ -1,0 +1,12 @@
+# Private tooling and research must never be uploaded to a theme.
+memory/**
+CREDENTIALS.md
+PROJECT-DOSSIER.md
+.env*
+tests/**
+test-results/**
+playwright-report/**
+node_modules/**
+.codex/**
+.playwright-mcp/**
+my-project-view/**

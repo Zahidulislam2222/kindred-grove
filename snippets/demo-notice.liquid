@@ -1,0 +1,6 @@
+{%- if settings.demo_mode -%}
+  <aside class="kg-demo-notice" role="status" aria-label="{{ 'demo.notice_label' | t | escape }}">
+    <strong>{{ 'demo.notice_title' | t | escape }}</strong>
+    <span>{{ 'demo.notice_body' | t | escape }}</span>
+  </aside>
+{%- endif -%}

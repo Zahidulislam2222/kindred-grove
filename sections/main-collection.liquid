@@ -67,11 +67,13 @@
         <ul class="kg-collection__grid grid grid-{{ cols }}">
           {%- for product in collection.products -%}
             <li>
+              {% assign card_eager = false %}
+              {% if forloop.index0 < 4 %}{% assign card_eager = true %}{% endif %}
               {% render 'product-card',
                  product: product,
                  size: 'md',
                  show_quick_view: true,
-                 eager: forloop.index0 < 4
+                 eager: card_eager
               %}
             </li>
           {%- endfor -%}

@@ -1,49 +1,26 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
-    "main": {
-      "type": "main-index",
-      "blocks": {
-        "hero": {
-          "type": "hero",
-          "settings": {
-            "eyebrow": "Single-origin. Traceable. Family-farmed.",
-            "headline": "From the grove to your table.",
-            "body": "Pantry staples sourced direct from Mediterranean and Levantine farms, halal-certified and honored by tradition.",
-            "headline_level": "h1",
-            "text_theme": "light",
-            "text_align": "center",
-            "height": "tall",
-            "overlay_opacity": 40,
-            "cta_primary_label": "Shop the foundations",
-            "cta_secondary_label": "Read the story"
-          }
-        },
-        "values": {
-          "type": "values-strip"
-        },
-        "featured": {
-          "type": "featured-collections",
-          "settings": {
-            "eyebrow": "The foundations",
-            "heading": "Start your pantry",
-            "body": "Four cornerstones — oil, dates, honey, spice — each hand-picked from a family farm."
-          }
-        },
-        "farm_story": {
-          "type": "farm-story"
-        },
-        "reviews": {
-          "type": "reviews-carousel"
-        },
-        "newsletter": {
-          "type": "newsletter"
-        },
-        "instagram": {
-          "type": "instagram-strip"
-        }
-      },
-      "block_order": ["hero", "values", "featured", "farm_story", "reviews", "newsletter", "instagram"]
+    "grove": {
+      "type": "grove-home",
+      "settings": {
+        "enable_film": true,
+        "products": [
+          "organic-single-origin-olive-oil",
+          "medjool-dates"
+        ]
+      }
     }
   },
-  "order": ["main"]
+  "order": [
+    "grove"
+  ]
 }

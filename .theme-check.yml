@@ -13,3 +13,5 @@ ignore:
   - 'tests/**/*'
   - 'playwright-report/**/*'
   - 'test-results/**/*'
+  # Private research contains pulled comparison themes, not shipping source.
+  - 'memory/**/*'

@@ -1,0 +1,19 @@
+<article class="grove-card" data-reveal>
+  <a class="grove-card__image" href="{{ product.url }}">
+    <span class="grove-card__number">0{{ index }}</span>
+    {% render 'grove-product-art', product: product %}
+    <span class="grove-card__explore">{{ 'grove.explore' | t }} <span aria-hidden="true">↗</span></span>
+  </a>
+  <div class="grove-card__details">
+    <div><p class="grove-eyebrow">{{ product.vendor | escape }}</p><h3><a href="{{ product.url }}">{{ product.title | escape }}</a></h3></div>
+    <span class="grove-card__price">{{ product.price | money }}</span>
+    {% render 'demo-price-label' %}
+  </div>
+  <form action="{{ routes.cart_add_url }}" method="post" data-grove-add>
+    <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+    <button class="grove-card__add" type="submit" {% unless product.available %}disabled{% endunless %}>
+      <span>{% if product.available %}{{ 'grove.add' | t }}{% else %}{{ 'grove.sold_out' | t }}{% endif %}</span><span aria-hidden="true">+</span>
+    </button>
+    <p class="grove-form-status" role="status"></p>
+  </form>
+</article>

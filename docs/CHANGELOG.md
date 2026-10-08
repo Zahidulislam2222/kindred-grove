@@ -1,6 +1,35 @@
 # Changelog
 
-All notable changes to this theme are documented here. Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the project uses day-tagged versions during the Phase 1 build sprint (`v0.0-day1` … `v0.0-day21`). Semantic versioning kicks in at Phase 1 handover (`v1.0.0`).
+## 2026-10-08 — Public engineering documentation refresh
+
+- Reconciled published native storefront, seven-page routing, shared visitor-password access and Shopify-managed backend ownership across all READMEs and current guides.
+- Added backend service contracts, a complete readiness/ownership matrix and discoverable security-reporting guidance.
+- Expanded staged 1M+ concurrency qualification, 99% availability measurement, monitoring, event operations and interruption/recovery procedures.
+- Refreshed legal/privacy/food/email/payment requirements from official sources, including Canadian market questions and the passed EU green-claim application date.
+- Preserved historical evidence while updating public project language and canonical access documentation links. Runtime theme source and platform settings are unchanged by this documentation release.
+- Google Doc synchronization follows verified GitHub push; existing content and native formatting are preserved through targeted edits/additions, then the same document is exported and its canonical PDF refreshed after validation.
+
+## 2026-10-08 — Complete normal storefront release
+
+- Published the reviewed pantry theme after native drift checks and exact 154-file upload/download parity; retained the old live theme for rollback.
+- Created six native content pages and updated Contact in place; shared navigation now reaches seven canonical content pages.
+- Added responsive editorial, FAQ, contact, recipe, search and password presentation; canonical quiz/wholesale use conditional static blocks.
+- Set normal-storefront defaults, removed the quiz's experiment definition, restored fallback cart notes, and reversibly moved 15 active fixture products to drafts.
+- Verified 55 live browser checks+search 1/1, zero failures; 98/98 local regressions, syntax, Theme Check, native package, scans and independent review. Three catalog/article-dependent checks skipped.
+- Preserved the connected domain and documented Shopify's enforced development password. Updated source/recovery documentation; no paid plan, order or message was created.
+
+
+## Development delivery and public handoff — 2026-09-24
+
+- Added the Grove cinematic homepage, scroll-synchronized copy and direction-aware header with keyboard/reduced-motion behavior.
+- Added bounded request/configuration handling, serialized cart mutations with reconciliation, consent-gated optional storage and memory-only quiz behavior.
+- Added default development storefront notices/reference labels and guarded theme checkout, personal-data forms and unsupported claims; retired the public wholesale Admin API proxy and remote catalog writer.
+- Corrected native Shopify JSON MIME compatibility, escaped quiz configuration, narrow product reflow, no-JavaScript mobile navigation, contrast and progressbar naming.
+- Development acceptance: 95/95 security/configuration tests; 41 browser passes, zero failures, five documented skips; alternate Quiz/Wholesale flows 2/2 and active axe 2/2; 150/150 exact theme-file parity. Theme Check 0 errors / 2 existing warnings.
+- Added public US/EU applicability, security/privacy, future 1M+ capacity, 99% availability, recovery and staged-roadmap documentation; refreshed root/extension READMEs and merchant instructions.
+- Replaced automatic live-write workflow source with manual fail-closed verification. GitHub publication is separate from Shopify theme publication; the redesigned theme remains unpublished.
+
+The entries below preserve historical release notes. Historical analytics, vendor, API, deployment and completion statements describe earlier revisions and are superseded by the current README and engineering documents.
 
 ---
 
@@ -118,7 +147,7 @@ All notable changes to this theme are documented here. Format based on [Keep a C
 - `blocks/cart-drawer.liquid`, `cart-free-ship-bar.liquid`, `cart-item-list.liquid`, `cart-upsell.liquid`, `cart-gift-note.liquid`.
 - `assets/cart-drawer.js` — `<kg-cart-drawer>` web component.
 - `templates/cart.json` + `sections/main-cart.liquid` — no-JS-functional cart page.
-- `extensions/checkout-trust-badges/` — checkout UI extension scaffold.
+- `extensions/checkout-trust-badges/` — checkout UI extension reference implementation.
 
 ## [v0.0-day8] — 2026-04-19 — PDP part 2
 
@@ -155,7 +184,7 @@ All notable changes to this theme are documented here. Format based on [Keep a C
 - Sentry wiring, Web Vitals → GA4 RUM skeleton.
 - `docs/adr/004-shopify-dev-mcp.md`, `docs/adr/005-sentry-over-grafana-faro.md`.
 
-## [v0.0-day2] — 2026-04-19 — Theme scaffolding
+## [v0.0-day2] — 2026-04-19 — Theme foundation
 
 - Full folder structure (sections/blocks/snippets/templates/config/locales/assets).
 - Layout with CSP, skip link, token injection, canonical, OG + Twitter cards.
@@ -168,7 +197,7 @@ All notable changes to this theme are documented here. Format based on [Keep a C
 - Dev store, Shopify CLI, Node 22, Theme Check installed.
 - Shopify Dev MCP configured, connected to Claude Code.
 - Three theme environments on dev store.
-- Brand brief, fictional SOW, AI-workflow log scaffolded.
+- Brand brief, fictional SOW, AI-workflow log initialized.
 - Design system (tokens, colors, typography) generated directly by Claude Code.
 
 ---

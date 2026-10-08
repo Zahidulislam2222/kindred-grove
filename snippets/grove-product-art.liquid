@@ -1,0 +1,15 @@
+{%- liquid
+  assign artwork = blank
+  if product.handle == settings.grove_oil_product.handle
+    assign artwork = 'grove-oil.webp'
+  elsif product.handle == settings.grove_dates_product.handle
+    assign artwork = 'grove-dates.webp'
+  endif
+-%}
+{%- if product.featured_image != blank -%}
+  {{ product.featured_image | image_url: width: 1000 | image_tag: loading: 'lazy', widths: '300, 500, 750, 1000', sizes: '(min-width: 750px) 40vw, 90vw', class: 'grove-product-image' }}
+{%- elsif artwork != blank -%}
+  <img src="{{ artwork | asset_url }}" width="960" height="1200" loading="lazy" alt="{{ product.title | escape }}" class="grove-product-image">
+{%- else -%}
+  {{ 'product-1' | placeholder_svg_tag: 'grove-product-image' }}
+{%- endif -%}

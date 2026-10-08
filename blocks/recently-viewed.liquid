@@ -8,8 +8,7 @@
 
 <kg-recently-viewed
   class="kg-recently-viewed section"
-  data-current-handle="{{ product.handle }}"
-  data-current-title="{{ product.title | escape }}"
+  data-current-handle="{{ product.handle | escape }}"
   data-heading="{{ block.settings.heading | default: 'Recently viewed' | escape }}"
   data-max="{{ block.settings.max | default: 4 }}"
   {{ block.shopify_attributes }}

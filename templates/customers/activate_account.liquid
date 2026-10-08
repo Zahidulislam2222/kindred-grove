@@ -1,3 +1,6 @@
+{% if settings.demo_mode %}
+  <section class="kg-account section"><div class="container"><div class="kg-account__panel">{% render 'demo-disabled-message', message_key: 'demo.personal_flows_disabled' %}</div></div></section>
+{% else %}
 <section class="kg-account section">
   <div class="container kg-account__shell stack">
     <header class="stack-sm text-center">
@@ -15,8 +18,10 @@
             {%- endfor -%}
           </ul>
         {%- endif -%}
-        {% render 'form-field', id: 'ActivatePassword', type: 'password', name: 'customer[password]', label: 'customer.activate_account.password' | t, required: true, autocomplete: 'new-password' %}
-        {% render 'form-field', id: 'ActivatePasswordConfirm', type: 'password', name: 'customer[password_confirmation]', label: 'customer.activate_account.confirm' | t, required: true, autocomplete: 'new-password' %}
+        {% assign field_label_customer_activate_account_password = 'customer.activate_account.password' | t %}
+{% render 'form-field', id: 'ActivatePassword', type: 'password', name: 'customer[password]', label: field_label_customer_activate_account_password, required: true, autocomplete: 'new-password' %}
+        {% assign field_label_customer_activate_account_confirm = 'customer.activate_account.confirm' | t %}
+{% render 'form-field', id: 'ActivatePasswordConfirm', type: 'password', name: 'customer[password_confirmation]', label: field_label_customer_activate_account_confirm, required: true, autocomplete: 'new-password' %}
         <div class="cluster">
           <button type="submit" class="button button--primary">{{ 'customer.activate_account.submit' | t }}</button>
           <button type="submit" name="decline" class="button button--ghost">{{ 'customer.activate_account.decline' | t }}</button>
@@ -25,3 +30,4 @@
     </div>
   </div>
 </section>
+{% endif %}

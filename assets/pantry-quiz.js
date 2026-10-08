@@ -1,22 +1,6 @@
 /**
- * <kg-pantry-quiz> — multi-step quiz that recommends a pantry persona.
- *
- * State machine:
- *   idle → step(0) → step(1) → … step(n-1) → result
- *   Back/Next navigate; Enter submits; number keys 1–9 select option.
- *
- * Persistence:
- *   Partial progress (answers + current step) is kept in sessionStorage
- *   under `data-persist-key` so a page reload mid-quiz does not lose state.
- *
- * Scoring:
- *   Sum of answer indexes, mapped to 1 of 4 personas by quartile of the
- *   maximum possible score. This is intentionally simple and overridable
- *   by the merchant later (scoring rules could move into the persona JSON).
- *
- * Feature-flag gate:
- *   If `data-flag-name` is set AND `window.KG_FF` is present AND the flag
- *   resolves to falsy, the shell stays hidden. Flag undefined → shown.
+ * <kg-pantry-quiz> — memory-only quiz that recommends a configured collection.
+ * Dietary answers are never persisted, logged, or transmitted.
  */
 class KindredGrovePantryQuiz extends HTMLElement {
   constructor() {
@@ -28,14 +12,24 @@ class KindredGrovePantryQuiz extends HTMLElement {
     this.next = null;
     this.questions = [];
     this.personas = [];
+    this.thresholds = [];
+    this.policy = null;
     this.step = 0;
     this.answers = [];
+    this.initialized = false;
+    this.configurationValid = false;
+    this.connectionGeneration = 0;
+    this.unsubscribePrivacy = null;
     this._onNavClick = this._onNavClick.bind(this);
     this._onKeydown = this._onKeydown.bind(this);
     this._onOptionChange = this._onOptionChange.bind(this);
+    this._onFlagChange = this._onFlagChange.bind(this);
+    this._onPrivacyChange = this._onPrivacyChange.bind(this);
   }
 
   connectedCallback() {
+    const connection = ++this.connectionGeneration;
+    this._detachListeners();
     this.shell = this.querySelector('[data-kg-quiz-shell]');
     this.stage = this.querySelector('[data-kg-quiz-stage]');
     this.progress = this.querySelector('[data-kg-quiz-progress]');
@@ -43,89 +37,187 @@ class KindredGrovePantryQuiz extends HTMLElement {
     this.next = this.querySelector('[data-kg-quiz-next]');
     if (!this.shell || !this.stage) return;
 
-    if (!this._passesFlag()) return;
-    this.shell.hidden = false;
+    this._clearLegacySessionAnswers();
+    this._attachListeners();
+    if (window.KGPrivacy && typeof window.KGPrivacy.subscribe === 'function') {
+      this.unsubscribePrivacy = window.KGPrivacy.subscribe(this._onPrivacyChange);
+    }
 
-    this.questions = this._parseJson('[data-kg-quiz-questions]') || [];
-    this.personas = this._parseJson('[data-kg-quiz-personas]') || [];
-    if (this.questions.length === 0) return;
+    const initialize = () => {
+      if (!this.isConnected || connection !== this.connectionGeneration) return;
+      this._initialize();
+    };
+    if (window.KG_FF && window.KG_FF.ready) {
+      Promise.resolve(window.KG_FF.ready).then(initialize, initialize);
+    } else {
+      initialize();
+    }
+  }
 
-    this._restore();
+  disconnectedCallback() {
+    this.connectionGeneration += 1;
+    this._detachListeners();
+    this.answers = [];
+    this.step = 0;
+    if (this.stage) this.stage.replaceChildren();
+  }
 
+  _attachListeners() {
     if (this.prev) this.prev.addEventListener('click', this._onNavClick);
     if (this.next) this.next.addEventListener('click', this._onNavClick);
     this.addEventListener('change', this._onOptionChange);
     this.addEventListener('keydown', this._onKeydown);
+    window.addEventListener('kg:feature-flags:change', this._onFlagChange);
+  }
 
-    this._render();
+  _detachListeners() {
+    if (this.prev) this.prev.removeEventListener('click', this._onNavClick);
+    if (this.next) this.next.removeEventListener('click', this._onNavClick);
+    this.removeEventListener('change', this._onOptionChange);
+    this.removeEventListener('keydown', this._onKeydown);
+    window.removeEventListener('kg:feature-flags:change', this._onFlagChange);
+    if (typeof this.unsubscribePrivacy === 'function') this.unsubscribePrivacy();
+    this.unsubscribePrivacy = null;
+  }
+
+  _initialize() {
+    if (!this.isConnected || !this.shell || !this.stage) return;
+    if (!this.initialized) {
+      const policy = this._validatePolicy(this._parseJson('[data-kg-quiz-config]'));
+      const questions = policy ? this._parseJson('[data-kg-quiz-questions]', policy.questionJsonMaxChars) : null;
+      const personas = policy ? this._parseJson('[data-kg-quiz-personas]', policy.personaJsonMaxChars) : null;
+      const scoring = policy ? this._parseJson('[data-kg-quiz-scoring]', policy.scoringJsonMaxChars) : null;
+      const validated = policy ? this._validateConfiguration(questions, personas, scoring, policy) : null;
+      this.configurationValid = !!validated;
+      if (validated) {
+        this.policy = policy;
+        this.questions = validated.questions;
+        this.personas = validated.personas;
+        this.thresholds = validated.thresholds;
+      }
+      this.initialized = true;
+    }
+    this._applyFlagVisibility();
+    if (!this.shell.hidden && !this.stage.childNodes.length) this._renderCurrent();
+  }
+
+  _validatePolicy(policy) {
+    if (!policy || typeof policy !== 'object' || Array.isArray(policy)) return null;
+    const positive = (key) => Number.isSafeInteger(policy[key]) && policy[key] > 0;
+    const fields = [
+      'questionCount', 'personaCount', 'questionJsonMaxChars', 'personaJsonMaxChars',
+      'scoringJsonMaxChars', 'questionLabelMaxLength', 'optionLabelMaxLength',
+      'optionCountMin', 'optionCountMax', 'personaNameMaxLength',
+      'personaDescriptionMaxLength', 'personaImageUrlMaxLength'
+    ];
+    if (fields.some((key) => !positive(key))
+      || policy.optionCountMin < 2 || policy.optionCountMax < policy.optionCountMin
+      || policy.optionCountMax > 9) return null; // Number-key shortcuts cover 1–9.
+    return policy;
+  }
+
+  _validateConfiguration(questions, personas, scoring, policy = this.policy) {
+    if (!policy || !Array.isArray(questions) || questions.length !== policy.questionCount
+      || !Array.isArray(personas) || personas.length !== policy.personaCount) return null;
+    const validText = (value, maxLength) => typeof value === 'string' && value.trim().length > 0 && value.length <= maxLength;
+    const validHandle = (value) => typeof value === 'string' && /^[a-z0-9]+(?:-[a-z0-9]+)*$/i.test(value);
+    const safeQuestions = questions.map((question) => {
+      if (!question || typeof question !== 'object' || Array.isArray(question)
+        || !validText(question.label, policy.questionLabelMaxLength) || !Array.isArray(question.options)
+        || question.options.length < policy.optionCountMin || question.options.length > policy.optionCountMax
+        || question.options.some((option) => !validText(option, policy.optionLabelMaxLength))) return null;
+      return { label: question.label, options: question.options.slice() };
+    });
+    if (safeQuestions.some((question) => !question)) return null;
+
+    const safePersonas = personas.map((persona) => {
+      if (!persona || typeof persona !== 'object' || Array.isArray(persona)
+        || !validText(persona.name, policy.personaNameMaxLength) || !validText(persona.description, policy.personaDescriptionMaxLength)
+        || (persona.collection != null && persona.collection !== '' && !validHandle(persona.collection))
+        || (persona.slug !== undefined && !validHandle(persona.slug))
+        || (persona.image !== undefined && (typeof persona.image !== 'string' || persona.image.length > policy.personaImageUrlMaxLength))) return null;
+      let image = '';
+      if (persona.image) {
+        const safeImage = window.KGClient && typeof window.KGClient.safeUrl === 'function'
+          ? window.KGClient.safeUrl(persona.image, { image: true })
+          : null;
+        if (!safeImage) return null;
+        image = safeImage.href;
+      }
+      return { name: persona.name, description: persona.description, collection: persona.collection || '', image };
+    });
+    if (safePersonas.some((persona) => !persona)) return null;
+
+    if (!scoring || typeof scoring !== 'object' || Array.isArray(scoring)
+      || !Array.isArray(scoring.thresholds) || scoring.thresholds.length !== safePersonas.length - 1
+      || scoring.thresholds.some((threshold, index, all) => !Number.isFinite(threshold)
+        || threshold <= 0 || threshold >= 1 || (index > 0 && threshold <= all[index - 1]))) return null;
+
+    return { questions: safeQuestions, personas: safePersonas, thresholds: scoring.thresholds.slice() };
+  }
+
+  _clearLegacySessionAnswers() {
+    try {
+      const config = window.KGPrivacy && window.KGPrivacy.configValid ? window.KGPrivacy.config : {};
+      const key = config.storageKeys && config.storageKeys.legacyQuizAnswers;
+      if (key) window.sessionStorage.removeItem(key);
+    } catch (_error) { /* old answers are never restored; storage may be blocked */ }
+  }
+
+  _onPrivacyChange() {
+    this._clearLegacySessionAnswers();
+  }
+
+  _onFlagChange() {
+    this._applyFlagVisibility();
+  }
+
+  _applyFlagVisibility() {
+    if (!this.shell) return;
+    this.shell.hidden = !this._passesFlag();
+    if (this.shell.hidden) {
+      this.answers = [];
+      this.step = 0;
+      if (this.stage) this.stage.replaceChildren();
+    } else if (this.initialized && this.stage && !this.stage.childNodes.length) {
+      this._renderCurrent();
+    }
   }
 
   _passesFlag() {
     const name = this.getAttribute('data-flag-name');
-    if (!name) return true;
-    if (!window.KG_FF) return true; // flag system not loaded — default-on
-    // If the flag is defined, use its boolean result. If it's missing, default-on.
+    if (!name || !window.KG_FF) return true;
     const defs = window.KG_FF._defs || [];
-    const known = defs.some((d) => d && d.name === name);
-    if (!known) return true;
+    if (!defs.some((definition) => definition && definition.name === name)) return true;
     return !!window.KG_FF.isEnabled(name);
   }
 
-  _parseJson(selector) {
+  _parseJson(selector, maxChars) {
     try {
-      const el = this.querySelector(selector);
-      if (!el) return null;
-      return JSON.parse(el.textContent);
-    } catch (err) {
-      if (window.Sentry) window.Sentry.captureException(err);
+      const element = this.querySelector(selector);
+      const raw = element && element.dataset && (element.dataset.json || element.dataset.config);
+      if (typeof raw !== 'string' || (maxChars && raw.length > maxChars)) return null;
+      return JSON.parse(raw);
+    } catch (_error) {
       return null;
     }
   }
 
-  /* ----- persistence ----- */
-
-  _persistKey() { return this.getAttribute('data-persist-key') || 'kg-pantry-quiz'; }
-
-  _restore() {
-    try {
-      const raw = sessionStorage.getItem(this._persistKey());
-      if (!raw) return;
-      const data = JSON.parse(raw);
-      if (!data || !Array.isArray(data.answers)) return;
-      this.answers = data.answers.slice(0, this.questions.length);
-      this.step = Math.min(data.step || 0, this.questions.length);
-    } catch (_e) { /* ignore */ }
-  }
-
-  _save() {
-    try {
-      sessionStorage.setItem(
-        this._persistKey(),
-        JSON.stringify({ answers: this.answers, step: this.step })
-      );
-    } catch (_e) { /* quota / private mode */ }
-  }
-
-  _clear() {
-    try { sessionStorage.removeItem(this._persistKey()); } catch (_e) { /* ignore */ }
-  }
-
-  /* ----- render ----- */
-
-  _render() {
+  _renderCurrent() {
+    if (!this.configurationValid) return this._renderFallback();
     if (this.step >= this.questions.length) return this._renderResult();
-    const q = this.questions[this.step];
+    const question = this.questions[this.step];
     const selected = this.answers[this.step];
     this.stage.innerHTML = `
       <fieldset class="kg-quiz__fieldset stack-sm">
-        <legend class="kg-quiz__legend h3">${this._escape(q.label)}</legend>
-        <div class="kg-quiz__options stack-sm" role="radiogroup" aria-label="${this._attr(q.label)}">
-          ${(q.options || []).map((opt, i) => `
+        <legend class="kg-quiz__legend h3">${this._escape(question.label)}</legend>
+        <div class="kg-quiz__options stack-sm" role="radiogroup" aria-label="${this._attr(question.label)}">
+          ${question.options.map((option, index) => `
             <label class="kg-quiz__option">
-              <input type="radio" name="kg-quiz-q${this.step}" value="${i}" ${selected === i ? 'checked' : ''}>
+              <input type="radio" name="kg-quiz-q${this.step}" value="${index}" ${selected === index ? 'checked' : ''}>
               <span class="kg-quiz__option-body">
-                <span class="kg-quiz__option-num" aria-hidden="true">${i + 1}</span>
-                <span class="kg-quiz__option-label">${this._escape(opt)}</span>
+                <span class="kg-quiz__option-num" aria-hidden="true">${index + 1}</span>
+                <span class="kg-quiz__option-label">${this._escape(option)}</span>
               </span>
             </label>
           `).join('')}
@@ -134,130 +226,147 @@ class KindredGrovePantryQuiz extends HTMLElement {
     `;
     this._updateNav();
     this._updateProgress();
-    const first = this.stage.querySelector('input[type=radio]' + (selected != null ? `[value="${selected}"]` : ''));
+    const first = this.stage.querySelector(`input[type=radio]${selected != null ? `[value="${selected}"]` : ''}`);
     if (first) first.focus();
+  }
+
+  _renderFallback() {
+    const url = this._fallbackUrl();
+    const message = this.getAttribute('data-invalid-message') || '';
+    const browse = this.getAttribute('data-browse-label') || '';
+    this.stage.innerHTML = `<div class="kg-quiz__fallback stack" role="status"><p>${this._escape(message)}</p><a class="button button--primary" href="${this._attr(url)}">${this._escape(browse)}</a></div>`;
+    if (this.prev) this.prev.disabled = true;
+    if (this.next) this.next.disabled = true;
+    this._updateProgress(0);
+  }
+
+  _fallbackUrl() {
+    const raw = this.getAttribute('data-fallback-url') || '#';
+    if (window.KGClient && typeof window.KGClient.safeUrl === 'function') {
+      const safe = window.KGClient.safeUrl(raw);
+      return safe ? safe.href : '#';
+    }
+    try {
+      const url = new URL(raw, window.location.href);
+      if (!['https:', 'http:'].includes(url.protocol) || url.origin !== window.location.origin
+        || url.username || url.password || url.hash) return '#';
+      return url.href;
+    } catch (_error) {
+      return '#';
+    }
   }
 
   _renderResult() {
     const persona = this._scorePersona();
-    const collectionUrl = persona && persona.collection ? `/collections/${encodeURIComponent(persona.collection)}` : '/collections/all';
+    const client = window.KGClient;
+    const collectionUrl = persona.collection && client && typeof client.productPath === 'function'
+      ? client.productPath('collections', persona.collection)
+      : (client && typeof client.productPath === 'function' ? client.productPath('collections', 'all') : null);
+    const fallbackUrl = collectionUrl || this._fallbackUrl();
+    const safeImage = persona.image && client && typeof client.safeUrl === 'function'
+      ? client.safeUrl(persona.image, { image: true })
+      : null;
+    const eyebrow = this.getAttribute('data-result-label') || '';
+    const shopLabel = this.getAttribute('data-shop-label') || '';
+    const restartLabel = this.getAttribute('data-restart-label') || '';
     this.stage.innerHTML = `
       <div class="kg-quiz__result stack" role="status">
-        <p class="eyebrow">Your pantry persona</p>
+        <p class="eyebrow">${this._escape(eyebrow)}</p>
         <h3 class="h2 kg-quiz__result-name">${this._escape(persona.name)}</h3>
-        ${persona.image ? `<img class="kg-quiz__result-image" src="${this._attr(persona.image)}" alt="${this._attr(persona.name)}" loading="lazy">` : ''}
+        ${safeImage ? `<img class="kg-quiz__result-image" src="${this._attr(safeImage.href)}" alt="${this._attr(persona.name)}" loading="lazy">` : ''}
         <p class="text-lg">${this._escape(persona.description)}</p>
         <div class="cluster">
-          <a href="${this._attr(collectionUrl)}" class="button button--primary button--lg">Shop your pantry</a>
-          <button type="button" class="button button--ghost" data-kg-quiz-restart>Retake the quiz</button>
+          <a href="${this._attr(fallbackUrl)}" class="button button--primary button--lg">${this._escape(shopLabel)}</a>
+          <button type="button" class="button button--ghost" data-kg-quiz-restart>${this._escape(restartLabel)}</button>
         </div>
       </div>
     `;
     if (this.prev) this.prev.disabled = true;
     if (this.next) this.next.disabled = true;
     this._updateProgress(100);
-    this._reportComplete(persona);
-
     const restart = this.stage.querySelector('[data-kg-quiz-restart]');
     if (restart) restart.addEventListener('click', () => {
       this.answers = [];
       this.step = 0;
-      this._clear();
-      this._render();
+      this._renderCurrent();
     });
   }
 
   _scorePersona() {
-    if (!this.personas || this.personas.length === 0) {
-      return { name: 'Your pantry', description: 'Start with our essentials.', collection: '', image: '' };
-    }
-    const total = this.answers.reduce((sum, a) => sum + (typeof a === 'number' ? a : 0), 0);
-    const maxPer = this.questions.reduce((acc, q) => acc + Math.max(0, (q.options || []).length - 1), 0);
-    const pct = maxPer > 0 ? total / maxPer : 0;
-    // Quartile mapping
-    let idx = 0;
-    if (pct >= 0.75) idx = 3;
-    else if (pct >= 0.5) idx = 2;
-    else if (pct >= 0.25) idx = 1;
-    const safeIdx = Math.min(idx, this.personas.length - 1);
-    return this.personas[safeIdx];
-  }
-
-  _reportComplete(persona) {
-    try {
-      const params = { quiz: 'pantry_quiz', persona_slug: persona.slug || '', persona_name: persona.name || '' };
-      if (typeof window.gtag === 'function') window.gtag('event', 'quiz_complete', params);
-      else if (Array.isArray(window.dataLayer)) window.dataLayer.push({ event: 'quiz_complete', params });
-    } catch (_e) { /* non-critical */ }
+    const total = this.answers.slice(0, this.questions.length).reduce((sum, answer, index) => {
+      const question = this.questions[index];
+      if (!question) return sum;
+      const maxOption = question.options.length - 1;
+      return sum + (Number.isSafeInteger(answer) && answer >= 0 && answer <= maxOption ? answer : 0);
+    }, 0);
+    const maxScore = this.questions.reduce((sum, question) => sum + question.options.length - 1, 0);
+    const proportion = maxScore > 0 ? total / maxScore : 0;
+    const personaIndex = this.thresholds.findIndex((threshold) => proportion < threshold);
+    return this.personas[personaIndex < 0 ? this.personas.length - 1 : personaIndex];
   }
 
   _updateNav() {
     if (this.prev) this.prev.disabled = this.step === 0;
     if (this.next) {
-      this.next.disabled = this.answers[this.step] == null;
+      this.next.disabled = !Number.isSafeInteger(this.answers[this.step]);
       this.next.textContent = this.step === this.questions.length - 1
-        ? (this.getAttribute('data-submit-label') || 'See my pantry')
-        : (this.getAttribute('data-next-label') || 'Next');
+        ? (this.getAttribute('data-submit-label') || '')
+        : (this.getAttribute('data-next-label') || '');
     }
   }
 
   _updateProgress(forcePct) {
     const total = this.questions.length;
-    const pct = forcePct != null ? forcePct : Math.round(((this.step) / total) * 100);
-    if (this.progress) this.progress.style.width = pct + '%';
+    const percentage = forcePct != null ? forcePct : Math.round((this.step / total) * 100);
+    if (this.progress) this.progress.style.width = `${percentage}%`;
     const bar = this.progress ? this.progress.closest('[role=progressbar]') : null;
-    if (bar) bar.setAttribute('aria-valuenow', String(pct));
+    if (bar) bar.setAttribute('aria-valuenow', String(percentage));
   }
-
-  /* ----- events ----- */
 
   _onOptionChange(event) {
     if (!event.target.matches('input[type=radio][name^="kg-quiz-q"]')) return;
-    const value = parseInt(event.target.value, 10);
+    const value = Number(event.target.value);
+    const question = this.questions[this.step];
+    if (!this.configurationValid || !question || !Number.isSafeInteger(value) || value < 0 || value >= question.options.length) return;
     this.answers[this.step] = value;
-    this._save();
     this._updateNav();
   }
 
   _onNavClick(event) {
     if (event.currentTarget === this.prev && this.step > 0) {
       this.step -= 1;
-      this._save();
-      this._render();
+      this._renderCurrent();
     } else if (event.currentTarget === this.next) {
-      if (this.answers[this.step] == null) return;
+      if (!Number.isSafeInteger(this.answers[this.step])) return;
       this.step += 1;
-      this._save();
-      this._render();
+      this._renderCurrent();
     }
   }
 
   _onKeydown(event) {
+    if (!this.configurationValid || !this.stage) return;
     if (event.key >= '1' && event.key <= '9') {
-      const idx = parseInt(event.key, 10) - 1;
+      const index = Number(event.key) - 1;
       const radios = this.stage.querySelectorAll('input[type=radio]');
-      if (radios[idx]) {
-        radios[idx].checked = true;
-        radios[idx].dispatchEvent(new Event('change', { bubbles: true }));
-        radios[idx].focus();
+      if (radios[index]) {
+        radios[index].checked = true;
+        radios[index].dispatchEvent(new Event('change', { bubbles: true }));
+        radios[index].focus();
         event.preventDefault();
       }
-    } else if (event.key === 'Enter') {
-      if (!this.next.disabled) {
-        event.preventDefault();
-        this.next.click();
-      }
+    } else if (event.key === 'Enter' && this.next && !this.next.disabled) {
+      event.preventDefault();
+      this.next.click();
     }
   }
 
-  /* ----- utils ----- */
-
-  _escape(str) {
-    return String(str == null ? '' : str)
+  _escape(value) {
+    return String(value == null ? '' : value)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
-  _attr(str) { return this._escape(str); }
+
+  _attr(value) { return this._escape(value); }
 }
 
 if (!customElements.get('kg-pantry-quiz')) {

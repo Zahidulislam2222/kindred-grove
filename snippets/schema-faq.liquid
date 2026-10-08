@@ -9,6 +9,7 @@
 {%- endcomment -%}
 
 {%- if items and items.size > 0 -%}
+{%- unless settings.demo_mode -%}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -27,4 +28,5 @@
   ]
 }
 </script>
+{%- endunless -%}
 {%- endif -%}

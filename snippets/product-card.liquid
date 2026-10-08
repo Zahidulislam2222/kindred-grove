@@ -55,9 +55,11 @@
            loading: load_mode,
            class: 'product-card__image'
         %}
+      {%- else -%}
+        {% render 'grove-product-art', product: product %}
       {%- endif -%}
       {%- if on_sale and is_sold_out == false -%}
-        <span class="product-card__flag badge badge--accent">Sale</span>
+        <span class="product-card__flag product-card__flag--sale badge badge--accent">Sale</span>
       {%- endif -%}
       {%- if is_sold_out -%}
         <span class="product-card__flag badge">Sold out</span>
@@ -74,15 +76,10 @@
       <a href="{{ product.url }}" class="product-card__title-link">{{ product.title | escape }}</a>
     </h3>
 
-    {%- if show_rating_resolved -%}
-      {%- comment -%} Day 12: Judge.me swaps this stub for real aggregate rating. {%- endcomment -%}
-      <div class="product-card__rating" aria-label="Rating placeholder">
+    {%- if show_rating_resolved and product.metafields.reviews.rating.value != blank -%}
+      <div class="product-card__rating">
         {% render 'icon', name: 'star-filled', size: 12 %}
-        {% render 'icon', name: 'star-filled', size: 12 %}
-        {% render 'icon', name: 'star-filled', size: 12 %}
-        {% render 'icon', name: 'star-filled', size: 12 %}
-        {% render 'icon', name: 'star-filled', size: 12 %}
-        <span class="text-xs text-muted">5.0</span>
+        <span>{{ product.metafields.reviews.rating.value.rating }} / {{ product.metafields.reviews.rating.value.scale_max }}</span>
       </div>
     {%- endif -%}
 
@@ -104,6 +101,7 @@
         </span>
       {%- endif -%}
     </div>
+    {% render 'demo-price-label' %}
 
     {%- if show_qv and is_sold_out == false -%}
       <button

@@ -1,4 +1,4 @@
-name: Gitleaks — secret scan
+name: Gitleaks
 
 on:
   pull_request:
@@ -6,7 +6,8 @@ on:
   push:
     branches: [main]
   schedule:
-    - cron: "0 6 * * 1" # Every Monday 06:00 UTC — catches dormant leaks
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -17,18 +18,38 @@ concurrency:
 
 jobs:
   scan:
-    name: Secret scan
+    name: Full-history secret scan
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
-      - name: Checkout (full history for push + scheduled, shallow for PR)
-        uses: actions/checkout@v4
+      - name: Checkout full history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: ${{ github.event_name == 'pull_request' && 0 || 1 }}
+          fetch-depth: 0
+          persist-credentials: false
 
-      - name: Run gitleaks
-        uses: gitleaks/gitleaks-action@v2
+      - name: Read pinned toolchain
+        id: toolchain
+        run: node scripts/ci/toolchain.cjs >> "$GITHUB_OUTPUT"
+
+      - name: Download and verify Gitleaks
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Our config — custom allowlist for known placeholders
-          GITLEAKS_CONFIG: .gitleaks.toml
+          GITLEAKS_VERSION: ${{ steps.toolchain.outputs.gitleaks_version }}
+          GITLEAKS_SHA256: ${{ steps.toolchain.outputs.gitleaks_sha256 }}
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/gitleaks.tar.gz"
+          curl --fail --silent --show-error --location \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            --output "$archive"
+          printf '%s  %s\n' "$GITLEAKS_SHA256" "$archive" | sha256sum --check --status
+          tar -xzf "$archive" -C "$RUNNER_TEMP" gitleaks
+          "$RUNNER_TEMP/gitleaks" version
+
+      - name: Scan all Git history
+        run: >-
+          "$RUNNER_TEMP/gitleaks" git
+          --config .gitleaks.toml
+          --redact=100
+          --no-banner
+          --no-color

@@ -1,150 +1,42 @@
 # Roadmap — Kindred Grove
 
-Last updated: 2026-04-19
+Last updated: 2026-10-08
 
-Phase 1 is about shipping a production-grade custom Shopify theme. This roadmap records everything downstream — what's deferred, why, and what triggers each phase.
+This roadmap retains the native Shopify architecture. The current delivery is a published Liquid theme with seven native content pages, reached through the visitor-password gate. The user accepts sharing that storefront password for review. Public access without a password and real-order commerce remain separate merchant/platform decisions. No headless migration or paid resource is part of this release.
 
----
+## Current state
 
-## Phase 1 — Complete (2026-04-19)
+The published artifact has 154/154 exact local/frozen/downloaded file hashes. Authenticated storefront verification passed 55 browser cases plus a separate native search/mobile accessibility check, with three catalog-dependent skips. Security/configuration checks passed98/98 for that source release. The domain and TLS are connected. The root frontend and Shopify-managed backend boundaries are described in [architecture](ARCHITECTURE.md) and [backend contracts](BACKEND.md).
 
-**Scope:** 14 storefront templates, 8 CI workflows, 8 ADRs, 12 public docs, AI-native delivery workflow documented. See [`CHANGELOG.md`](CHANGELOG.md) for the 21-day breakdown.
+Canonical Our Story, Recipes, FAQ, Contact, Shipping & Returns, Find Your Pantry and Wholesale pages exist; older missing-route observations are historical. No payment, actual order, inbox delivery, product provenance or continuous uptime has been verified. Required main-branch review remains in place; a public feature branch does not imply a merged default branch.
 
-**Acceptance criteria** (per SOW §8):
-- All quality bars met: Lighthouse ≥ 95 on all four categories, axe 0 violations, Playwright 5/5 golden paths, theme-check 0 offenses.
-- Repository public with green CI on main.
-- Merchant handoff guide reviewed.
-- Case-study site, walkthrough video, retrospective — Week 4 deliverables.
+Future outcomes are staged by evidence rather than invented delivery dates. Each phase needs an accountable owner, dependency decisions, approved operating budget where applicable, and a recorded exit result. [Readiness matrix](PROJECT-REQUIREMENTS.md) assigns the cross-functional work.
 
-**Week 4 pre-ship checklist** (batched browser/manual tasks):
-- [ ] Klaviyo abandoned-cart flow built in Klaviyo admin
-- [ ] Judge.me widget installed to theme from the app
-- [ ] Sentry project created + DSN pasted in theme customizer + test error fired
-- [ ] Google Tag Assistant validation (GA4 events fire on real clicks)
-- [ ] VoiceOver full purchase-funnel walkthrough
-- [ ] NVDA full purchase-funnel walkthrough
-- [ ] Keyboard-only purchase-flow audit
-- [ ] Rich Results test pass (Product + FAQ + Recipe + Breadcrumb schemas)
-- [ ] Shopify admin: Arabic language enabled, EUR/GBP currencies enabled
-- [ ] Theme editor walkthrough: compose a demo homepage from scratch
-- [ ] Cloudflare Worker deploy for wholesale draft-order (optional)
-- [ ] Checkout UI extension deploy from Shopify app project (optional)
+## Future delivery phases
 
----
+| Phase | Outcome | Entry trigger / work | Evidence required before closing | Spend/platform boundary |
+|---|---|---|---|---|
+| 3. Market, privacy and content governance | Merchant-specific compliance and data decisions match real products, regions, vendors and theme behavior. | Resume only when the user requests it and the merchant can supply entity, address, product/label, market, processor, retention, rights and support facts. Resolve each applicable jurisdiction with current official sources and qualified review where needed. | Dated requirement matrix with trigger, source, applicability or missing fact, owner, actual control/evidence and next review. Reconcile observed Shopify markets and app/platform handling; verify media rights and commercial claims. | No invented certifications, claims, legal conclusions, tax rates, shipping promises or merchant identity. Legal counsel, translations or audits are separate choices with cost approval. |
+| 4. Performance and media delivery | Reproducible real-store browser performance evidence and justified media changes. | After representative development content and test conditions are fixed, compare desktop/mobile, market, consent, cold/warm cache and network classes. Profile Liquid TTFB, LCP image priority, JS/CSS, app embeds, video start/transfer/abandonment and data-transfer bytes. | Dated baseline and repeatable traces/waterfalls with route, device, browser, region, revision and conditions; before/after results; keyboard/reduced-motion/cart regression checks. Lab scores and field observations identified separately. | Shopify CDN and platform rendering are not tunable from theme code. No paid Lighthouse/Percy/media service or licensed asset purchase without a separately authorized cost review. |
+| 5. Capacity design and platform confirmation | A measured workload model separates visitors, request rates, caches, cart and checkout; risks are understood before an event. | Begin with the local model, then plan a 10k simultaneous-visitor validation only for an approved representative environment and Shopify/provider guidance. Progress to 100k only after the first stage passes; consider 1M+ only with written store-specific platform capacity and event operations plans. | Inputs from real traffic or an agreed proxy; burst/soak and region/device mix; measured p50/p95/p99, errors, concurrency, cache behavior and media transfer; dependency-specific limits and abort criteria. Label local simulator output `LOCAL_MOCK_NOT_SHOPIFY` and arithmetic `PROJECTED`. | There is no free-tier or theme-level promise for any visitor count. No public load test or traffic generator until platform authorization, environment, budget and operator are approved. A custom service or Hydrogen/headless rebuild is conditional on measured need and an explicit operating/cost case. |
+| 6. Availability and error-budget operation | The proposed 99% per-path objective becomes a measured, owned operating policy. | Name merchant/operator owners and response hours; select low-impact privacy-safe measurement only after entitlement, privacy, traffic and pricing are verified. Separate browsing, cart and checkout-navigation indicators; design observation coverage and missing-data reporting. | Stable numerator/denominator definitions; coverage, regional observations, latency thresholds, dependency classification, tested notifications, alert recipients, error-budget policy and sustained measurement. Proposed 30-day 99% time budget is 432 minutes; this is distinct from a request-count budget. | No hosted monitor or recurring subscription is currently active. No scheduled cart mutation or paid monitor without separate approval. Missing observation means unknown, not green. |
+| 7. Recovery and interruption rehearsal | A different operator can recover the theme safely and resume after power loss. | Rehearse from the known prior reviewed theme artifact on an unpublished target. Test checkpoint recovery and drift detection before any production procedure is considered. | Timed restore, exact remote/local hash parity, real preview smoke flow, known snapshot and incident record. Compare observed time to proposed theme RTO ≤30 minutes and proposed theme RPO = last reviewed artifact. Catalog/order/customer recovery remains a separate Shopify/merchant process. | No live destructive reset, customer/catalog mutation, or unapproved restore. A successful theme rollback is not data backup or a full incident response. |
+| 8. CI and reviewed artifact delivery | Local gates and hosted workflow results are reproducible and trust boundaries are verified. | Confirm repository visibility, GitHub plan/limits, branch rules and provider workflow behavior before relying on hosted checks. Keep any deployment path fail-closed until drift, target identity, selected files and parity are proven. | Exact local commands, locked dependencies/tool versions, meaningful gates, run evidence, protected-branch settings checked remotely, reviewed manifest immutability and deployment dry-run/recovery. Distinguish YAML validity from hosted enforcement. | No paid CI add-on or paid AI review. Do not expose credentials to untrusted pull requests. Hosted entitlements and artifact retention must be rechecked before enabling. |
+| 9. Independent release audit | A stable candidate has complete source, test, accessibility, privacy, operations and dependency evidence. | Freeze one exact artifact after the preceding changes; a reviewer who did not author it examines acceptance criteria, diffs and recorded real flows. | Criteria matrix; browser and manual checks; security/source/config scan scope; missing type/lint/build gates; Theme Check; all skips and limitations; actual parity; rollback proof; docs match candidate. | A green test suite is not a compliance or capacity certification. No claim stronger than its evidence. |
+| 10. Reviewable release and handoff | The user can approve a concrete release decision and maintain the storefront with recovery records. | Prepare public docs from reviewed evidence; gather owner approvals and release dependencies. Production publication is a distinct action after all gates and explicit authorization. | Current dossier, reproducible commands, public docs scrubbed of private material, final hashes/role, known limits, ownership, incident/recovery instructions and rollback identity. | No automatic live publication. Domain, app, media, analytics, hosting, database, monitoring and plan costs require a separately specified approval before activation. |
 
-## Phase 1.5 — Stabilization + real deployments (2 weeks post-launch)
+## Scale decision: retain Shopify-first until evidence says otherwise
 
-Triggered by: launch. Delivered once the live storefront has real traffic.
+Concurrent visitors do not equal requests per second. Model page frequency, requests per page, cache hit assumptions, user actions, geographic mix, campaign bursts and long media transfers separately. Shopify applies different rules to different APIs; Storefront API buyer traffic and checkout creation are distinct documented cases, not a guarantee for native Liquid/Ajax or a specific merchant account. [Shopify API limits](https://shopify.dev/docs/api/usage/limits), [Storefront API limits](https://shopify.dev/docs/api/storefront/latest).
 
-- Deploy the wholesale draft-order Cloudflare Worker (`scripts/wholesale-draft-order-worker.js`) to the client's Cloudflare account. Replaces the `/contact`-only fallback path.
-- Deploy the checkout UI extension (`extensions/checkout-trust-badges/`) via a separate Shopify app project. Ship the trust-block into checkout.
-- Upgrade dev store to Shopify Basic plan — removes forced password gate, unlocks the headless-Chrome bot-protection issue currently gating cart-mutation e2e specs. Flip cart specs from `test.skip(on-401)` to assert-always.
-- Production-grade Lighthouse baseline capture + month-over-month tracking.
-- First Sentry error-review session — tag any noise, tighten `beforeSend` filters.
+The default future path is to preserve Shopify's native storefront, CDN, cart and hosted checkout while removing measurable theme-level waste. Only consider an app/service when a recurring requirement or measured bottleneck cannot be solved safely with the native platform. Only consider headless when product needs and measurements justify its additional rendering, caching, session, security, API and on-call work; it cannot remove Shopify checkout or provider limits. The scale model and go/no-go stages live in [SCALABILITY.md](SCALABILITY.md).
 
----
+## Operational ownership and recovery
 
-## Phase 2 — Hydrogen headless (Quarter-scale project)
+Before any production operation, name a primary and backup incident owner, merchant escalation route, provider contacts, deployment approver and response hours. Define browsing, cart and checkout-navigation SLIs separately; use good events over eligible events and treat absent observations as unknown. Use the proposed 99%/30-day goal as an error-budget policy only after owners agree to alert thresholds and feature-freeze behavior. [Google SRE Workbook: implementing SLOs](https://sre.google/workbook/implementing-slos/).
 
-**Triggered by:** sustained ≥ 50K sessions/month OR client desire for a custom PDP/storefront that exceeds what Liquid can ergonomically deliver.
+Maintain versioned source and reviewed release hashes separately from before-write Shopify snapshots. Pull/compare before writes; stop on unexplained remote-ahead drift; upload only selected reviewed files to an unpublished target; pull back and compare hashes; verify real behavior; publish only under a separate release decision. Theme recovery cannot restore Shopify orders, customers, product inventory, payment configuration or vendor data. Rehearse restoration before claiming the proposed ≤30-minute theme rollback target. Details and checklists are in [OPERATIONS.md](OPERATIONS.md).
 
-### What it includes
+## Superseded material
 
-- Rebuild the storefront on Hydrogen (Remix) — headless front-end consuming Shopify's Storefront API.
-- Migrate current theme's metaobject-first content model (no DB changes — metaobjects survive the transition per ADR-003).
-- Ship on Oxygen (Shopify's hosted Hydrogen runtime).
-- Maintain the same 8 CI workflows + a new build-time check (Remix route-level perf, server-side render validation).
-- Open route-level prefetching + edge streaming that's not possible in Liquid.
-
-### What it does not include
-
-- Moving off Shopify. Shopify Admin, checkout, customer accounts stay.
-- Removing the current Liquid theme. Phase 2 spins up a parallel Hydrogen app at a subdomain; the theme stays at `kindred-grove.myshopify.com` for a crossover window.
-
-### Pre-reqs
-
-- Shopify Plus or equivalent (Storefront API rate limits on lower plans bite at scale).
-- Dedicated dev team (Hydrogen is a 4-6 week build).
-- Explicit client sign-off on rebuild ROI vs. continued Liquid iteration.
-
----
-
-## Phase 3 — Custom Shopify app (optional)
-
-**Triggered by:** recurring need for Admin-API write operations that can't live in a theme (customer metafield writes from a quiz, dynamic collection generation from ML, custom order-tagging rules).
-
-### What it includes
-
-- A standalone Node/Remix or Rust-based Shopify app in its own repository.
-- OAuth install flow (Shopify's Partner Dashboard).
-- App extensions: customer-account UI extension, order-status extension, admin-link extension as needed.
-- Webhooks: `orders/create`, `customers/create`, `products/update` → internal pipelines.
-
-### What it replaces
-
-- The Cloudflare Worker at `scripts/wholesale-draft-order-worker.js` — the app takes over draft-order creation with proper access scopes + observability.
-- The deferred customer-metafield write for the pantry-persona result — the app persists it cleanly via Admin GraphQL.
-
----
-
-## Phase 4 — Real A/B infrastructure
-
-**Triggered by:** merchant wants to run > 3 concurrent experiments or needs statistical-significance reporting.
-
-### Current (Phase 1)
-
-- localStorage feature flags (per [ADR-008](adr/008-localstorage-feature-flags.md)) — zero-infra, URL override, DNT compliance. Good for dark launches, unsafe for pricing + checkout content, doesn't compute significance.
-
-### Phase 4 options
-
-- **GrowthBook** (open-source, self-hostable) — most flexibility, some ops overhead.
-- **PostHog** — all-in-one product analytics + experiments.
-- **Split.io** / **LaunchDarkly** — commercial, polished, costly.
-
-Decision deferred until real experimentation cadence is established. The current flag system's API (`window.KG_FF.isEnabled(name)` / `.variant(name)`) is designed to be swappable — Phase 4 replaces the implementation, not the call sites.
-
----
-
-## Phase 5 — Shopify Plus subscription
-
-**Triggered by:** GMV / scale milestone that justifies the spend.
-
-### What changes
-
-- Checkout customization (Shopify Functions for cart transform, discount, payment customization, shipping method logic).
-- Checkout extensibility — deploy the trust-badge extension (already scaffolded) + ship a B2B gate for the wholesale flow.
-- Script editor for gift-with-purchase + tiered pricing.
-- Launchpad for coordinated campaign drops.
-- Higher Storefront API rate limits (relevant for Phase 2 Hydrogen).
-
-Out of Phase 1 scope per SOW §4; noted here for downstream reference.
-
----
-
-## Perma-deferred items (SOW §4 Out of Scope)
-
-- **Meta Pixel activation** — deferred because the Kindred Grove Facebook Business account was blocked during Phase 1 setup. Reactivation + Meta CAPI live when real ad traffic is planned.
-- **Real 3D modeling** — a placeholder `.glb` ships with the PDP; commissioning custom scans is a separate vendor engagement.
-- **PWA / service worker** — Shopify's native PWA wrapper in the mobile SDKs is the client's preferred path when they need it; custom service-worker work is explicitly out of scope.
-- **Custom domain** — `kindred-grove.myshopify.com` is used for the engagement duration. Client-owned domain lands at launch.
-
----
-
-## Stretch ideas (not roadmapped)
-
-- **AI-powered product recommendations** — replace Shopify's built-in recommender with an OpenAI-embeddings-based similarity search on product descriptions + farm metaobjects. Interesting, un-proven ROI, low priority.
-- **Farmer-story podcast** — one 10-min episode per farm, embedded on the origin detail page with audio-player block + transcript. Needs content-production budget.
-- **AR try-on** for pantry display — WebXR preview of products on the user's shelf. Novelty; depends on real product photography tooling the team doesn't have yet.
-- **Printable recipe cards** — CSS print stylesheet + "Save as PDF" button on recipe pages. Low lift, nice delight.
-
----
-
-## How to propose a new roadmap item
-
-Open a GitHub issue tagged `roadmap`. Include:
-- The trigger that would pull it forward (metric, client ask, regulatory change).
-- Rough scope estimate (days / weeks).
-- Pre-reqs (infrastructure, skills, plan upgrades).
-- Which phase it belongs in, or if it warrants a new one.
-
-Items without a trigger stay in the Stretch bucket.
+The previous version included historical Phase 1 completion claims and unverified suggestions about mandatory Shopify plan upgrades, presumed bot-protection causes, fixed session thresholds for headless migration, vendor activations and old integration roadmaps. Those statements are withdrawn; do not use them as current requirements or evidence. Current work is governed by the dated [BUILD-PLAN.md](../BUILD-PLAN.md), and this document describes only the future phases after the completed Phase 2 milestone.

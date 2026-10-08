@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "model": {
+    "secondsBetweenPageViews": 10,
+    "staticRequestsPerPageView": 8,
+    "staticCacheHitFraction": 0.95,
+    "cartMutationsPerPageView": 0.05,
+    "checkoutStartsPerPageView": 0.01,
+    "burstMultiplier": 3,
+    "activeVisitors": [10000, 100000, 1000000]
+  },
+  "harness": {
+    "requests": 1000,
+    "concurrency": 10,
+    "requestTimeoutMs": 1000,
+    "maxDurationMs": 15000,
+    "syntheticDelayMs": 0,
+    "failEvery": 0,
+    "safetyCaps": {
+      "maxRequests": 10000,
+      "maxConcurrency": 100,
+      "maxRequestTimeoutMs": 5000,
+      "maxDurationMs": 60000,
+      "maxSyntheticDelayMs": 5000
+    }
+  }
+}

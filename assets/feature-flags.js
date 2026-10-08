@@ -1,198 +1,211 @@
-/**
- * Kindred Grove — client-side feature flags.
- *
- * Exposes `window.KG_FF` with three methods:
- *   KG_FF.get(name)        -> raw bucketed value (string | boolean | null if unknown)
- *   KG_FF.isEnabled(name)  -> boolean; true if the bucket resolves to 'on' or true
- *   KG_FF.variant(name)    -> string | null; the variant label for this visitor
- *
- * Storage:
- *   localStorage['kg_ff_visitor']      -> stable visitor UUID
- *   localStorage['kg_ff_assignments']  -> JSON map { name -> variant }
- *
- * Overrides (highest → lowest):
- *   1. URL param ?kg_ff=name,variant      -> forced for this page view (no persistence)
- *   2. URL param ?kg_ff=name              -> forces the second variant (convenience)
- *   3. localStorage 'kg_ff_override:<name>' (set by devs via console)
- *   4. Deterministic hash bucketing
- *   5. Flag default
- *
- * DNT: if navigator.doNotTrack === '1' (or window.doNotTrack === '1'), every
- * call returns the default and NOTHING is written to localStorage.
- *
- * Threat model: do NOT gate pricing, availability, or checkout content.
- * Any visitor can set ?kg_ff=.
- *
- * Loaded synchronously in <head> so Liquid + later scripts can read flags
- * before first paint without flicker.
- */
+/* Consent-gated, client-side feature flags. No exposure telemetry is emitted. */
 (function () {
   'use strict';
 
-  var LS_VISITOR = 'kg_ff_visitor';
-  var LS_ASSIGN = 'kg_ff_assignments';
-  var LS_OVERRIDE_PREFIX = 'kg_ff_override:';
+  var config = {};
+  var definitions = [];
+  var storageKeys = null;
+  var analyticsAllowed = false;
+  var store = null;
+  var assignments = {};
+  var overrides = {};
+  var urlOverrides = {};
+  var bucketId = null;
 
-  var dnt = (typeof navigator !== 'undefined' && navigator.doNotTrack === '1')
-         || (typeof window !== 'undefined' && window.doNotTrack === '1');
-
-  var defs = parseDefs(window.__KG_FF_DEFS__);
-
-  var store = safeStore();
-  var visitorId = dnt ? 'anon' : ensureVisitorId(store);
-  var urlOverrides = parseUrlOverrides();
-  var assignments = dnt ? {} : readAssignments(store);
-
-  function parseDefs(raw) {
+  function readJsonAttribute(id, attribute, fallback) {
     try {
-      if (Array.isArray(raw)) return raw;
-      if (typeof raw === 'string' && raw.trim()) return JSON.parse(raw);
-    } catch (err) {
-      if (window.Sentry) window.Sentry.captureMessage('KG_FF: bad definitions JSON', 'warning');
+      var element = document.getElementById(id);
+      if (!element || !element.dataset || typeof element.dataset[attribute] !== 'string') return fallback;
+      return JSON.parse(element.dataset[attribute]);
+    } catch (_error) {
+      return fallback;
     }
-    return [];
   }
 
-  function safeStore() {
+  config = window.KGPrivacy && window.KGPrivacy.configValid ? window.KGPrivacy.config : {};
+  definitions = readJsonAttribute('kg-feature-flags-config', 'json', []);
+  if (!Array.isArray(definitions)) {
+    try { definitions = typeof definitions === 'string' ? JSON.parse(definitions) : []; } catch (_error) { definitions = []; }
+  }
+  if (!Array.isArray(definitions)) definitions = [];
+  storageKeys = config.storageKeys || null;
+  var flagConfig = config.featureFlags || null;
+
+  function findDefinition(name) {
+    return definitions.find(function (definition) { return definition && definition.name === name; }) || null;
+  }
+
+  function defaultValue(name) {
+    var definition = findDefinition(name);
+    if (!definition) return null;
+    if (Object.prototype.hasOwnProperty.call(definition, 'default')) return definition.default;
+    return Array.isArray(definition.variants) && definition.variants.length ? definition.variants[0] : null;
+  }
+
+  function acquireStorage() {
     try {
-      var probe = '__kg_ff_probe__';
-      window.localStorage.setItem(probe, '1');
-      window.localStorage.removeItem(probe);
-      return window.localStorage;
-    } catch (_err) {
+      var storage = window.localStorage;
+      var probe = '__kg_preferences_probe__';
+      storage.setItem(probe, '1');
+      storage.removeItem(probe);
+      return storage;
+    } catch (_error) {
       return null;
     }
   }
 
-  function ensureVisitorId(ls) {
-    if (!ls) return 'anon';
-    var id = ls.getItem(LS_VISITOR);
-    if (id) return id;
-    id = uuid();
-    try { ls.setItem(LS_VISITOR, id); } catch (_e) { /* ignore */ }
-    return id;
-  }
-
-  function uuid() {
-    if (window.crypto && window.crypto.randomUUID) return window.crypto.randomUUID();
-    var hex = '0123456789abcdef';
-    var out = '';
-    for (var i = 0; i < 32; i++) {
-      if (i === 8 || i === 12 || i === 16 || i === 20) out += '-';
-      out += hex[Math.floor(Math.random() * 16)];
-    }
-    return out;
-  }
-
-  function parseUrlOverrides() {
-    var map = {};
+  function removeLegacyKeys() {
+    if (!storageKeys) return;
     try {
-      var params = new URLSearchParams(window.location.search);
-      var all = params.getAll('kg_ff');
-      all.forEach(function (entry) {
-        if (!entry) return;
-        var parts = entry.split(',');
-        var name = parts[0];
-        var variant = parts.length > 1 ? parts[1] : null;
-        if (name) map[name] = variant; // null = "force second variant"
-      });
-    } catch (_e) { /* older browsers */ }
-    return map;
+      var storage = window.localStorage;
+      storage.removeItem(storageKeys.featureFlagVisitor);
+      storage.removeItem(storageKeys.featureFlagAssignments);
+      for (var index = storage.length - 1; index >= 0; index -= 1) {
+        var key = storage.key(index);
+        if (key && key.indexOf(storageKeys.featureFlagOverridePrefix) === 0) storage.removeItem(key);
+      }
+    } catch (_error) { /* unavailable/blocked storage fails closed */ }
   }
 
-  function readAssignments(ls) {
-    if (!ls) return {};
+  function readAssignments() {
+    if (!store || !storageKeys) return {};
     try {
-      var raw = ls.getItem(LS_ASSIGN);
-      return raw ? JSON.parse(raw) : {};
-    } catch (_e) {
+      var parsed = JSON.parse(store.getItem(storageKeys.featureFlagAssignments) || '{}');
+      return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+    } catch (_error) {
       return {};
     }
   }
 
-  function writeAssignments() {
-    if (!store || dnt) return;
-    try { store.setItem(LS_ASSIGN, JSON.stringify(assignments)); } catch (_e) { /* quota */ }
+  function readOverrides() {
+    var result = {};
+    if (!store || !storageKeys) return result;
+    try {
+      for (var index = 0; index < store.length; index += 1) {
+        var key = store.key(index);
+        if (key && key.indexOf(storageKeys.featureFlagOverridePrefix) === 0) {
+          result[key.slice(storageKeys.featureFlagOverridePrefix.length)] = store.getItem(key);
+        }
+      }
+    } catch (_error) { /* dev overrides are optional */ }
+    return result;
   }
 
-  function findDef(name) {
-    for (var i = 0; i < defs.length; i++) if (defs[i] && defs[i].name === name) return defs[i];
-    return null;
+  function saveAssignments() {
+    if (!analyticsAllowed || !store || !storageKeys) return;
+    try { store.setItem(storageKeys.featureFlagAssignments, JSON.stringify(assignments)); } catch (_error) { /* storage quota */ }
   }
 
-  // FNV-1a 32-bit hash — tiny, deterministic, good enough for bucketing.
-  function hash(str) {
-    var h = 0x811c9dc5;
-    for (var i = 0; i < str.length; i++) {
-      h ^= str.charCodeAt(i);
-      h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
+  function ephemeralBucketId() {
+    try { return window.crypto && window.crypto.randomUUID ? window.crypto.randomUUID() : String(Math.random()); } catch (_error) { return String(Math.random()); }
+  }
+
+  function hash(value) {
+    var result = 0x811c9dc5;
+    for (var index = 0; index < value.length; index += 1) {
+      result ^= value.charCodeAt(index);
+      result = (result + ((result << 1) + (result << 4) + (result << 7) + (result << 8) + (result << 24))) >>> 0;
     }
-    return h;
+    return result;
   }
 
-  function bucket(name, def) {
-    var variants = Array.isArray(def.variants) && def.variants.length > 0
-      ? def.variants
-      : [false, true];
-    var rollout = typeof def.rollout === 'number' ? def.rollout : 100;
-    var roll = hash('roll:' + name + ':' + visitorId) % 100;
-    if (roll >= rollout) return def.hasOwnProperty('default') ? def.default : variants[0];
-    var idx = hash('pick:' + name + ':' + visitorId) % variants.length;
-    return variants[idx];
+  function bucket(name, definition) {
+    var variants = Array.isArray(definition.variants) && definition.variants.length ? definition.variants : flagConfig.defaultVariants;
+    var rollout = typeof definition.rollout === 'number' ? Math.max(0, Math.min(100, definition.rollout)) : flagConfig.defaultRollout;
+    if (hash('roll:' + name + ':' + bucketId) % 100 >= rollout) return defaultValue(name);
+    return variants[hash('pick:' + name + ':' + bucketId) % variants.length];
+  }
+
+  function parseUrlOverrides() {
+    var result = {};
+    try {
+      new URLSearchParams(window.location.search).getAll(flagConfig.urlOverrideParameter).forEach(function (entry) {
+        var parts = entry.split(',');
+        if (parts[0]) result[parts[0]] = parts.length > 1 ? parts[1] : null;
+      });
+    } catch (_error) { /* unsupported URLSearchParams */ }
+    return result;
   }
 
   function resolve(name) {
-    // 1. URL override
+    if (!analyticsAllowed) return defaultValue(name);
     if (Object.prototype.hasOwnProperty.call(urlOverrides, name)) {
       var forced = urlOverrides[name];
       if (forced !== null) return forced;
-      var def0 = findDef(name);
-      if (def0 && Array.isArray(def0.variants) && def0.variants.length > 1) return def0.variants[1];
+      var definition = findDefinition(name);
+      if (definition && Array.isArray(definition.variants) && definition.variants.length > 1) return definition.variants[1];
       return true;
     }
-    // 2. localStorage dev override
-    if (store) {
-      try {
-        var o = store.getItem(LS_OVERRIDE_PREFIX + name);
-        if (o !== null) return o;
-      } catch (_e) { /* ignore */ }
-    }
-    // 3. cached assignment
+    if (Object.prototype.hasOwnProperty.call(overrides, name)) return overrides[name];
     if (Object.prototype.hasOwnProperty.call(assignments, name)) return assignments[name];
-    // 4. bucket from definition
-    var def = findDef(name);
+    var def = findDefinition(name);
     if (!def) return null;
-    if (dnt) return def.hasOwnProperty('default') ? def.default : null;
     var value = bucket(name, def);
     assignments[name] = value;
-    writeAssignments();
-    reportExposure(name, value);
+    saveAssignments();
     return value;
   }
 
-  function reportExposure(name, value) {
+  function publishChange() {
     try {
-      var payload = { flag_name: name, flag_value: String(value), visitor_id: visitorId };
-      if (typeof window.gtag === 'function') window.gtag('event', 'flag_exposure', payload);
-      else if (Array.isArray(window.dataLayer)) window.dataLayer.push({ event: 'flag_exposure', params: payload });
-    } catch (_e) { /* non-critical */ }
+      if (typeof window.CustomEvent === 'function') window.dispatchEvent(new window.CustomEvent('kg:feature-flags:change'));
+    } catch (_error) { /* optional event hook */ }
   }
 
+  function applyPrivacyState() {
+    analyticsAllowed = !!(window.KGPrivacy && window.KGPrivacy.allowed('analytics'));
+    if (!analyticsAllowed) {
+      removeLegacyKeys();
+      store = null;
+      assignments = {};
+      overrides = {};
+      urlOverrides = {};
+      bucketId = null;
+    } else {
+      store = acquireStorage();
+      assignments = readAssignments();
+      overrides = readOverrides();
+      urlOverrides = parseUrlOverrides();
+      bucketId = store ? getOrCreateBucketId() : ephemeralBucketId();
+    }
+    publishChange();
+  }
+
+  function getOrCreateBucketId() {
+    if (!store || !storageKeys) return ephemeralBucketId();
+    try {
+      var existing = store.getItem(storageKeys.featureFlagVisitor);
+      if (existing) return existing;
+      var created = ephemeralBucketId();
+      store.setItem(storageKeys.featureFlagVisitor, created);
+      return created;
+    } catch (_error) {
+      return ephemeralBucketId();
+    }
+  }
+
+  var ready = Promise.resolve(window.KGPrivacy && window.KGPrivacy.ready).then(function () {
+    applyPrivacyState();
+    if (window.KGPrivacy && typeof window.KGPrivacy.subscribe === 'function') window.KGPrivacy.subscribe(applyPrivacyState);
+    return true;
+  }).catch(function () {
+    applyPrivacyState();
+    return false;
+  });
+
   window.KG_FF = {
-    get: function (name) { return resolve(name); },
+    ready: ready,
+    get: resolve,
     isEnabled: function (name) {
-      var v = resolve(name);
-      if (v === true) return true;
-      if (typeof v === 'string') return v === 'on' || v === 'true' || v === '1';
-      return !!v;
+      var value = resolve(name);
+      if (value === true) return true;
+      if (typeof value === 'string') return value === 'on' || value === 'true' || value === '1';
+      return !!value;
     },
     variant: function (name) {
-      var v = resolve(name);
-      return v == null ? null : String(v);
+      var value = resolve(name);
+      return value == null ? null : String(value);
     },
-    // For Liquid-injected definitions + dev-tools inspection
-    _defs: defs,
-    _visitorId: visitorId,
-    _dnt: dnt
+    _defs: definitions
   };
 })();

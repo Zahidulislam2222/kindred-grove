@@ -56,6 +56,9 @@
     {%- if blog.comments_enabled? -%}
       <section class="kg-article__comments stack">
         <h2 class="h3">{{ 'blog.article.comments_heading' | t }}</h2>
+        {% if settings.demo_mode %}
+          {% render 'demo-disabled-message', message_key: 'demo.personal_flows_disabled' %}
+        {% else %}
         {%- for comment in article.comments -%}
           <article class="kg-article__comment stack-sm">
             <p class="text-sm text-muted">{{ comment.author | escape }} · <time datetime="{{ comment.created_at | date: '%Y-%m-%d' }}">{{ comment.created_at | date: '%B %-d, %Y' }}</time></p>
@@ -75,12 +78,16 @@
             </ul>
           {%- endif -%}
 
-          {% render 'form-field', id: 'comment-author', name: 'comment[author]', label: 'blog.article.comment_author' | t, required: true, autocomplete: 'name' %}
-          {% render 'form-field', id: 'comment-email', type: 'email', name: 'comment[email]', label: 'blog.article.comment_email' | t, required: true, autocomplete: 'email' %}
-          {% render 'form-field', id: 'comment-body', type: 'textarea', name: 'comment[body]', label: 'blog.article.comment_body' | t, required: true %}
+          {% assign field_label_blog_article_comment_author = 'blog.article.comment_author' | t %}
+{% render 'form-field', id: 'comment-author', name: 'comment[author]', label: field_label_blog_article_comment_author, required: true, autocomplete: 'name' %}
+          {% assign field_label_blog_article_comment_email = 'blog.article.comment_email' | t %}
+{% render 'form-field', id: 'comment-email', type: 'email', name: 'comment[email]', label: field_label_blog_article_comment_email, required: true, autocomplete: 'email' %}
+          {% assign field_label_blog_article_comment_body = 'blog.article.comment_body' | t %}
+{% render 'form-field', id: 'comment-body', type: 'textarea', name: 'comment[body]', label: field_label_blog_article_comment_body, required: true %}
           {% render 'form-honeypot', name: 'comment_company' %}
           <button type="submit" class="button button--primary">{{ 'blog.article.comment_submit' | t }}</button>
         {%- endform -%}
+        {% endif %}
       </section>
     {%- endif -%}
 

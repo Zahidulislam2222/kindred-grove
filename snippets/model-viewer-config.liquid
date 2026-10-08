@@ -1,0 +1,18 @@
+{%- capture kg_model_viewer_config -%}
+{
+  "loadTimeoutMs": 12000,
+  "feature": {
+    "name": "model-viewer-ui",
+    "version": "1.0"
+  },
+  "copy": {
+    "heading": {{ block.settings.heading | json }},
+    "body": {{ block.settings.body | json }},
+    "loadLabel": {{ block.settings.load_label | json }},
+    "loadingLabel": {{ block.settings.loading_label | json }},
+    "unavailableLabel": {{ block.settings.unavailable_label | json }},
+    "noScriptLabel": {{ block.settings.noscript_label | json }}
+  }
+}
+{%- endcapture -%}
+<template data-kg-model-config data-json="{{ kg_model_viewer_config | strip | escape }}"></template>

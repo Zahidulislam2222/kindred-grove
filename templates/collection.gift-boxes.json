@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "hero": {
@@ -6,17 +15,20 @@
         "gift-hero": {
           "type": "hero",
           "settings": {
+            "overlay_opacity": 45,
             "eyebrow": "Gift boxes",
             "headline": "A table-ready gift.",
             "body": "Curated pantry bundles in reusable boxes — the Harvest, the Apothecary, the Weeknight, the Breakfast. Hand-tied, hand-noted.",
-            "height": "small",
-            "overlay_opacity": 45,
             "cta_primary_label": "Shop collections",
-            "cta_primary_link": "#kg-gift-grid"
+            "cta_primary_link": "#kg-gift-grid",
+            "height": "small"
           }
         }
       },
-      "block_order": ["gift-hero"]
+      "block_order": [
+        "gift-hero"
+      ],
+      "settings": {}
     },
     "main": {
       "type": "main-collection",
@@ -27,5 +39,8 @@
       }
     }
   },
-  "order": ["hero", "main"]
+  "order": [
+    "hero",
+    "main"
+  ]
 }

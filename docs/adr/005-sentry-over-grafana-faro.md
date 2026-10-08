@@ -1,6 +1,8 @@
 # ADR-005 — Sentry over Grafana Faro for front-end error tracking
 
-**Status:** Accepted
+Current implementation: optional theme Sentry/Web Vitals loaders are removed; feature-flag assignments require explicit analytics consent and honor GPC/DNT. See [PRIVACY.md](../PRIVACY.md) for actual controls and pending verification. The original decision below is retained as history, not evidence of current services or vendor pricing.
+
+**Status:** Historical; superseded in part by the 2026-09-24 privacy hardening
 **Date:** 2026-04-19 (Day 3)
 **Deciders:** Zahidul Islam (developer) on behalf of the Kindred Grove engagement
 
@@ -60,7 +62,7 @@ Scope:
 2. **Roll-your-own via Cloudflare Workers** — rejected. We already have enough infra; adding a bespoke error sink means writing our own deduper, grouper, and release tagger. That's rebuilding Sentry badly. Case study wants "production-grade," not "home-grown."
 3. **Shopify's native Web Pixels API for errors** — rejected. Web Pixels is an analytics event API, not an error-tracking product. No stack traces, no release tagging, no issue grouping.
 4. **Datadog RUM** — rejected. Enterprise-priced, no free tier that fits; would not screenshot as a credible "independent dev shipped this" signal.
-5. **LogRocket** — rejected. Session replay is tempting for a case study but raises a real PII question on a store that will have (fake) customer traffic during the Day-23 Loom demo. Avoid the liability.
+5. **LogRocket** — rejected. Session replay is tempting for a case study but raises a real PII question on a store that will have (fake) customer traffic during the Day-23 Loom development storefront. Avoid the liability.
 
 ## References
 

@@ -9,6 +9,7 @@
   assign certs = product.metafields.custom.certifications.value
 -%}
 
+{%- unless settings.demo_mode -%}
 {%- if certs != blank and certs.size > 0 -%}
   <section class="kg-certs" aria-label="Certifications" {{ block.shopify_attributes }}>
     {%- if block.settings.heading != blank -%}
@@ -40,6 +41,7 @@
     </ul>
   </section>
 {%- endif -%}
+{%- endunless -%}
 
 {% schema %}
 {

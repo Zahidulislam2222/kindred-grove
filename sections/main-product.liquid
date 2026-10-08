@@ -35,6 +35,8 @@
                 decoding="async"
                 class="kg-gallery__main-image"
               >
+            {%- else -%}
+              {% render 'grove-product-art', product: product %}
             {%- endif -%}
           </div>
 
@@ -87,7 +89,7 @@
           </form>
         </kg-product>
 
-        {%- if section.settings.show_trust_strip -%}
+        {%- if section.settings.show_trust_strip and settings.demo_mode != true -%}
           <ul class="kg-product__trust cluster" aria-label="Trust signals">
             {%- if settings.trust_halal -%}<li class="trust-badge">{% render 'icon', name: 'check', size: 14 %} {{ 'shop.trust.halal' | t }}</li>{%- endif -%}
             {%- if settings.trust_single_origin -%}<li class="trust-badge">{% render 'icon', name: 'check', size: 14 %} {{ 'shop.trust.single_origin' | t }}</li>{%- endif -%}

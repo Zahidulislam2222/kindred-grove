@@ -1,3 +1,6 @@
+{%- if settings.demo_mode -%}
+  <section class="kg-account section"><div class="container"><div class="kg-account__panel">{% render 'demo-disabled-message', message_key: 'demo.personal_flows_disabled' %}</div></div></section>
+{%- else -%}
 {%- comment -%}
   Classic customer login. Shopify renders errors via form.errors automatically.
   Recovery form is shown inline when ?recover=true or when the form has been
@@ -18,7 +21,8 @@
         {%- if form.posted_successfully? -%}
           <p class="kg-wholesale-form__success" role="status">{{ 'customer.recover_password.success' | t }}</p>
         {%- endif -%}
-        {% render 'form-field', id: 'RecoverEmail', type: 'email', name: 'email', label: 'customer.login.email' | t, required: true, autocomplete: 'email' %}
+        {% assign field_label_customer_login_email = 'customer.login.email' | t %}
+{% render 'form-field', id: 'RecoverEmail', type: 'email', name: 'email', label: field_label_customer_login_email, required: true, autocomplete: 'email' %}
         <button type="submit" class="button button--primary">{{ 'customer.recover_password.submit' | t }}</button>
         <a href="#" data-kg-toggle-recover class="kg-account__link">{{ 'customer.recover_password.cancel' | t }}</a>
       {%- endform -%}
@@ -33,8 +37,10 @@
             {%- endfor -%}
           </ul>
         {%- endif -%}
-        {% render 'form-field', id: 'CustomerEmail', type: 'email', name: 'customer[email]', label: 'customer.login.email' | t, required: true, autocomplete: 'email' %}
-        {% render 'form-field', id: 'CustomerPassword', type: 'password', name: 'customer[password]', label: 'customer.login.password' | t, required: true, autocomplete: 'current-password' %}
+        {% assign field_label_customer_login_email = 'customer.login.email' | t %}
+{% render 'form-field', id: 'CustomerEmail', type: 'email', name: 'customer[email]', label: field_label_customer_login_email, required: true, autocomplete: 'email' %}
+        {% assign field_label_customer_login_password = 'customer.login.password' | t %}
+{% render 'form-field', id: 'CustomerPassword', type: 'password', name: 'customer[password]', label: field_label_customer_login_password, required: true, autocomplete: 'current-password' %}
         <a href="#" data-kg-toggle-recover class="kg-account__link">{{ 'customer.login.forgot_password' | t }}</a>
         <button type="submit" class="button button--primary">{{ 'customer.login.submit' | t }}</button>
       {%- endform -%}
@@ -64,3 +70,4 @@
     }
   })();
 </script>
+{%- endif -%}

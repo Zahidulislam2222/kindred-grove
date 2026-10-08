@@ -4,7 +4,9 @@
   Ships with a default preset (hero + text + wholesale-form + values-strip).
 {%- endcomment -%}
 
-<section class="kg-wholesale section" {{ section.shopify_attributes }}>
+<section class="kg-wholesale section grove-page" {{ section.shopify_attributes }}>
+  <header class="grove-page__hero"><div class="grove-page__intro"><p class="grove-eyebrow">{{ 'storefront.wholesale_eyebrow' | t }}</p><h1>{{ page.title | escape }}</h1></div></header>
+  <div class="grove-page__content rte">{{ page.content }}</div>
   <div class="container stack">
     {% content_for 'blocks' %}
   </div>
@@ -15,40 +17,26 @@
   "name": "Wholesale main",
   "settings": [],
   "blocks": [
-    { "type": "@theme" },
-    { "type": "@app" }
+    {
+      "type": "@theme"
+    },
+    {
+      "type": "@app"
+    }
   ],
-  "default": {
-    "blocks": [
-      {
-        "type": "hero",
-        "settings": {
-          "eyebrow": "Wholesale",
-          "headline": "Stock the grove.",
-          "body": "For restaurants, specialty grocers, and subscription boxes ready to carry single-origin Mediterranean staples.",
-          "height": "small",
-          "overlay_opacity": 45
-        }
-      },
-      {
-        "type": "text",
-        "settings": {
-          "element": "p",
-          "text_size": "lg",
-          "text_align": "center",
-          "content": "<p>We'll follow up within two business days. Minimum first order is six cases; bulk-pricing tiers scale from there. If you're producing a recipe feature or retailer launch, tell us — we can tailor case mixes and include farmer profiles for your sales deck.</p>"
-        }
-      },
-      { "type": "wholesale-form" }
-    ]
-  },
   "presets": [
     {
       "name": "Wholesale page",
       "blocks": [
-        { "type": "hero" },
-        { "type": "text" },
-        { "type": "wholesale-form" }
+        {
+          "type": "hero"
+        },
+        {
+          "type": "text"
+        },
+        {
+          "type": "wholesale-form"
+        }
       ]
     }
   ]

@@ -24,6 +24,9 @@
             {%- if section.settings.newsletter_body != blank -%}
               <p class="site-footer__newsletter-body">{{ section.settings.newsletter_body }}</p>
             {%- endif -%}
+            {%- if settings.demo_mode -%}
+              {% render 'demo-disabled-message', message_key: 'demo.newsletter_disabled' %}
+            {%- else -%}
             {%- form 'contact', class: 'site-footer__newsletter-form' -%}
               <input type="hidden" name="contact[tags]" value="newsletter">
               <label for="NewsletterEmail" class="visually-hidden">{{ 'footer.newsletter.email_label' | t }}</label>
@@ -47,6 +50,7 @@
                 <p class="site-footer__newsletter-error" role="alert">{{ form.errors.translated_fields.email }} {{ form.errors.messages.email }}</p>
               {%- endif -%}
             {%- endform -%}
+            {%- endif -%}
           </div>
         {%- endif -%}
       </div>
@@ -69,7 +73,7 @@
       {%- endfor -%}
     </div>
 
-    {%- if section.settings.show_trust_badges -%}
+    {%- if section.settings.show_trust_badges and settings.demo_mode != true -%}
       <ul class="site-footer__trust cluster" aria-label="{{ 'a11y.trust_signals' | t }}">
         {%- if settings.trust_halal -%}
           <li class="trust-badge">{% render 'icon', name: 'check', size: 16 %} {{ 'shop.trust.halal' | t }}</li>

@@ -1,0 +1,43 @@
+{%- capture kg_privacy_config -%}
+{
+  "optionalTelemetryEnabled": false,
+  "apiLoadTimeoutMs": 8000,
+  "apiRetryIntervalMs": 100,
+  "providers": {
+    "shopifyCustomerPrivacy": {
+      "feature": {
+        "name": "consent-tracking-api",
+        "version": "0.1",
+        "nameMaxLength": 128,
+        "versionMaxLength": 32
+      },
+      "metadataMaxChars": 512
+    }
+  },
+  "storageKeys": {
+    "featureFlagVisitor": "kg_ff_visitor",
+    "featureFlagAssignments": "kg_ff_assignments",
+    "featureFlagOverridePrefix": "kg_ff_override:",
+    "recentlyViewed": "kg:recently-viewed",
+    "legacyQuizAnswers": "kg-pantry-quiz",
+    "legacyAnnouncementDismissalPrefix": "kg-announce-"
+  },
+  "recentlyViewed": {
+    "maxEntries": 12,
+    "retentionDays": 30,
+    "displayDefault": 4
+  },
+  "featureFlags": {
+    "defaultRollout": 100,
+    "defaultVariants": [false, true],
+    "urlOverrideParameter": "kg_ff"
+  },
+  "routes": {
+    "productJsonTemplate": "/products/{handle}.js",
+    "productPageTemplate": "/products/{handle}",
+    "collectionTemplate": "/collections/{handle}",
+    "allProductsCollectionPath": "/collections/all"
+  }
+}
+{%- endcapture -%}
+<template id="kg-privacy-config" data-config="{{ kg_privacy_config | strip | escape }}"></template>

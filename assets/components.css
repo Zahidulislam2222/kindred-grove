@@ -1559,6 +1559,20 @@
   grid-template-columns: 1fr;
 }
 
+.kg-product__grid > *,
+.kg-product__gallery,
+.kg-product__purchase,
+.kg-gallery,
+.kg-gallery__main {
+  min-width: 0;
+}
+
+.kg-gallery,
+.kg-gallery__main,
+.kg-gallery__main img {
+  max-width: 100%;
+}
+
 @media (min-width: 768px) {
   .kg-product__grid {
     grid-template-columns: 1.2fr 1fr;
