@@ -1,5 +1,13 @@
 # Source publication and theme release
 
+## Public launch remains incomplete — 2026-10-08
+
+A fresh unauthenticated visit still reaches Shopify’s password page. The native app-development plan is confirmed. Theme publication, exact hashes and authenticated browser tests establish delivery behind that gate, not public access. The earlier overall-completion claim was too broad.
+
+[Shopify’s dev-store documentation](https://shopify.dev/docs/apps/build/stores/development-stores) says these stores cannot remove/show a custom password page, run production commerce, convert to production or transfer to a client. Public commerce therefore needs an eligible production store and a reviewed migration; changing this theme or claiming a simple plan toggle is insufficient. Any paid step requires a verified amount and fresh user confirmation. No billing action was made.
+
+Future launch acceptance must check the bare domain in a fresh unauthenticated context, without a preview cookie, and require the actual storefront to render.
+
 ## Verified storefront release — 2026-10-08
 
 The user explicitly authorized native live publication and source push. Fresh snapshots confirmed the older live theme and the candidate had no independent remote changes before publication. The reviewed 154-file local artifact was uploaded, downloaded and compared, exercised in preview, published, inventoried as live, downloaded again with 154/154 exact SHA-256 matches, then verified on the bare domain. The former live theme remains available for rollback. No direct production editing occurred.

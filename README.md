@@ -2,7 +2,7 @@
 
 A Shopify pantry storefront with a cinematic, scroll-synchronized homepage, warm cream/terracotta styling, merchant-editable content and native shopping and enquiry flows. Built with Liquid, CSS and vanilla JavaScript Web Components; Shopify provides catalog, cart, hosted rendering and checkout services.
 
-**Current delivery, 2026-10-08:** The complete storefront is published on [kindred-grove.zahidul-islam.com](https://kindred-grove.zahidul-islam.com), with seven native content pages and normal cart/forms/checkout controls. Shopify enforces a password on this partner development store; the domain is connected with SSL. Live verification:56 browser passes, zero failures, three catalog/article-dependent skips;98/98 security/configuration regressions and 154/154 exact file hash matches. See [testing](docs/TESTING.md) for gate scope and remaining platform/business limits.
+**Current delivery, 2026-10-08:** The theme and seven native content pages are published on the existing Shopify development store, with verified shopping and form controls behind its password gate. **Public launch is incomplete:** anonymous visitors to [kindred-grove.zahidul-islam.com](https://kindred-grove.zahidul-islam.com) see Shopify’s enforced password page. The domain and SSL are connected. Authenticated verification passed 56 browser checks; this does not prove public access. [Shopify’s dev-store restrictions](https://shopify.dev/docs/apps/build/stores/development-stores) prohibit removing the gate or converting a dev store to production. Public commerce requires an eligible production store and a separately reviewed migration.
 
 ## Experience and verified behavior
 
